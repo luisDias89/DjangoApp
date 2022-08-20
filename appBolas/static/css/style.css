@@ -1,0 +1,180 @@
+body {
+    background-color: rgb(220, 234, 245);
+
+}
+
+#bgimg {
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+#espacamento_topo {
+    height: 5px;
+}
+
+#cont {
+    display: inline-block;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    font-size: 100%;
+    
+}
+
+#cont .figcaption {
+    position: absolute;
+    top: 18.5%;
+    left: 24%;
+    transform: translate(-50%, -50%);
+    color: black;
+    text-shadow: 0px 0px 5px black;
+    
+}
+
+/*Style da caixa de texto que fica por cima da imagem, eleva os rolos*/
+#id_rotacao{
+    border-width: 1px;
+    border-color: black;
+    border-radius: 5px;
+    background-color: rgb(147, 255, 147);
+    border-style: solid;
+    width: 50px;
+    height: 30px;
+    vertical-align: center;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    text-shadow: 8px;
+}
+
+/*Style da caixa de texto que fica por cima da imagem, torce os rolos*/
+#RoloTorce{
+    border-width: 1px;
+    border-color: black;
+    border-radius: 5px;
+    background-color: rgb(147, 255, 147);
+    border-style: solid;
+    width: 50px;
+    height: 30px;
+    vertical-align: center;
+    align-content: center;
+    align-items: center;
+    text-align: center;
+    text-shadow: 8px;
+}
+
+
+/*Style da caixa de texto que fica por cima da imagem, inclina os rolos*/
+#id_inclina{
+    border-width: 1px;
+    border-color: black;
+    border-radius: 5px;
+    background-color: rgb(147, 255, 147);
+    border-style: solid;
+    width: 50px;
+    height: 30px;
+    vertical-align: center;
+    text-align: center;
+    text-shadow: 8px;
+}
+
+
+#cont .rolodir {
+    position: absolute;
+    top: 18.5%;
+    left: 81%;
+    transform: translate(-50%, -50%);
+    color: black;
+    text-shadow: 0px 0px 5px black;
+}
+
+#cont .inclinaang {
+    position: absolute;
+    top: 40.5%;
+    left: 53%;
+    transform: translate(-50%, -50%);
+    color: black;
+    text-shadow: 0px 0px 5px black;
+}
+
+#cont .rotacao {
+    position: absolute;
+    top: 56.5%;
+    left: 52.5%;
+    transform: translate(-50%, -50%);
+    color: black;
+    text-shadow: 0px 0px 5px black;
+}
+
+#cont .inclina {
+    position: absolute;
+    top: 65.5%;
+    left: 29.5%;
+    transform: translate(-50%, -50%);
+    color: black;
+    text-shadow: 0px 0px 5px black;
+}
+
+.text-alg{
+    text-align: center;
+}
+
+.margem3porcento{
+    margin: 10px;
+    padding: 10px;
+    background-color: aqua;
+}
+
+#inputValorID_rolEsq{
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+#inputValorID_rolDir{
+    margin-left: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+/* Alteração dos atributos ao button na no Rolo Esquerdo*/
+.btn-outline-secondary{
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    background-color: rgb(255, 255, 255);
+}
+
+/*css auxiliares*/
+
+.color-green {
+    background-color: green;
+}
+
+.color-red {
+    background-color: red;
+    
+}
+
+.color-grey {
+    background-color: grey;
+    border-color: azure;
+    border-width: 1px;
+    border-style: solid;
+    box-shadow: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.height-50px {
+    height: 50px;
+}
+
+.height-100px {
+    height: 100px;
+}
+#txt_logado{
+    color: aliceblue; 
+    text-align: right;
+}
+
