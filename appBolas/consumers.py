@@ -26,15 +26,17 @@ ser.write(mensagem.encode())
 
 class ConsumerJoystick(WebsocketConsumer): 
 
+    
+
     def connect(self):
         self.accept()
-
         self.send(text_data=json.dumps({
             'type': 'conexão com sucesso',
             'message': 'Tu estás agora conectado!'
         }))
     
-
+    # O Objeto Thread conditions tem que ser partilhado pelas duas Threads
+    c = metodos.c
 
     #def init(self):
     threading.Thread(target=metodos.funcComandoGRBL, args=(ser,)).start()
@@ -63,13 +65,21 @@ class ConsumerJoystick(WebsocketConsumer):
     def receive(self, text_data=None, bytes_data=None):
         text_data_json = json.loads(text_data)                          # Recebe a mensagem atravez do Websocket
 
-
+    
+        # Envia a velocidade pretendida para os rolos
         if 'comando_rolo_esq' in text_data_json:
             print(text_data_json['comando_rolo_esq'])
             metodos.comando_rolos_esquerdo(text_data_json['comando_rolo_esq'])
+            time.sleep(0.2)                    #Espero pelo processamento
+            self.sendToInterface('rolDir')
+
+
         if 'comando_rolo_dir' in text_data_json:
             print(text_data_json['comando_rolo_dir'])
             metodos.comando_rolos_direito(text_data_json['comando_rolo_dir'])
+            time.sleep(0.2)
+            self.sendToInterface('rolDir')
+            
             
          
 
@@ -91,12 +101,11 @@ class ConsumerJoystick(WebsocketConsumer):
                 #Atualiza os indicadores de velocidade com o estado atual da velocidade
                 metodos.vel_x=float(text_data_json['deslHorizontal'])
                 metodos.vel_y=float(text_data_json['deslVertical'])
-                self.send(text_data=json.dumps({
-                    'cordenadas X': metodos.dicCordenadasControlador['X'],
-                    'cordenadas Y': metodos.dicCordenadasControlador['Y'],
-                }))
-                #print(metodos.vel_x,metodos.vel_y)
+                #print(metodos.dicCordenadasControlador['X']) for testing
+                #print(metodos.dicCordenadasControlador['Y']) for testing
 
+                self.sendToInterface('X')
+                self.sendToInterface('Y')
 
                 #Tenta receber as cordenadas 3 vezes
                 #dicCoordenadas=metodos.getCoordenadas(ser)              # Recebo as coordenadas
@@ -130,25 +139,6 @@ class ConsumerJoystick(WebsocketConsumer):
             print("Recebo do pagina Web: ",text_data_json['RoloTorce'])
             metodos.Z_USUARIO=int(text_data_json['RoloTorce'])              # Atribui o angulo
             
-
-            
-
-
-
-
-            # O GRBL é que controla a posição dos eixos e portanto todos o valores 
-            # são atualizados com a pergunta ao controlador da posição dos mesmos.
-            
-            #if self.varPosicaoInic==False:                                  # Se for a primeira vez e ainda não ouver registo da posição inicial
-            #    while(type(self.dicCoordenadas)==bool):                     # Enquato for bool tenta receber as coordenadas, só precisa receber 1 vez
-            #        self.dicCoordenadas=metodos.getCoordenadas(ser)         # É preciso obter coordenadas mas agora com a função do motor
-            #        print(self.dicCoordenadas)
-            #        pass
-            #    self.varPosicaoInic=self.dicCoordenadas['Z']                # Recebe as coordenadas iniciais
-            #metodos.Z=text_data_json['RoloTorce']                      # Recebo a atualização do RoloTorce
-            
-
-
             #print("Posição em Z atual",self.varPosicaoInic )
             #print("Comando RoloTorce Recebido:", metodos.Z)                 # Nos metodos tenho uma função que retorna a posição e Z
 
@@ -168,5 +158,21 @@ class ConsumerJoystick(WebsocketConsumer):
                     ser.flushInput()
             '''
 
+    # Função para enviar valores do dicCordenadas Controlador para o interface
+    # inclui a função de bloquear as variaveis para não entrar em conflito com 
+    # a thread paralela de processamento da maquina.
+    def sendToInterface(self,comando):
+        self.c.acquire()
+        if metodos.flag==1:
+            metodos.flag=0
+            self.send(text_data=json.dumps({
+                comando: metodos.dicCordenadasControlador[comando],
+            }))
+            #print(metodos.vel_x,metodos.vel_y)
+            metodos.flag=1
+            self.c.notify_all()
+        else:
+            self.c.wait()
+        self.c.release()
     
    

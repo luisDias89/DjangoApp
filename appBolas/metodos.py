@@ -5,7 +5,7 @@ import numpy
 import threading
 from time import time as Time
 from .controlo_PID.PID import PID
-
+c = threading.Condition()
 
 start = 0
 def tic():
@@ -29,6 +29,7 @@ Y_USUARIO=0.00             # Comando recebido pelo usuario
 Z_USUARIO=0.00             # Comando recebido pelo usuario
 velEsq=0
 velDir=0
+flag = 1
 
 # ============================================================#
 #   Define os limites de passos maximos e minimos do eixo     #
@@ -45,6 +46,7 @@ dicCordenadasControlador = {
        "rolEsq": 0.00, 
        "rolDir": 0.00
     }
+presentValue= 0.00
 #=============================================================#
 
 # ============================================================#
@@ -137,6 +139,7 @@ def hello(meu_nome):
 # ------ Thread de controlo ---------
 # Metodo para comunicar com GRBL e receber coordenadas em formato dicionario, 
 def funcComandoGRBL(ser):
+
     def getCoordenadas():
         if ser.isOpen():                                        # Se a porta serial está aberta
             ser.flushInput()                                    # remove toda a data na fila de entrada, só para se focar no pedido seguinte    
@@ -202,7 +205,10 @@ def funcComandoGRBL(ser):
     delta_DZ=0.00
     vel_z=0
     TentaComunicar=False
-    
+
+    global c
+    global flag
+    global presentValue
     global dicCordenadasControlador
     dicCordenadasControlador=getCoordenadas()
     
@@ -225,7 +231,7 @@ def funcComandoGRBL(ser):
             #Setpoint -> valor inserido pelo usuario * fato de correção graus para milietros
 
             setpoint=Z_USUARIO*FatorDeCoorecaoGrausMilimetros
-            presentValue= dicCordenadasControlador['Z']
+            
             difEntreZ=float(f'{(presentValue-setpoint):.2f}') # padronizado em milimetros
 
             if (vel_x!=0 or vel_y!=0 or abs(difEntreZ)>0.02):                  # Se X ou Y for diferente de 0, então execta o algoritmo e comunicaçâo
@@ -244,24 +250,32 @@ def funcComandoGRBL(ser):
                     pidObj.setpoint=setpoint
                     vel_z=float(f'{pidObj(presentValue):.3f}')
                     PassoParaVelocidadeZ=vel_z/60*timeSleep
-                    
                     delta_DZ=float(f'{PassoParaVelocidadeZ:.3f}')
                     
-                   
-                    dicCordenadasControlador=getCoordenadas()
-                    while(type(dicCordenadasControlador)==bool):
-                        dicCordenadasControlador=getCoordenadas()
                     #WebsocketConsumer.send(text_data=json.dumps({
                     #    'posReal_RoloTorce': str(presentValue/FatorDeCoorecaoGrausMilimetros),
                     #}))
                     
                     #print(difEntreZ)
                     #print("Sai com o type: ",type(dicCordenadasControlador))
-                    
-                    
                 else:
                     delta_DZ=0.00
                     vel_z=0.00
+
+                
+                c.acquire()
+                if flag==1:
+                    flag=0
+                    dicCordenadasControlador=getCoordenadas()
+                    while(type(dicCordenadasControlador)==bool):
+                        dicCordenadasControlador=getCoordenadas()
+                    presentValue=dicCordenadasControlador['Z']
+                    flag=1
+                    c.notify_all()
+                else:
+                    c.wait()
+                c.release()
+
                 
                     
                 # Velocidade a 3 dimensões

@@ -20,9 +20,21 @@ chatSocket.onmessage = function (e) {
     let data = JSON.parse(e.data);
     //console.log('Data:', data);
 
-    if('cordenadas X' in data)
+    if('X' in data)
     {
-        console.log("recebi coordenadas X")
+        console.log('Coordenadas X: ', data['X'])
+    }
+    if('Y' in data)
+    {
+        console.log('Coordenadas Y: ', data['Y'])
+    }
+    if('rolEsq' in data)
+    {
+        console.log('Velocidade rolo esquerdo: ', data['rolEsq'])
+    }
+    if('rolDir' in data)
+    {
+        console.log('Velocidade rolo direito: ', data['rolDir'])
     }
 }
 
