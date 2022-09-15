@@ -26,15 +26,23 @@ ser.write(mensagem.encode())
 
 class ConsumerJoystick(WebsocketConsumer): 
 
-    
-
     def connect(self):
-        self.accept()
+        self.accept()                           # Aceita conexão WebSocket
+        self.envioObjetoSendParaThread()        # Cria link do Objeto para metodos, de forma a ser acessivel
+        
+        '''
+        metodos.enviaPorWebSocket()
         self.send(text_data=json.dumps({
             'type': 'conexão com sucesso',
             'message': 'Tu estás agora conectado!'
         }))
+        '''
+        
     
+    #Função responsavel por linkar o objeto de envio de mensagem para poder ser acedida na Thread
+    def envioObjetoSendParaThread(self):
+        metodos.objWebSocket=self
+
     # O Objeto Thread conditions tem que ser partilhado pelas duas Threads
     c = metodos.c
 
@@ -60,29 +68,40 @@ class ConsumerJoystick(WebsocketConsumer):
     print('inicio da thread')
 
 
-
-
-    def receive(self, text_data=None, bytes_data=None):
+    def receive(self, text_data=None, bytes_data=None): 
         text_data_json = json.loads(text_data)                          # Recebe a mensagem atravez do Websocket
+
+        # Recebe qual o comando que quer enviar ao GRBL, e reenvia a resposta
+        if 'enviaComando_toGRBL' in text_data_json:
+            # Pergunta ao GRBL, caso tenha valor entra na primeira função que envia  recebe a confirmação, caso contrario só pergunta
+            comando = text_data_json['enviaComando_toGRBL']                     # Guarda na variavel o valor do comando
+            if 'newValue' in text_data_json:
+                novoValor = text_data_json['newValue']                          # Guarda na variavel o novo valor a ser atribuido
+                if metodos.setGRBL(ser,comando, novoValor) == "ok\r\n":             #Se a resposta da atribuição for ok, então envia o novo valor
+                    self.send(text_data=json.dumps({
+                        'DoComandoGRBL' :  text_data_json['enviaComando_toGRBL'],                      
+                        'resposta': str(novoValor),
+                    }))  
+            else:
+                self.send(text_data=json.dumps({
+                'DoComandoGRBL' :  comando,                      
+                'resposta': str(metodos.askGRBL(ser,text_data_json['enviaComando_toGRBL'])),
+                }))       
 
     
         # Envia a velocidade pretendida para os rolos
         if 'comando_rolo_esq' in text_data_json:
-            print(text_data_json['comando_rolo_esq'])
             metodos.comando_rolos_esquerdo(text_data_json['comando_rolo_esq'])
             time.sleep(0.2)                    #Espero pelo processamento
-            self.sendToInterface('rolDir')
+            #self.sendToInterface('rolDir')
 
 
         if 'comando_rolo_dir' in text_data_json:
-            print(text_data_json['comando_rolo_dir'])
             metodos.comando_rolos_direito(text_data_json['comando_rolo_dir'])
             time.sleep(0.2)
-            self.sendToInterface('rolDir')
+            #self.sendToInterface('rolDir')     # Caso queimaros enviar diretamente 
             
             
-         
-
         # Recebe as mensagem em espera do WebSocket
         if 'message' in text_data_json:
              if(text_data_json['message']!= "100"):
@@ -101,33 +120,11 @@ class ConsumerJoystick(WebsocketConsumer):
                 #Atualiza os indicadores de velocidade com o estado atual da velocidade
                 metodos.vel_x=float(text_data_json['deslHorizontal'])
                 metodos.vel_y=float(text_data_json['deslVertical'])
-                #print(metodos.dicCordenadasControlador['X']) for testing
-                #print(metodos.dicCordenadasControlador['Y']) for testing
-
-                self.sendToInterface('X')
-                self.sendToInterface('Y')
-
-                #Tenta receber as cordenadas 3 vezes
-                #dicCoordenadas=metodos.getCoordenadas(ser)              # Recebo as coordenadas
-                #if(type(dicCoordenadas)!=bool):                         # Testar se vem um dicionario, senão da erro de runtime!
-                #print("O Valor")
-                #mensagem="G01 X10 F2000\n"
-                #ser.write(mensagem.encode())
-                #metodos.X=float(text_data_json['deslHorizontal'])
-                #metodos.Y=float(text_data_json['deslVertical'])
+                
 
             else:   #Caso as duas velocidades sejão 0 então coloca os ponteiros de velocidade a 0
                 metodos.vel_x=float(0)
                 metodos.vel_y=float(0)
-
-                #print(metodos.vel_x,metodos.vel_y)
-                #mensagem="G01 X-10 F2000\n"
-                #ser.write(mensagem.encode())
-                #mensagem="!"
-                #ser.write(mensagem.encode())
-                #time.sleep(0.1)
-                #mensagem="$~\n"
-                #ser.write(mensagem.encode())
                 
 
         if 'RoloTorce' in text_data_json:                                   # Se contiver a mensagem do rolo então

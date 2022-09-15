@@ -30,6 +30,8 @@ Z_USUARIO=0.00             # Comando recebido pelo usuario
 velEsq=0
 velDir=0
 flag = 1
+objWebSocket=None          # Cria apenas memoria pois é atribuida no consumers->on connect
+
 
 # ============================================================#
 #   Define os limites de passos maximos e minimos do eixo     #
@@ -48,6 +50,16 @@ dicCordenadasControlador = {
     }
 presentValue= 0.00
 #=============================================================#
+
+# Função criada com o proposito de enviar dados por WebSocket
+def enviaPorWebSocket(comando):
+    objWebSocket.send(text_data=json.dumps({
+            comando : dicCordenadasControlador[comando],
+    }))
+def enviaMsgWebSocket(tagMensagem,Valor):
+    objWebSocket.send(text_data=json.dumps({
+            tagMensagem : Valor,
+    }))
 
 # ============================================================#
 #   Variaveis que definem a velocidade atual dos motores      #
@@ -75,6 +87,7 @@ factorVelocidade= 10
 #   intervalo de atualização da velocidade dos moores em      #
 #   tempo real, envia G-CODE para o GRBL a cada timeSleep     # 
 timeSleep=0.1
+timeSleepMsg=0.5
 #=============================================================#
 
 
@@ -107,7 +120,7 @@ def setFalse_FlagRoloDir():
     global Flag_comandoMotoresRolDir
     Flag_comandoMotoresRolDir=False
 
-
+# Como a velocidade dos rolos não pertence ao comandos dos eixos, mas variaveis auxiliares, existe novo DICT
 velocidade_rolo = {
         'esquerdo': 0, 
         'direito': 0, 
@@ -118,7 +131,6 @@ def comando_rolos_esquerdo(velocidade):
     global Flag_comandoMotoresRolEsq                                # Assim estou a receber a variavel Global
     velocidade_rolo['esquerdo']=velocidade
     # Só ativa a flag depois do novo valor de velocidade ser atribuido
-    print("estou aqui esquerd,vel :",velocidade)   
     Flag_comandoMotoresRolEsq=True 
 
 #Comando para atribuir velocidade nos consumers
@@ -126,20 +138,36 @@ def comando_rolos_direito(velocidade):
     global Flag_comandoMotoresRolDir
     velocidade_rolo['direito']=velocidade 
     # Só ativa a flag depois do novo valor de velocidade ser atribuido 
-    Flag_comandoMotoresRolDir=True 
-    print("estou aqui direito - vel :",velocidade)         
+    Flag_comandoMotoresRolDir=True        
 #=============================================================#
 
+def askGRBL(ser, comandoAsk):
+    if ser.isOpen():
+        ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens.                                  
+        #print('Sending: ' + comandoAsk)
+        ser.write(comandoAsk.encode() + str.encode('\n'))   # Bloco de envio de G-CODE
+        # Espera 1/10 de segundo pela resposta do GRBL
+        time.sleep(0.1)
+        grbl_out = ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
+        resposta=grbl_out[0].decode()
+        resposta = resposta.replace(comandoAsk+"=", "")     # Substitui do comando + "=" por nada e fica só o valor
+        return resposta
 
-#Função de teste
-def hello(meu_nome):
-    print('Olá',meu_nome)
-
+def setGRBL(ser, comandoSet, novoValor):
+    if ser.isOpen():
+        ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens                                  
+        mensagem= comandoSet+ "=" + novoValor + '\n'        # Contrução da mensagem, não apagar o '\n', senão não funciona
+        #print('Sending: ' + mensagem)                       # Bloco de depuração
+        ser.write(mensagem.encode())                        # Bloco de envio de G-CODE
+        time.sleep(0.1)                                     
+        grbl_out = ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
+        resposta=grbl_out[0].decode()
+        return resposta
+ 
 
 # ------ Thread de controlo ---------
 # Metodo para comunicar com GRBL e receber coordenadas em formato dicionario, 
 def funcComandoGRBL(ser):
-
     def getCoordenadas():
         if ser.isOpen():                                        # Se a porta serial está aberta
             ser.flushInput()                                    # remove toda a data na fila de entrada, só para se focar no pedido seguinte    
@@ -173,7 +201,7 @@ def funcComandoGRBL(ser):
         if ser.isOpen():
             #print(mensagem)
             ser.write(mensagem.encode())            # Envia a mensagem por RS232
-            print(mensagem)
+            #print(mensagem)    # Squiser monotorizar a mensagem que enviar
             # Loop de controlo , só este loop (obrigatoriamente) tem que fazer a comunicação por RS232                              
             time.sleep(0.1)
             ser.flushInput() 
@@ -201,13 +229,16 @@ def funcComandoGRBL(ser):
     iterAux=0
     tic()
     tmovel=toc()
+    tmovelMsg=toc()
     time.sleep(2)
     delta_DZ=0.00
     vel_z=0
     TentaComunicar=False
+    flag_AtualizaInterface=False
 
-    global c
-    global flag
+    global timeSleepMsg                         # por padrão é definido a 0.5 segundos
+    global c                                    # Correnponde ao objeto de fechar a Thread
+    global flag             
     global presentValue
     global dicCordenadasControlador
     dicCordenadasControlador=getCoordenadas()
@@ -220,10 +251,20 @@ def funcComandoGRBL(ser):
     print("Coordenadas maquina Z iniciais: ", dicCordenadasControlador['Z'])
     print("Coordenadas maquina velRoloEsq iniciais: ", dicCordenadasControlador['rolEsq'])
     print("Coordenadas maquina velRoloDir iniciais: ", dicCordenadasControlador['rolDir'])
-    pidObj= PID(Ki=0.025, Kd=0.001, Kp=50, setpoint=0.00)
+    pidObj= PID(Ki=0.025, Kd=0.0009, Kp=60, setpoint=0.00)
     pidObj.output_limits = (-VelocidadeMaximaEmZ, VelocidadeMaximaEmZ)
 
     while(True):
+
+        #Funo que a cada timeSleepMsg(tempo definido em cima) 
+        if(toc()>tmovelMsg):
+            tmovelMsg=tmovelMsg+timeSleepMsg
+            if(flag_AtualizaInterface):
+                enviaPorWebSocket('X')
+                enviaPorWebSocket('Y')
+                enviaPorWebSocket('Z')
+                flag_AtualizaInterface=False
+            
         
         if(toc()>(tmovel)):   # Garante que respeita a base de tempo
             
@@ -262,7 +303,7 @@ def funcComandoGRBL(ser):
                     delta_DZ=0.00
                     vel_z=0.00
 
-                
+
                 c.acquire()
                 if flag==1:
                     flag=0
@@ -277,7 +318,6 @@ def funcComandoGRBL(ser):
                 c.release()
 
                 
-                    
                 # Velocidade a 3 dimensões
                 vectorialVel=math.sqrt(numpy.square(vel_x*factorVelocidade)+numpy.square(vel_y*factorVelocidade)+numpy.square(abs(vel_z)))       
                 
@@ -286,14 +326,17 @@ def funcComandoGRBL(ser):
                 __SendToEsp32_waitResponse(mensagem)
                 # Se existir informação para ser enviada, envia pela SerialPort
                 #time.delay(1)
+                flag_AtualizaInterface=True
 
             if(getFlagRoloEsq()==True):
                 mensagem="M67 E0 Q"+ velocidade_rolo['esquerdo']
                 __SendToEsp32_no_waitResponse(mensagem)
+                enviaMsgWebSocket('rolEsq',velocidade_rolo['esquerdo'])
                 setFalse_FlagRoloEsq()
             if(getFlagRoloDir()==True):
                 mensagem="M67 E1 Q"+ velocidade_rolo['direito']
                 __SendToEsp32_no_waitResponse(mensagem)
+                enviaMsgWebSocket('rolDir',velocidade_rolo['direito'])
                 setFalse_FlagRoloDir()
     
 

@@ -21,3 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('appBolas.urls')),
 ]
+
+admin.AdminSite.site_header='Administração'
+admin.AdminSite.site_title='Lança bolas'
+admin.AdminSite.index_title='UA'

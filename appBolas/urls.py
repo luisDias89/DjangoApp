@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import index, contato
+from .views import index, contato, settingsReturn
 
 from django.conf.urls import handler404,handler500
 #importa do arquivo de views
@@ -10,5 +10,6 @@ urlpatterns = [
     path('', index),
     path('vel_mot_esq_aum', views.vel_mot_esq_aum,name='vel_mot_esq_aum'),
     path('contato', contato, name='contato'),
+    path('settings', settingsReturn, name='settings')
 
 ]

@@ -4,6 +4,8 @@ from django.http import HttpResponse
 import time
 import serial
 
+from .models import SettingsGRBL
+
 # Create your views here.
 
 '''
@@ -46,21 +48,7 @@ def vel_mot_esq_aum(request):
 def index(request):
     if request.method =="GET":                                  # Se receber o metodo GET então retorno a app index somente
         print(request.user)
-        '''
-        ser.write(b'G91')     # write a string
-        if ser.isOpen():
-            SerialPort=("{} connected!".format(ser.port))
-            mensagem="G00 X-10 Y10 Z10 F500\n"
-            
-            ser.write(mensagem.encode())
-            time.sleep(0.05) #wait for arduino to answer
-            if  ser.inWaiting()>0: 
-                mensagemlida=ser.readline()
-                SerialPort =mensagemlida.decode()
-                print(SerialPort)
-                ser.flushInput() #remove data after reading
-        '''
-
+        
         if str(request.user) == 'AnonymousUser':
             teste='usuario nao logado'
         else:
@@ -72,6 +60,7 @@ def index(request):
             'curso': 'Passei esta informação a partir dos views',
             'mensagem':'o django é muito bom',
             'logado': teste,
+            'showLogedIcons': request.user.is_authenticated,
             #'SerialPort':SerialPort,
         }
 
@@ -81,6 +70,12 @@ def index(request):
         print(postVAR)
 
 
+def settingsReturn(request):
+    #Passa um dicionario que contem a informação da base de dados sobre os SettingsGRBL
+    context ={
+            'SettingsGRBL': SettingsGRBL.objects.all(),         # passa uma query com todos os objetos contidos nesta tabela
+        }
+    return render(request, 'settings.html', context)
 
 
 def contato(request):

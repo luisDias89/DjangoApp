@@ -1,0 +1,162 @@
+{% load static %}
+{% load bootstrap4 %}
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App lança bolas</title>
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/icons/bootstrap-icons.css' %} ">
+</head>
+
+<body>
+    {# Display a form #}
+    <!-- Container do cabeçalho, é uma barra preta(bg-dark) com letras brancas(navbar-dark), z-index para ficar no topo 999, posição fixa(position-fixed)  -->
+    <nav class="container-lg rounded navbar col-12 navbar-expand-lg navbar-dark bg-dark" z-index="999">
+        <div class="container-lg col-lg m-auto">
+            <!-- Nesta linha coloco abaixo de 700px a 100%% da tela -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarTogglerDemo03"
+                aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand" href="">
+                <img src="{% static 'images/Logo.png' %}" alt="" class="inline-brand align-top" width="50"
+                    height="30">
+                Lança bolas UA
+            </a>
+            
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="">Modo manual</a>
+                    </li>
+                    <li class="nav-item" >
+                        <a class="nav-link active" href="">Modo automatico</a>           <!--Disable-->
+                    </li>
+
+                    <li class="nav-item" >
+                        <div class="col" style="color: aliceblue;text-align: right; "><a href="/admin"><button type="button" class="btn btn-primary">Login</button></a></div>
+                       
+                    </li>
+                    <li class="nav-item">
+                        <div class="nav-link disable"  ><div id="txt_logado">{{logado}}</div></div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div id="espacamento_topo"></div>
+    
+    <!-- Segunda coluna, container com tamanho lg redimencionavel -->
+    <div class="container-lg align-self-sm-auto " >
+        <div class="row shadow p-3 mb-5 bg-body rounded text-alg">
+            <!-- Em cima da imagem do lança bolas -->
+            <div class="col-lg-12 align-items-center" style="margin-top: 1%;">
+                
+                <!--############    Imagem do lançaBolas e respetivos valores     ###########-->
+                <!--#########################################################################-->
+                <div class="card">                                                                      <!--Inicio do card que abriga tudo-->
+                        <div class="card-header">                                                           <!--Cabeçalho do card-->
+                                <div id="div_container_but_settings">
+                                    <h6>
+                                        <strong> Configurações do lança bolas  </strong>    
+                                    </h6>
+
+                                    {% if showLogedIcons %}
+                                        <button type="button" id="btn_settings"  class="btn btn-secondary float-right"><i class="bi bi-gear"></i></button>
+                                    {% else %}
+                                    {% endif %}
+                                </div>       
+                                
+                        </div>                                         
+                        <div class="card-body">                                                             <!--Corpo do card-->
+                        <p class="card-text">
+                            
+                            <!--insira a informação no corpo do card-->
+                              <!--Copiar daqui-->
+        <div class="accordion" id="accordionExample">
+            
+            <!-- Construção automatizada dos formularios, segundo a informação que consta na base de dados -->
+            {% for comando in SettingsGRBL %}
+                <div class="accordion-item"><h2 class="accordion-header" 
+                    id="panelsStayOpen-heading{{ comando.id }}"> 
+                    <button 
+                    id="botaoSlider{{ comando.id }}" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#panelsStayOpen-collapse{{ comando.id }}" aria-expanded="false" 
+                    aria-controls="panelsStayOpen-collapse{{ comando.id }}">
+                      {{ comando.titulo }}
+                  </button>
+                </h2>
+                <div id="panelsStayOpen-collapse{{ comando.id }}" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-heading{{ comando.id }}">
+                  <div class="accordion-body">
+                      <h6 class="card-title">{{ comando.textoInformação }} </h6>  <!--Titulo do card-->
+                      <p></p>
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Default</th>
+                            <th scope="col">Min</th>
+                            <th scope="col">Max</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>{{ comando.valorDefault }}</td>
+                            <td>{{ comando.valorMin }}</td>
+                            <td>{{ comando.valorMax }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <h6 id="stepPulseValue"> Valor atual: </h6>
+                      <div class="input-group mb-3">
+                        <span class="input-group-text" id="basic-addon{{ comando.id }}">Novo valor: </span>
+                        <input type="text" class="form-control" id="stepPulseInput"   aria-describedby="basic-addon1">
+                        <button type="button " style="text-align: right ;" id="stepPulsebtn" class="btn btn-primary btn-sm float-right">Atribuir</button>
+                      </div>
+                  </div>
+                </div>
+            </div>
+            {% endfor %}
+            
+
+            </div>      <!--DivcardBody-->
+
+        </div>    <!-- FechododivCARD  -->
+
+          <!--Copiar ate aqui-->
+                            
+
+
+                    <div>
+                        <br>
+                        <p class="m-auto" id="hora_atual"></p> 
+                        <!-- textos que são apresentados em cima da imagem -->
+                    </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row-lg text-alg"  >
+            Lançador de bolas , Universidade de Aveiro
+            <p>Luís Dias 2022</p>
+
+    </div>
+    
+
+
+    
+    <!--JavaScripts-->
+    <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scriptsettings.js' %}"></script>
+    
+</body>
+
+</html>

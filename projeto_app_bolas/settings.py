@@ -33,6 +33,10 @@ ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
+    # General use templates & template tags (should appear first)
+    #'django_adminlte',
+     # Optional: Django admin theme (must be before django.contrib.admin)
+    #'django_adminlte_theme',
     'channels',
     'appBolas',
     'django.contrib.admin',

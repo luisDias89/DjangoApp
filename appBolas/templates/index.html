@@ -65,8 +65,20 @@
                 <!--#########################################################################-->
                 <div class="card">                                                                      <!--Inicio do card que abriga tudo-->
                     <div class="card-header">                                                           <!--Cabeçalho do card-->
-                      Estado atual do lança bolas                                                       <!--Texto do card-->
-                    </div>                                          
+                            <div id="div_container_but_settings">
+                                <h6>
+                                    <strong> Estado atual do lança bolas  </strong>    
+                                </h6>
+
+                                {% if showLogedIcons %}
+                                    <a href="/settings"><button type="button" id="btn_settings"  class="btn btn-secondary float-right"><i class="bi bi-gear"></i></button></a>
+                                {% else %}
+                                {% endif %}
+
+                                
+                            </div>               
+                            
+                    </div>                                         
                     <div class="card-body">                                                             <!--Corpo do card-->
                       <p class="card-text">
                         <figure id="cont">
@@ -125,8 +137,8 @@
                                             <div class="panel panel-default rounded" style="background-color: rgb(42, 159, 255);">
                                              <div class="panel-heading "><strong>Rolo direito</strong> </div>
                                                     <div class="panel-body">
-                                                            <button type="button" class="btn btn-primary" id="btn_roldir_subir" style="margin: 1px;">Subir velocidade</button>
-                                                            <button type="button" class="btn btn-primary" id="btn_roldir_descer" style="margin: 1px; margin-bottom: 5px;">Descer velocidade</button>
+                                                            <button type="button" class="btn btn-primary" id="btn_roldir_subir" style="margin: 1px;"><i class="bi bi-arrow-up"></i> Subir velocidade</button>
+                                                            <button type="button" class="btn btn-primary" id="btn_roldir_descer" style="margin: 1px; margin-bottom: 5px;"><i class="bi bi-arrow-down"></i> Descer velocidade</button>
                                                             <div class="input-group mb-3">
                                                             <input type="text" id="inputValorID_rolDir" class="form-control" placeholder="" aria-label="Atribuir velocidade" aria-describedby="basic-addon2">
                                                             <button class="btn btn-outline-secondary" type="button" id="buttonRoloDir">Atribuir</button>
@@ -139,22 +151,22 @@
                         </div>
                     </div>
             </div>
-            <p class="m-auto" id="hora_atual"></p> 
+             <p class="m-auto" style="padding-top: 10px;" id="hora_atual"></p> 
         </div>
 
-        <div class="row-lg text-alg" >
-            Lançador de bolas , Universidade de Aveiro
-            <p>Luís Dias 2022</p>
+            <div class="row-lg text-alg" >
+                Lançador de bolas , Universidade de Aveiro
+                <p>Luís Dias 2022</p>
 
-            <div class="col-lg">
-            </div>
-            <div class="col-lg">
-            </div>
-             <div class="col-lg">
+                <div class="col-lg">
+                </div>
+                <div class="col-lg">
+                </div>
+                <div class="col-lg">
+                </div>
             </div>
         </div>
     </div>
-</div>
 
    
 
