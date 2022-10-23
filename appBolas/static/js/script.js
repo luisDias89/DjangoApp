@@ -303,28 +303,8 @@ function validaNumber(stringTeste, nNumeros){
 }
 
 
-// Linhas de codigo não utilizadas, exemplos uteis
-/*
-
-// Já tinha resolvido o problema, uso apen o onChange
-var atualiza=false;
-//
-rangeTorce.onmousedown = ()=>{                              // Sempre que o mouse vai a baixo atualiza uma vez
-    RoloTorce.innerHTML=(rangeTorce.value-50) + "º";        // Atualiza o valor no HTML
-    atualiza=true;                                          // Abilita a atualizaçãodo valor no mousemove
-}
-
-rangeTorce.onmousemove = ()=>{                              // Sempre que o rato de move o valor é atualizado
-    if(atualiza){
-        RoloTorce.innerHTML=(rangeTorce.value-50) + "º"; 
-    }
-}
-
-rangeTorce.onmouseup = ()=>{                                // Quando é libertado o mouse desabilita  atualização
-
-    atualiza=false;
-}
- */
+/* ============================================================================================
+    Controlo feito pelo modo automatico começa aqui, script de concatenação de projetos */
 
 
 

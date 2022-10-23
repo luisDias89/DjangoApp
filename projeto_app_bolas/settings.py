@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'bootstrap4',
 ]
-ASGI_APPLICATION ='projeto_app_bolas.asgi.application'
 
 
 
@@ -80,6 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'projeto_app_bolas.wsgi.application'
+ASGI_APPLICATION ='projeto_app_bolas.asgi.application'
 
 
 # Database

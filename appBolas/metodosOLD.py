@@ -6,30 +6,7 @@ import threading
 from time import time as Time
 from .controlo_PID.PID import PID
 c = threading.Condition()
-from .models import treino, lance
-import serial
-from .bibliotecas.objLance import ClasseThreadLance
 
-"""
-Objeto que se conecta e contem auma serie de metodos para comunicar via serial com o GRBL
-"""
-# ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
-#ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
-ser = serial.Serial(
-        port='/dev/ttyUSB0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-        baudrate = 115200,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=1
-)
-time.sleep(0.5)
-
-
-"""
-Duas funções de temporização, a tic() guarda o tempo no momento em que ela é chamada
-a função toc() retorna o tempo entre o tic() e o toc() 
-"""
 start = 0
 def tic():
     global start
@@ -40,111 +17,6 @@ def toc():
     delta_t = Time() - start
     #print("Elapser ime is " + str(delta_t) + " second.")
     return delta_t
-
-
-
-from .bibliotecas.engineThread import threadTreino
-class engineTreino:
-    
-    '''
-    Variaveis Globais da função
-    '''
-    tempoTreino=0
-    timeLeft=0
-    tempoInicial=0
-    tempoNormalizadoSegundos=0
-    id_treino=0
-    def __init__(self):
-        global threadOP
-        # Inicia o objeto sem qualquer informação, só após o metodo start é que podemos arrancar com a Thread
-        #threadOP=threadTreino(ser,tempoTreino=0, qtLancamentos=0,objLances=NULL, cadencia=0, tipoSequencia=0)
-    
-    # metodos acessiveis
-    def start(self, id_selected, tipo, dataLance={}):
-                                                     # Link para o objeto global do serialPort
-        global threadOP
-        if (tipo=="treino"):
-            self.dbTreino = treino.objects.get(id=id_selected)          # Consulta a base de dados, e obtem o objeto tabela com toda a informação                                   
-
-            # -----------  Construção da THREAD com os dados do treino -------------------
-            threadOP=threadTreino(
-                ser,
-                tempoTreino=self.dbTreino.tempoTreino,
-                qtLancamentos= self.dbTreino.Qt_bolas_lance,        # Quantidade de bolas lançadas por lance
-                objLances=self.dbTreino.lances.all(),               # Recebe o objeto dos lances da base de dados
-                cadencia=self.dbTreino.cadenciaTreino,              # recebe a cadencia da base de dados  
-                tipoSequencia=self.dbTreino.SequenciaLances)        # Qual o tipo de sequencia , (ALEATORIA = 1 SEQUENCIAL = 2)
-            print("\n\n\n" + "Start treino nos metodos: " + str(id_selected) + "\n\n\n")
-            threadOP.start()
-
-        if (tipo=="lance"):                                         # Se for do tipo lance
-            if "cadencia" in dataLance:
-                self.threadLance=ClasseThreadLance(ser)
-                self.dbLance = lance.objects.get(id=id_selected)
-                self.threadLance.startLance(
-                    nomeLance="random",
-                    velRoloEsq=int(self.dbLance.velocidadeRoloEsq), 
-                    velRoloDir=int(self.dbLance.velocidadeRoloDir), 
-                    angulo_X=int(self.dbLance.anguloX), 
-                    angulo_Y=int(self.dbLance.anguloY), 
-                    angulo_Z=int(self.dbLance.anguloInclinacao), 
-                    cadencia=int(dataLance["cadencia"]), 
-                    qtBolasLancadas=int(dataLance["qtBolas"]))
-            else:
-                print("Erro de Runtime, não inseriu cadencia e qtBolas nos lances corretamente")
-
-    def stop(self,tipo):
-        if (tipo=="treino"):
-            global threadOP
-            threadOP.stop()
-            print("Stop Treino")
-        if (tipo=="lance"):
-            self.threadLance.stop()
-
-    def pause(self,tipo):
-        if (tipo=="treino"):
-            global threadOP
-            threadOP.set_pause()
-            print("pause treino")
-        if (tipo=="lance"):
-            self.threadLance.pausar()
-
-    def resume(self,tipo):
-        if (tipo=="treino"):
-            global threadOP
-            threadOP.set_resume()
-            print("resume treino")
-        if (tipo=="lance"):
-            self.threadLance.resume()
-        
-        
-    # Função concluida
-    def get_timeleft(self,tipo):                     
-        return threadOP.get_timeleft()                              # Retorna o tempo restante do treino
-
-    # Função concluida
-    def get_percentleft(self,tipo):
-        if (tipo=="treino"):
-            return threadOP.get_percentleft()                                      # Retorna a percentagem faltante do treino
-        if (tipo=="lance"):
-            return self.threadLance.get_percentLeft_porbolas()
-
-    def get_LanceAexecutar(self,tipo):
-        pass
-
-    def get_bolasPorLance(self,tipo):
-        pass
-
-    def isStoped(self,tipo):
-        if (tipo=="lance"):
-            return self.threadLance.stopped()
-        pass
-
-    def get_bolasLancadasLeft(self,tipo):
-        if (tipo=="lance"):
-            return self.threadLance.get_bolasLeft()    
-        pass
-
 
 
 # Variaveis que definem a posição atual dos motores
@@ -221,7 +93,7 @@ timeSleepMsg=0.5
 
 #=============================================================#
 #           Comanda a velocide Z no ciclo de controlo         #
-#   EX: (1000mm/s / 60 seg = 16.666) * tempo de ciclo         #
+#   EX: (1000mm/s / 60 seg=16.666) * tempo de ciclo           #
 VelocidadeMaximaEmZ=1000
 FatorDeCoorecaoGrausMilimetros=2.0
 #=============================================================#
@@ -248,7 +120,7 @@ def setFalse_FlagRoloDir():
     global Flag_comandoMotoresRolDir
     Flag_comandoMotoresRolDir=False
 
-# Como a velocidade dos rolos não pertence ao comandos dos eixos, nas variaveis auxiliares, existe novo DICT
+# Como a velocidade dos rolos não pertence ao comandos dos eixos, mas variaveis auxiliares, existe novo DICT
 velocidade_rolo = {
         'esquerdo': 0, 
         'direito': 0, 
@@ -269,7 +141,7 @@ def comando_rolos_direito(velocidade):
     Flag_comandoMotoresRolDir=True        
 #=============================================================#
 
-def askGRBL(comandoAsk):
+def askGRBL(ser, comandoAsk):
     if ser.isOpen():
         ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens.                                  
         #print('Sending: ' + comandoAsk)
@@ -281,11 +153,11 @@ def askGRBL(comandoAsk):
         resposta = resposta.replace(comandoAsk+"=", "")     # Substitui do comando + "=" por nada e fica só o valor
         return resposta
 
-def setGRBL(comandoSet, novoValor):
+def setGRBL(ser, comandoSet, novoValor):
     if ser.isOpen():
         ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens                                  
         mensagem= comandoSet+ "=" + novoValor + '\n'        # Contrução da mensagem, não apagar o '\n', senão não funciona
-        #print('Sending: ' + mensagem)                      # Bloco de depuração
+        #print('Sending: ' + mensagem)                       # Bloco de depuração
         ser.write(mensagem.encode())                        # Bloco de envio de G-CODE
         time.sleep(0.1)                                     
         grbl_out = ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
@@ -295,7 +167,7 @@ def setGRBL(comandoSet, novoValor):
 
 # ------ Thread de controlo ---------
 # Metodo para comunicar com GRBL e receber coordenadas em formato dicionario, 
-def funcComandoGRBL():
+def funcComandoGRBL(ser):
     def getCoordenadas():
         if ser.isOpen():                                        # Se a porta serial está aberta
             ser.flushInput()                                    # remove toda a data na fila de entrada, só para se focar no pedido seguinte    
@@ -457,14 +329,17 @@ def funcComandoGRBL():
                 flag_AtualizaInterface=True
 
             if(getFlagRoloEsq()==True):
-                mensagem="M67 E0 Q"+ str(velocidade_rolo['esquerdo']) + "\n"
+                mensagem="M67 E0 Q"+ velocidade_rolo['esquerdo']
                 __SendToEsp32_no_waitResponse(mensagem)
-                print(mensagem)
                 enviaMsgWebSocket('rolEsq',velocidade_rolo['esquerdo'])
                 setFalse_FlagRoloEsq()
             if(getFlagRoloDir()==True):
-                mensagem="M67 E1 Q"+ str(velocidade_rolo['direito']) + "\n"
+                mensagem="M67 E1 Q"+ velocidade_rolo['direito']
                 __SendToEsp32_no_waitResponse(mensagem)
-                print(mensagem)
                 enviaMsgWebSocket('rolDir',velocidade_rolo['direito'])
                 setFalse_FlagRoloDir()
+    
+
+
+
+        

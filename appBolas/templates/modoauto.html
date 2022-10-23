@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+
+{% block modal %}
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="TituloModal"></h5>
+        <!--Titulo Modal-->
+        <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"
+          aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="context_modal" style="text-align: left;">
+        <!--Informação do Body-->
+        <div id="HR">
+          
+        </div>
+        <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022 </div>
+        
+
+        <div> <span id="InformacaoLabel" style="font-weight: bold;">Lista de lances a executar:</span>
+          <ol id="modelData_Exec_treino">
+          </ol>
+        </div>
+
+        <div id="modelData_Cadencia" style="margin-bottom: 16px">Cadencia: </div>
+        <div id="modelData_timeleft">Tempo restante do treino: </div>
+        <div id="amostradorLance"> </div>
+        <br>
+        <div id="modelData_Tiposelecao" > </div>
+        <br>
+      </div>
+      <div class="modal-footer" style="text-align: left;">
+        <div id="id_treino" style="position: absolute; left: 15px;">Treino 1</div>
+        <button type="button" class="btn btn-secondary active" id="btn_fecharModal"
+          data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="btn_iniciarTreino">Iniciar Treino</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Fim do Modal -->
+
+{% endblock modal %}
+
+
+{% block body %}
+
+<!--
+<form action="insertdb" method="get" target="_self">
+  {% csrf_token %}
+  <label for="fname">First name:</label>
+  <input type="text" id="fname" name="Nome"><br><br>
+  <label for="lname">Last name:</label>
+  <input type="text" id="lname" name="LastName"><br><br>
+  <input type="submit" formmethod="post" value="Submit using POST">
+</form>
+
+{{ data.Nome }} {{ data.LastName}}-->
+
+
+<div class="bg-light" id="tituloListas_treinos">
+  Lista de treinos configurados
+</div>
+<div class="table-responsive" style="margin: 10px;">
+  <table class=" table table-sm table-striped" id="id_table" data-url={% url 'modoauto' %}>
+    <!-- Chamada template django para receber o URL do name=index-->
+    <thead>
+      <tr>
+        <th scope="col" class="text-center">&nbsp; id</th>
+        <th scope="col" class="text-center">Nome</th>
+        <th scope="col" class="text-center">Cadencia</th>
+        <th scope="col" class="text-center">Tempo</th>
+      </tr>
+    </thead>
+    <tbody id="tableTreinoBody">
+      <!-- Contrução de cada linha da tabela, em cada linha é atribuido no HTML o ID da base de dados-->
+      {% for treino in treinos %}
+      <tr data-id="{{treino.id}}">
+        <th scope="row">&nbsp;{{treino.id}}</th>
+        <td>{{treino.nomeTreino}}</td>
+        <td>{{treino.cadenciaTreino}}</td>
+        <td>{{treino.tempoTreino}}</td>
+      </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+
+
+{% endblock body %}
+
+
+
+{% block nav-lances %}
+
+
+<!-- Table lances -->
+
+<div class="bg-light" id="tituloListas_lances">
+  Lista de lances configurados
+</div>
+<div class="table-responsive" style="margin: 10px;">
+  <table class=" table table-sm table-striped" id="id_table2" data-url={% url 'modoauto' %}>
+    <!-- Chamada template django para receber o URL do name=index-->
+    <thead>
+      <tr>
+        <th scope="col" class="text-center">&nbsp; id</th>
+        <th scope="col" class="text-center">Nome</th>
+        <th scope="col" class="text-center">X</th>
+        <th scope="col" class="text-center">Y</th>
+        <th scope="col" class="text-center">Inclinação</th>
+        <th scope="col" class="text-center">Rolo Esquerdo</th>
+        <th scope="col" class="text-center">Rolo Direito</th>
+      </tr>
+    </thead>
+    <tbody id="tableLanceBody">
+      <!-- Contrução de cada linha da tabela, em cada linha é atribuido no HTML o ID da base de dados-->
+      {% for lance in lances %}
+      <tr data-id="{{lance.id}}">
+        <th scope="row">&nbsp;{{lance.id}}</th>
+        <td>{{lance.nomeLance}}</td>
+        <td>{{lance.anguloX}}</td>
+        <td>{{lance.anguloY}}</td>
+        <td>{{lance.anguloInclinacao}}</td>
+        <td>{{lance.velocidadeRoloEsq}}</td>
+        <td>{{lance.velocidadeRoloDir}}</td>
+      </tr>
+      {% endfor %}
+
+    </tbody>
+  </table>
+</div>
+
+{% endblock nav-lances %}

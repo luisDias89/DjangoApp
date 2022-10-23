@@ -115,11 +115,11 @@
                           </tr>
                         </tbody>
                       </table>
-                      <h6 id="stepPulseValue"> Valor atual: </h6>
+                      <h6 id="stepPulseValue{{comando.id}}"> Valor atual: </h6>
                       <div class="input-group mb-3">
                         <span class="input-group-text" id="basic-addon{{ comando.id }}">Novo valor: </span>
-                        <input type="text" class="form-control" id="stepPulseInput"   aria-describedby="basic-addon1">
-                        <button type="button " style="text-align: right ;" id="stepPulsebtn" class="btn btn-primary btn-sm float-right">Atribuir</button>
+                        <input type="text" class="form-control" id="stepPulseInput{{comando.id}}"   aria-describedby="basic-addon1">
+                        <button type="button " style="text-align: right ;" id="stepPulsebtn{{comando.id}}" class="btn btn-primary btn-sm float-right">Atribuir</button>
                       </div>
                   </div>
                 </div>
@@ -155,7 +155,102 @@
     
     <!--JavaScripts-->
     <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/scriptsettings.js' %}"></script>
+
+
+    
+    <!--SCRIPT PARA PODER JUNTAR SCRIPT JAVASCRIP E SCRIPDJANGO-->
+
+    <script type="text/javascript">
+
+              // Declaração dos caminhos e objetos WebSocket
+            let url = `ws://${window.location.host}/ws/socket-server/`;
+            const chatSocket = new WebSocket(url);
+
+
+                // ----- Sempre o GRBL envia uma linha com valores reconhece qual o linha e atribui na interface gráfica ----------
+                chatSocket.onmessage = function (e) {
+                    let data = JSON.parse(e.data);
+
+                    console.log(e.data)
+                    //Nos settings recebo um mensagem com o comando que foi passado e a resposta do GRBL, o seguinte switch case vai
+                    //interpretar qual o comando e fazer a respectiva atribuição do valor.
+                    if('DoComandoGRBL' in data)
+                    {
+                        actualizacao(data['DoComandoGRBL'],data['resposta']);
+                    }
+                }
+
+                function actualizacao(comandoPonteiro,valor)
+                {
+                    switch(String(comandoPonteiro)) 
+                        {
+                            {% for comando in SettingsGRBL %}
+                            case "{{comando.comandoGRBL}}":
+                                    stepPulseValue{{comando.id}}.innerHTML="Valor atual: " + String(valor);
+                                break;
+                            {% endfor %}
+                            default:
+                                console.log("Erro no case de atualização, settings.html - > função switch")
+                                // code block
+                        }
+                }
+
+            {% for comando in SettingsGRBL %}
+
+                // Obter elementos por id do formulario stepPulse
+                var stepPulseValue{{comando.id}}=document.getElementById("stepPulseValue{{comando.id}}");
+                var stepPulseInput{{comando.id}}=document.getElementById("stepPulseInput{{comando.id}}");
+                var stepPulsebtn{{comando.id}}=document.getElementById("stepPulsebtn{{comando.id}}");
+                var botaoSlider{{comando.id}}=document.getElementById("botaoSlider{{comando.id}}");
+
+                stepPulsebtn{{comando.id}}.onclick= ()=>
+                {
+                    newValue = stepPulseInput{{comando.id}}.value;
+                    if(validaNumber(newValue, 10))
+                    {
+                        set_settings_GRBL('{{comando.comandoGRBL}}', newValue);
+                    }
+                }
+
+                //Sempre que o user carregue no enviar comando para receber o valor atual.
+                botaoSlider{{comando.id}}.onclick = ()=>
+                {
+                    enviaComando_toGRBL('{{comando.comandoGRBL}}');          // Valor vem da base de dados
+                }
+
+            {% endfor %}
+
+            // ----------------  Funções Globais -------------------------------------
+            // Função teste se é numero e se não tem letras
+            function validaNumber(stringTeste, nNumeros){
+                var valido = false;
+                if((stringTeste.length < nNumeros) && !isNaN(stringTeste))
+                {
+                    valido=true
+                }
+                return valido;
+            }
+
+            function enviaComando_toGRBL(comandoEnviar)
+            {
+                    chatSocket.send(JSON.stringify({
+                        'enviaComando_toGRBL': comandoEnviar,
+                    }))
+                    
+                
+                return 10;
+            } 
+
+            function set_settings_GRBL(comandoEnviar, newValue)
+            {
+                    chatSocket.send(JSON.stringify({
+                        'enviaComando_toGRBL': comandoEnviar,
+                        'newValue' : newValue,
+                    }))
+                return 10;
+            }
+          
+    </script>
     
 </body>
 

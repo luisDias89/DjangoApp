@@ -1,6 +1,5 @@
 import json
 from channels.generic.websocket import WebsocketConsumer
-import serial
 import threading
 from . import metodos
 import time
@@ -8,20 +7,6 @@ import time
 
 #Variaveis auxiliares
 velHorizontal=0
-
-# ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
-ser = serial.Serial(
-        port='/dev/ttyUSB0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
-        baudrate = 115200,
-        parity=serial.PARITY_NONE,
-        stopbits=serial.STOPBITS_ONE,
-        bytesize=serial.EIGHTBITS,
-        timeout=1
-)
-
-time.sleep(0.5)
-mensagem="G91 G01 X10 F1000\n"
-ser.write(mensagem.encode())
 
 
 class ConsumerJoystick(WebsocketConsumer): 
@@ -47,7 +32,7 @@ class ConsumerJoystick(WebsocketConsumer):
     c = metodos.c
 
     #def init(self):
-    threading.Thread(target=metodos.funcComandoGRBL, args=(ser,)).start()
+    threading.Thread(target=metodos.funcComandoGRBL, args=()).start()
     #init            #Inicio da Thread
 
     
@@ -77,7 +62,7 @@ class ConsumerJoystick(WebsocketConsumer):
             comando = text_data_json['enviaComando_toGRBL']                     # Guarda na variavel o valor do comando
             if 'newValue' in text_data_json:
                 novoValor = text_data_json['newValue']                          # Guarda na variavel o novo valor a ser atribuido
-                if metodos.setGRBL(ser,comando, novoValor) == "ok\r\n":             #Se a resposta da atribuição for ok, então envia o novo valor
+                if metodos.setGRBL(comando, novoValor) == "ok\r\n":             #Se a resposta da atribuição for ok, então envia o novo valor
                     self.send(text_data=json.dumps({
                         'DoComandoGRBL' :  text_data_json['enviaComando_toGRBL'],                      
                         'resposta': str(novoValor),
@@ -85,7 +70,7 @@ class ConsumerJoystick(WebsocketConsumer):
             else:
                 self.send(text_data=json.dumps({
                 'DoComandoGRBL' :  comando,                      
-                'resposta': str(metodos.askGRBL(ser,text_data_json['enviaComando_toGRBL'])),
+                'resposta': str(metodos.askGRBL(text_data_json['enviaComando_toGRBL'])),
                 }))       
 
     
@@ -105,10 +90,10 @@ class ConsumerJoystick(WebsocketConsumer):
         # Recebe as mensagem em espera do WebSocket
         if 'message' in text_data_json:
              if(text_data_json['message']!= "100"):
-                
+                pass
                 #mensagem="G01 X10 F1000\n"
                 #ser.write(mensagem.encode())
-                print("enviei ao motor a mensagem" + mensagem)
+                #print("enviei ao motor a mensagem" + mensagem)
         
         
         
@@ -139,21 +124,7 @@ class ConsumerJoystick(WebsocketConsumer):
             #print("Posição em Z atual",self.varPosicaoInic )
             #print("Comando RoloTorce Recebido:", metodos.Z)                 # Nos metodos tenho uma função que retorna a posição e Z
 
-            '''
-            else:
-                
-                if ser.isOpen():
-                    ser.flushInput()                                    #remove data after reading
-                    mensagem="G90"
-                    ser.write(mensagem.encode())                        # Escreve na SerialPort "?\n" para receber as coordenadas
-                    time.sleep(0.1)
-                    ser.flushInput() 
-                    mensagem="G01 " + "Z" + str(int(self.m*text_data_json['RoloTorce']+float(self.varPosicaoInic))) + " F" + str(1000) +"\n"
-                    print(mensagem)
-                    ser.write(mensagem.encode())                        # Escreve na SerialPort "?\n" para receber as coordenadas
-                    time.sleep(0.1)                                     # Espera a resposta do arduino
-                    ser.flushInput()
-            '''
+    
 
     # Função para enviar valores do dicCordenadas Controlador para o interface
     # inclui a função de bloquear as variaveis para não entrar em conflito com 

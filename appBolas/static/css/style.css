@@ -1,6 +1,90 @@
 body {
     background-color: rgb(220, 234, 245);
+}
 
+#div1 {
+    border-style: solid;
+    border-width: 1px;
+    border-color: black;
+}
+
+/* CSS do ModalTreino */
+#TituloModal{
+    color:rgb(0, 76, 255);
+    font-weight: bold;
+}
+
+#modelData_timeleft{
+    position: relative;
+}
+
+#label_percentagem{
+    position: absolute;
+    top: 40px;
+    right: 5px;
+}
+
+#modelData_treino{
+    position: absolute;
+    top: 10px;
+    left: 15px;
+    
+}
+
+#modelData_Tiposelecao{
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+}
+
+#modelData_Cadencia{
+    margin-bottom: 5px;
+}
+
+.lbBold{
+    font-weight: bold;
+}
+
+#ColunaContainer{
+    position: relative;
+}
+
+#botaoDropDown{
+  position: absolute;
+  top: 0px;
+  right: -78px;
+  width: 200px;
+  height: 100px;
+}
+#nav-treino, #nav-lances{
+    border-width: 1px;
+    border-style: solid;
+    border-top: 0px;
+    border-color: gainsboro;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+#tituloListas_lances,#tituloListas_treinos{
+    margin:8px;
+    margin-top: 0px;
+    padding: 15px;
+    padding-top: 10px;
+    font-style: normal;
+    font-size: larger;
+    text-align: center;
+    color: black;
+    
+}
+
+tbody>tr:nth-child(even):hover{
+    background-color: rgb(153, 189, 255);    
+    color: rgb(46, 46, 46);
+    cursor: pointer;
+}
+tbody>tr:nth-child(odd):hover{
+    background-color: rgb(153, 189, 255);    
+    color: rgb(46, 46, 46);
+    cursor: pointer;
 }
 
 #div_container_but_settings{
@@ -188,4 +272,5 @@ body {
     color: aliceblue; 
     text-align: right;
 }
+
 

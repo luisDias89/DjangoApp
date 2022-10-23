@@ -11,6 +11,7 @@ var botaoSlider1=document.getElementById("botaoSlider1");
 
 
 
+
 // ----- Sempre o GRBL envia uma linha com valores reconhece qual o linha e atribui na interface gráfica ----------
 chatSocket.onmessage = function (e) {
     let data = JSON.parse(e.data);
@@ -34,6 +35,11 @@ chatSocket.onmessage = function (e) {
 
 stepPulsebtn.onclick= ()=>
 {
+    {% for comando in SettingsGRBL %}
+
+    console.log("{{comando}}")
+
+    {% endfor %}
     newValue = stepPulseInput.value;
     if(validaNumber(newValue, 10))
     {

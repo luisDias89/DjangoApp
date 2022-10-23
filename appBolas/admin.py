@@ -9,3 +9,14 @@ class configuracaoColunas(admin.ModelAdmin):
     list_display=('comandoGRBL','titulo','valorMin','valorMax','valorDefault')
 
 admin.site.register(SettingsGRBL,configuracaoColunas)
+
+from .models import treino, lance
+
+admin.site.register(treino)
+admin.site.register(lance)
+
+class lanceAdmin(admin.ModelAdmin):
+    list_display= ("Nome do lance",)
+    
+class treinosAdmin(admin.ModelAdmin):
+    list_display= ("Nome do Treino",)
