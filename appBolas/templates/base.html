@@ -6,15 +6,16 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>App lança bolas</title>
     <!-- CSS only -->
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
     <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/icons/bootstrap-icons.css' %} ">
     <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.dataTables.min.css' %}">
 </head>
 
 <body>
-
+    {# Display a form #}
     <!-- Container do cabeçalho, é uma barra preta(bg-dark) com letras brancas(navbar-dark), z-index para ficar no topo 999, posição fixa(position-fixed)  -->
     <nav class="container-lg rounded navbar col-12 navbar-expand-lg navbar-dark bg-dark" z-index="999">
         <div class="container-lg col-lg m-auto">
@@ -23,29 +24,30 @@
                 aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
-
+            <a class="navbar-brand" href="">
+                <img src="{% static 'images/Logo.png' %}" alt="" class="inline-brand align-top" width="50"
+                    height="30">
+                Lança bolas UA
+            </a>
+            
             <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="/">Home</a>
+                        <a class="nav-link active" aria-current="page" href="">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link active" href="">Modo manual</a>
+                        <a class="nav-link active" href="/">Modo manual</a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="">Modo automatico</a>
-                        <!--Disable-->
+                    <li class="nav-item" >
+                        <a class="nav-link active" href="/modoauto">Modo automatico</a>    
                     </li>
 
-                    <li class="nav-item">
-                        <div class="col" style="color: aliceblue;text-align: right; "><a href="/admin"><button
-                                    type="button" class="btn btn-primary">Login</button></a></div>
-
+                    <li class="nav-item" >
+                        <div class="col" style="color: aliceblue;text-align: right; "><a href="/admin"><button type="button" class="btn btn-primary">Login</button></a></div>
+                       
                     </li>
                     <li class="nav-item">
-                        <div class="nav-link disable">
-                            <div id="txt_logado"></div>
-                        </div>
+                        <div class="nav-link disable"  ><div id="txt_logado">{{logado}}</div></div>
                     </li>
                 </ul>
             </div>
@@ -53,12 +55,12 @@
     </nav>
 
     <div id="espacamento_topo"></div>
-
-
-
+    
     <!-- Segunda coluna, container com tamanho lg redimencionavel -->
-    <div class="container-lg align-self-sm-auto ">
+    <div class="container-lg align-self-sm-auto " >
         <div class="row shadow p-3 mb-5 bg-body rounded text-alg">
+            <!-- Corpo do contextInformaço-->
+            
             <div class="col-lg-12 align-items-center" id="ColunaContainer" style="margin-top: 1%;">
 
                 <!--Botão DropDown-->
@@ -112,31 +114,38 @@
                 </div>
             </div>
 
+
+            <!-- Fim do contextInformaço-->
+             <p class="m-auto" style="padding-top: 10px;" id="hora_atual"></p> 
         </div>
-        <div>
-            <br>
-            <p class="m-auto" id="hora_atual"></p>
+
+            <div class="row-lg text-alg" >
+                Lançador de bolas , Universidade de Aveiro
+                <p>Luís Dias 2022</p>
+
+                <div class="col-lg">
+                </div>
+                <div class="col-lg">
+                </div>
+                <div class="col-lg">
+                </div>
+            </div>
         </div>
     </div>
 
+   
 
-    <div class="row-lg text-alg">
-        <center>
-
-            Lançador de bolas , Universidade de Aveiro
-            <p>Luís Dias 2022</p>
-
-        </center>
-
-    </div>
+    
 
 
+    
     <!-- JavaScript Bundle with Popper -->
     <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery-3.6.1.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/scriptAuto.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/scriptconfigurador.js' %}"> </script>
+    
 </body>
 
 </html>
