@@ -12,5 +12,4 @@ urlpatterns = [
     path('vel_mot_esq_aum', views.vel_mot_esq_aum,name='vel_mot_esq_aum'),
     path('contato', contato, name='contato'),
     path('settings', settingsReturn, name='settings')
-
 ]

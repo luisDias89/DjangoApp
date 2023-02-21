@@ -16,16 +16,17 @@ engineLancadorBolas= metodos.engineTreino()
 def modoauto(request):
     # request.is_ajax() is deprecated since django 3.1
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    
 
-    if is_ajax:                                                 # Se o metodo for ajax, então a resposta é em JSON
-        if request.method=="GET":                               # Se GET então
-            #print("chamada Ajax, metodo GET")                   # Troubleshoting
-            todos = list(treino.objects.all().values())         # Recebe os valores da base de dados
-            return JsonResponse({'context': todos}, status=200) # Envia os valores por JSON, e retorna 200(ok)
+    if is_ajax:                                                     # Se o metodo for ajax, então a resposta é em JSON
+        if request.method=="GET":                                   # Se GET então
+            #print("chamada Ajax, metodo GET")                      # Troubleshoting
+            todos = list(treino.objects.all().values())             # Recebe os valores da base de dados
+            return JsonResponse({'context': todos}, status=200)     # Envia os valores por JSON, e retorna 200(ok)
 
-        if request.method=="POST":                              # Se o methodo for POST então
-            #print("chamada Ajax, metodo POST")                  # Troubleshoting
-            dataFromPost=json.load(request)                     # recebe os valores de POST
+        if request.method=="POST":                                  # Se o methodo for POST então
+            #print("chamada Ajax, metodo POST")                     # Troubleshoting
+            dataFromPost=json.load(request)                         # recebe os valores de POST
             
             # Caso a mensagem pretenda obter informações da tabela de treino   
             if "idlance" in dataFromPost:
