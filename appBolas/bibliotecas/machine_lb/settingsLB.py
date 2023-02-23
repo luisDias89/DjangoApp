@@ -14,6 +14,7 @@ Z-> É o eixo de inclinação do lançador de bolas.
 A-> motor que libera as bolas.
 '''
 
+
 maximo = {"X": 25,
           "Y": 25,
           "Z": 25,

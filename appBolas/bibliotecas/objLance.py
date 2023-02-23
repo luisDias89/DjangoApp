@@ -31,7 +31,7 @@ class ClasseThreadLance(threading.Thread):
         # Referenciação dos eixos
         
         
-    def stop(self):                                 # set da flag para terminar a Thread
+    def stop(self):                                         # set da flag para terminar a Thread
         self._stop.set()
     
     def startLance(self, nomeLance, velRoloEsq, velRoloDir, angulo_X, angulo_Y, angulo_Z, cadencia, qtBolasLancadas):
@@ -171,7 +171,7 @@ class ClasseThreadLance(threading.Thread):
 
     def ConversorGrausToMM(self, Valorangulo, eixo):
 
-        # Garante que o valor do angulo não ultrapassa o valor minimo ou maximo definido nos settings
+        # Garante que o valor do angulo não ultrapassa o valor minimo ou maximo definido nos settingsLB.py
         if (Valorangulo > angulo["max_" + str(eixo)]):
             Valorangulo = angulo["max_" + str(eixo)]
         elif (Valorangulo < angulo["min_" + str(eixo)]):
@@ -202,7 +202,7 @@ class ClasseThreadLance(threading.Thread):
         self.send_to_GRBL(mensagem)
 
 
-    def gotTo_graus(self, X="n", Y="n", Z="n", A="n", F=1000):
+    def gotTo_graus(self, X="n", Y="n", Z="n", A="n", F=1000):                  # Se não chegar nenhum valor, a posição do eixo que é atribuido é n -> nenhum valor
         # send_to_GRBL("G90")
         mensagem = "G01"
         if (X != "n"):
@@ -253,23 +253,21 @@ class ClasseThreadLance(threading.Thread):
     
     def run(self):
         #print(" Entrei no Run. -> Nome do lance: " + self.nomeLance  )
-        self.pause = False                                      # se o lance não estiver em pausa
-        # O tempo é inializado a 0 e à medida que vai sendo executado o lance é incrementado
-        timeStartLance = 0
-        flagEnviaCoordenadas = True
-        prontoSequencialancamento = False
-        while (not self.stopped()):                                      
-            if ((not self.pause and self.runing)):                     # teste de pausa e de ciclo
+        self.pause = False                                                                     # se o lance não estiver em pausa, (tecla pause do lance)
+                                                                                               # O tempo é inializado a 0 e à medida que 
+        timeStartLance = 0                                                                     # vai sendo executado o lance é incrementado
+        flagEnviaCoordenadas = True                                                            # levanto a flag para enviar coordenadas
+        prontoSequencialancamento = False                                                      # e inicializo uma variavel que controlo a Seq de lançamento
+        
+        while (not self.stopped()):                                                            # enquanto não está parado o lance
+            if ((not self.pause and self.runing)):                                             # e se não houver uma pausa e existe um sinal apra correr então
                 # Condição usada no primeiro ciclo para enviar a mensagem de coordenadas do lance
-                #print("flagEnviaCoordenadas" + str(flagEnviaCoordenadas))
-                if (flagEnviaCoordenadas):
-                    #print("entrei na FlagEnvia Coordenadas")
-                    # Função para enviar as posições para o lança bolas
+                if (flagEnviaCoordenadas):                                                     # Esta função chamada a cada ciclo e é responsavel por enviar
+                                                                                               # de enviar as posições para o lança bolas através pela porta COM                        
                     self.gotTo_graus(X=self.angulo_X, Y=self.angulo_Y, Z=self.angulo_Z, F=2000)
                     # Iterador de lançamento zerado
-                    self.iteradorLances = 0
-                    flagEnviaCoordenadas = False
-                #print("passei no if da pausa")
+                    self.iteradorLances = 0                                                    
+                    flagEnviaCoordenadas = False                                               # Baixa a flag porque ja foi enviado o comando
 
                 if (not prontoSequencialancamento):    # Quando chegar à posição final continua
                     if (self.confirmaPosicaoFinal(X=self.ConversorGrausToMM(self.angulo_X, "X"), Y=self.ConversorGrausToMM(self.angulo_Y, "Y"), Z=self.ConversorGrausToMM(self.angulo_Z, "Z"))):
