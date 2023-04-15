@@ -204,3 +204,6 @@ def settingsReturn(request):
 
 def contato(request):
     return render(contato,'contato.html')
+
+def homepage(request):
+    return render(request, 'homepage.html')
