@@ -18,15 +18,15 @@ def modoauto(request):
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
     
 
-    if is_ajax:                                                     # Se o metodo for ajax, então a resposta é em JSON
-        if request.method=="GET":                                   # Se GET então
-            #print("chamada Ajax, metodo GET")                      # Troubleshoting
-            todos = list(treino.objects.all().values())             # Recebe os valores da base de dados
-            return JsonResponse({'context': todos}, status=200)     # Envia os valores por JSON, e retorna 200(ok)
+    if is_ajax:                                                                 # Se o metodo for ajax, então a resposta é em JSON
+        if request.method=="GET":                                               # Se GET então
+            #print("chamada Ajax, metodo GET")                                  # Troubleshoting
+            todos = list(treino.objects.all().values())                         # Recebe os valores da base de dados
+            return JsonResponse({'context': todos}, status=200)                 # Envia os valores por JSON, e retorna 200(ok)
 
-        if request.method=="POST":                                  # Se o methodo for POST então
-            #print("chamada Ajax, metodo POST")                     # Troubleshoting
-            dataFromPost=json.load(request)                         # recebe os valores de POST
+        if request.method=="POST":                                              # Se o methodo for POST então
+            #print("chamada Ajax, metodo POST")                                 # Troubleshoting
+            dataFromPost=json.load(request)                                     # recebe os valores de POST
             
             # Caso a mensagem pretenda obter informações da tabela de treino   
             if "idlance" in dataFromPost:
@@ -169,31 +169,31 @@ def vel_mot_esq_aum(request):
 
 
 def index(request):
-    if request.method =="GET":                                  # Se receber o metodo GET então retorno a app index somente
-        print(request.user)
+    if request.method =="GET":                                                  # Se receber o metodo GET então retorno a app index somente
+        print(request.user)                                                     # Imprime o usuario que est a fazer a requisião de index na consola    
         
-        if str(request.user) == 'AnonymousUser':
-            teste='usuario nao logado'
+        if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
+            msgQuemEstaLogado='Utilizado nao logado'                            # Constroi uma mensagem que indica se está logado ou não            
         else:
-            teste= 'usuario logado'
+            msgQuemEstaLogado= 'Utilizador logado'
 
-                                # Recebe a função declarada no forms.py
-
+        # Recebe a função declarada no forms.py
+        # context é a estrutura que é enviada para o template python, que vai ser interpretado pelo render HTML
         context ={
-            'curso': 'Passei esta informação a partir dos views',
-            'mensagem':'o django é muito bom',
-            'logado': teste,
-            'showLogedIcons': request.user.is_authenticated,
+            'curso': 'Engenharia de Automação Industrial 2019 - 2023',
+            'mensagem':'O Lúis Dias é o melhor engenheiro do planeta!',
+            'logado': msgQuemEstaLogado,
+            'showLogedIcons': request.user.is_authenticated,                    # Retorna um valor boleano para mostrar ou não o menu de settings
             #'SerialPort':SerialPort,
         }
 
-
-        return render(request, 'index.html', context)
-    elif request.method =="POST":
-        postVAR= request.POST
+        return render(request, 'index.html', context)                           # A função retorna uma página HTML com a renderização de index.html
+    elif request.method =="POST":                                               # Somente para testes, retorna página HTML segundo parmetros de entrada POST
+        postVAR = request.POST
         print(postVAR)
 
 
+#Página onde é definidos as configurações do GRBL,os parâmetros podem ser adicionador progressivamente
 def settingsReturn(request):
     #Passa um dicionario que contem a informação da base de dados sobre os SettingsGRBL
     context ={
@@ -202,8 +202,9 @@ def settingsReturn(request):
     return render(request, 'settings.html', context)
 
 
-def contato(request):
-    return render(contato,'contato.html')
+def contato(request):       
+    return render(contato,'contato. ')
 
+# Sempre que alguem entra na página de controlo do lançador de bolas, é redirecionado para esta página
 def homepage(request):
     return render(request, 'homepage.html')

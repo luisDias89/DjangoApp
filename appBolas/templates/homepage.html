@@ -1,43 +1,49 @@
 {% extends 'base.html' %}
 
-
 {% block modal %}
 
 <!-- Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="TituloModal"></h5>
-        <!--Titulo Modal-->
-        <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"
-          aria-label="Close"></button>
-      </div>
+        <div class="modal-header">
+          <h5 class="modal-title" id="TituloModal"></h5>
+          <!--Titulo Modal-->
+          <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"
+            aria-label="Close"></button>
+        </div>
       <div class="modal-body" id="context_modal" style="text-align: left;">
-        <!--Informação do Body-->
-        <div id="HR">
-          
-        </div>
-        <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022 </div>
-        
+          <!--Informação do Body-->
+            <div id="HR"> 
+            </div>
 
-        <div> <span id="InformacaoLabel" style="font-weight: bold;">Lista de lances a executar:</span>
-          <ol id="modelData_Exec_treino">
-          </ol>
-        </div>
+            <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022 
+            </div>
+      
+            <div> <span id="InformacaoLabel" style="font-weight: bold;">Lista de lances a executar:</span>
+              <ol id="modelData_Exec_treino">
+              </ol>
+            </div>
 
-        <div id="modelData_Cadencia" style="margin-bottom: 16px">Cadencia: </div>
-        <div id="modelData_timeleft">Tempo restante do treino: </div>
-        <div id="amostradorLance"> </div>
-        <br>
-        <div id="modelData_Tiposelecao" > </div>
-        <br>
+            <div id="modelData_Cadencia" style="margin-bottom: 16px">Cadencia: 
+            </div>
+
+            <div id="modelData_timeleft">Tempo restante do treino: 
+            </div>
+
+            <div id="amostradorLance"> 
+            </div>
+
+            <br>
+            <div id="modelData_Tiposelecao" > 
+            </div>
+            <br>
       </div>
       <div class="modal-footer" style="text-align: left;">
-        <div id="id_treino" style="position: absolute; left: 15px;">Treino 1</div>
-        <button type="button" class="btn btn-secondary active" id="btn_fecharModal"
-          data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" id="btn_iniciarTreino">Iniciar Treino</button>
+            <div id="id_treino" style="position: absolute; left: 15px;">Treino 1</div>
+            <button type="button" class="btn btn-secondary active" id="btn_fecharModal"
+            data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="btn_iniciarTreino">Iniciar Treino</button>
       </div>
     </div>
   </div>
@@ -46,26 +52,25 @@
 
 {% endblock modal %}
 
-
 {% block body %}
 
-
-<div class="bg-light" id="tituloListas_treinos">
-
+<div class="container mt-5">
+  <div class="card">
+    <div class="card-body">
+      <h3 class="card-title">Bem-vindo ao lançador de Bolas UA</h3>
+      <p class="card-text">Escolha o modo de lançamento pretendido:</p>
+      <div class="btn-group btn-group-spacing">
+        <a href="/modoauto"><button type="button" class="btn btn-primary mx-1" >Modo Automático</button></a>
+        <a href="/"><button type="button" class="btn btn-primary" >Modo Manual</button></a>
+      </div>
+    </div>
+  </div>
 </div>
+
 
 
 {% endblock body %}
 
 
 
-{% block nav-lances %}
 
-
-<!-- Table lances -->
-
-<div class="bg-light" id="tituloListas_lances">
-
-</div>
-
-{% endblock nav-lances %}

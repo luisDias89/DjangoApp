@@ -34,7 +34,7 @@
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
                     <li class="nav-item">
-                        <a class="nav-link active" aria-current="page" href="">Home</a>
+                        <a class="nav-link active" aria-current="page" href="/homepage">Home</a>
                     </li>
 
                     <li class="nav-item">
@@ -60,87 +60,46 @@
 
     <div id="espacamento_topo"></div>
     
+    
     <!-- Segunda coluna, container com tamanho lg redimencionavel -->
     <div class="container-lg align-self-sm-auto " >
-        <div class="row shadow p-3 mb-5 bg-body rounded text-alg">
+            <div class="row shadow p-3 mb-5 bg-body rounded text-alg">
             <!-- Corpo do contextInformaço-->
             
-            <div class="col-lg-12 align-items-center" id="ColunaContainer" style="margin-top: 1%;">
-
-                <!--Botão DropDown-->
-                <div class="dropdown" style="text-align: right;">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Adicionar
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                        <li><a class="dropdown-item " href="#">Novo Lance</a></li>
-                        <li><a class="dropdown-item" href="#">Novo Treino</a></li>
-                        <!--<li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Separated link</a></li>-->
-                    </ul>
-                </div>
-                <!--Fim do botão DropDown-->
-
+               <div class="col-lg-12 align-items-center" id="ColunaContainer" style="margin-top: 1%;">
+                        {% block modal %}
+                        {% endblock %}
                 
-                {% block modal %}
-                {% endblock %}
-
-                <nav>
-                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
-                            data-bs-target="#nav-treino" type="button" role="tab" aria-controls="nav-home"
-                            aria-selected="true">Modo treino</button>
-                        <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-lances"
-                            type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Executar lances
-                        </button>
-                    </div>
-                </nav>
-                <div class="tab-content" id="div-NaveBody">
-                    <div class="tab-pane fade show active" id="nav-treino" role="tabpanel"
-                        aria-labelledby="nav-home-tab">
-                        <!--Inicio da Div Treino-->
-
 
                         {% block body %}
                         {% endblock %}
 
 
-                        <!--Fim da div -->
-                    </div>
-
-                    <div class="tab-pane fade" id="nav-lances" role="tabpanel" aria-labelledby="nav-profile-tab">
-
                         {% block nav-lances %}
                         {% endblock %}
 
-                    </div>
                 </div>
+                <!-- Fim do contextInformaço-->
+                <p class="m-auto" style="padding-top: 10px;" id="hora_atual"></p>
             </div>
 
-
-            <!-- Fim do contextInformaço-->
-             <p class="m-auto" style="padding-top: 10px;" id="hora_atual"></p> 
-        </div>
-
-            <div class="row-lg text-alg" >
-                Lançador de bolas , Universidade de Aveiro
-                <p>Luís Dias 2022</p>
-
-                <div class="col-lg">
-                </div>
-                <div class="col-lg">
-                </div>
-                <div class="col-lg">
-                </div>
-            </div>
-        </div>
+             
     </div>
 
-   
+    <div class="row-lg text-alg" >
+        Lançador de bolas , Universidade de Aveiro
+        <p>Luís Dias 2022</p>
 
-    
+        <div class="col-lg">
+        </div>
+        
+        <div class="col-lg">
+        </div>
+        
+        <div class="col-lg">
+        </div>
 
+    </div>
 
     
     <!-- JavaScript Bundle with Popper -->
