@@ -65,7 +65,7 @@ function getCookie(name) {
 
 
 
-$(document).ready(function(){                   // Se o documento estiver pronto, então executa os scripts
+  window.addEventListener('load',function(){                   // Se o documento estiver pronto, então executa os scripts
     
     var Present_id_treino=0;                    // variavel auxiliar de ciclo  
     $('#id_table').DataTable({
@@ -90,7 +90,9 @@ $(document).ready(function(){                   // Se o documento estiver pronto
         bSort : true,
     });
 
-    var ID_selected;                    // Nota este ID_selected foi adicionado para resolver o BUG do jquery que não recebe os novos valores dentro dos data.
+
+    var ID_selected;            // Nota este ID_selected foi adicionado para resolver o BUG do jquery que não recebe os novos valores dentro dos data.
+    var SG_ASK_TREINOorLANCE = "none"    // Quando alquem carrega na tabela, aqui fica guardado se é um treino ou lance que vai ser executado
     //var myModal = new bootstrap.Modal(document.getElementById('myModal'),{ keyboard: false, backdrop: 'static' })
 
     const myModal = new bootstrap.Modal('#myModal', { keyboard: false, backdrop: 'static' });
@@ -99,41 +101,77 @@ $(document).ready(function(){                   // Se o documento estiver pronto
     var btn_FecharModal=$("#btn_fecharModal");
     var btn_closeSuperior=$("#btn_closeSuperior");
     var btn_FecharModal_js=document.getElementById("btn_fecharModal");
+    var btn_PauseResume= document.getElementById('btn_PauseResume');
     var btn_closeSuperior_js=document.getElementById("btn_closeSuperior");
     var flag_sincronizaTreino=false;                                                // Variavel que o timer espera para iniciar a sincronização do treino na tela
     var flag_sincronizaLance=false;
+    let treinoPausado = false;
     //Junção JavaScript para tratamento do botão de inicio de treino e inicio de lance
+    
+
+    // ======================== TRATAMENTO DO BOTÃO PAUSE/RESUME =============================
+
+    btn_PauseResume.onclick = function()  {                                         // Quando o utilizador carrega na tecla PAUSE/RESUME
+        if(SG_ASK_TREINOorLANCE=="TREINO")                                              // Primeiro verifica se é um treino
+        {
+            if (treinoPausado) {                                                            // e se for um treino, verifica se esta Pausado
+                init_stop_Treino(url, ID_selected, "RESUME");                                   // se estiver pausado então envia informação ao Back end para andar
+                treinoPausado = false;                                                          // Assinala novamente não esta pausado
+                btn_PauseResume.textContent = "Pause";                                          // e troca o texto do botão para Pause
+              } else {                                                                      // caso esteja em running o
+                init_stop_Treino(url, ID_selected, "PAUSE");                                    // envia PAUSE ao back END
+                treinoPausado = true;                                                           // assinala que esta em estado de PAUSE    
+                btn_PauseResume.textContent = "Resume";                                         // e troca o nome do botão para Resume
+              }    
+        }
+
+        if(SG_ASK_TREINOorLANCE=="LANCE")                                            // Primeiro verifica se é um Lance
+        {   
+            if (treinoPausado) {                                                        // e se for um Lance, verifica se esta Pausado
+                init_stop_lance(url, ID_selected, {comando: "RESUME",});                    // se estiver pausado então envia informação ao Back end para andar
+                treinoPausado = false;                                                      // Assinala novamente não esta pausado
+                btn_PauseResume.textContent = "Pause";                                      // e troca o texto do botão para Pause
+              } else {                                                                  // caso esteja em running o
+                init_stop_lance(url, ID_selected, {comando: "PAUSE",});                     // envia PAUSE ao back END
+                treinoPausado = true;                                                       // assinala que esta em estado de PAUSE      
+                btn_PauseResume.textContent = "Resume";                                     // e troca o nome do botão para Resume
+              } 
+        }
+      };
+    
     document.getElementById('btn_iniciarTreino').onclick = function() 
     {
         let btn_widgetHTML = document.getElementById('btn_iniciarTreino');
         let data = btn_widgetHTML.getAttribute('data-tipo');
-        let id_atual = btn_widgetHTML.getAttribute('data-id');
+        let id_atual = btn_widgetHTML.getAttribute('data-id');                      // Recebe o ID da base de dados, que foi recebido na contrução da tabela
         let textoAtual = btn_widgetHTML.textContent;                                // Recebe o valor de texto do botão
-        url=document.getElementById("id_table").getAttribute('data-url');   // vai à tabela buscar o URL inserido a partir do template DJANGO
+        url=document.getElementById("id_table").getAttribute('data-url');           // vai à tabela buscar o URL inserido a partir do template DJANGO
 
         switch (textoAtual) {
 
             case 'Iniciar treino':
                 var request = init_stop_Treino(url,id_atual,"START");       // Faz um request AJAX para iniciar o treino BACKEND
-                request.done(function( ) {     
-                    btn_widgetHTML.textContent = 'Parar treino'                                                                      // Se a comunicação for bem executada então muda o botão e inicia o treino
-                    //btn_widgetHTML.html('Parar Treino').button("refresh");          // Altera o nome do botão
-                    btn_FecharModal.removeClass("active").addClass("disabled");       // Desativa o botão close
-                    btn_closeSuperior.removeClass("active").addClass("disabled");     // Desativa o botão X (close()
-                    flag_sincronizaTreino=true;
+                request.done(function( ) {                                              // Se a comunicação for bem executada 
+                    btn_widgetHTML.textContent = 'Parar treino'                         // então muda o botão e inicia o treino
+                    btn_PauseResume.style.display = 'block';                            // Mostr o botão Pause/resume    
+                    btn_FecharModal_js.classList.remove("active");      // inativa o botão Close
+                    btn_FecharModal_js.classList.add("disabled");
+                    btn_closeSuperior.removeClass("active").addClass("disabled");       // Desativa o botão X (close()
+                    flag_sincronizaTreino=true; 
                     });
                     
-                request.fail(function( jqXHR, textStatus ) {                        // Caso a ligação mal sucedida, aborta e avisa
-                    alert("Falha de comunicação")
+                request.fail(function( jqXHR, textStatus ) {                            // Caso a ligação for mal sucedida, aborta e avisa
+                    alert("Falha de comunicação com o controlador")
                 });    
                 break;
 
-            case 'Parar treino':                                     
-                init_stop_Treino(url, id_atual,"STOP");
-                btn_widgetHTML.textContent = 'Iniciar treino' 
-                //btn_widgetHTML.html('Iniciar Treino').button("refresh");
-                btn_FecharModal.removeClass("disabled").addClass("active");
-                btn_closeSuperior.removeClass("disabled").addClass("active");
+            case 'Parar treino':                                                    // se o texto do botão for Parar treino
+                init_stop_Treino(url, id_atual,"STOP");                                 // entao envia mensagem ao brack end para fazer STOP ao treino
+                btn_widgetHTML.textContent = 'Iniciar treino'                           // passo o texto do botão para "Iniciar treino" 
+                btn_PauseResume.style.display = 'none';                                 // Esconde o botão toogle de Pause/resume
+                btn_FecharModal_js.classList.remove("disabled");          // Ativa o botão close
+                btn_FecharModal_js.classList.add("active");
+                btn_closeSuperior.removeClass("disabled").addClass("active");           // o botão close superiorDireito passa ao estado de ativo
                 flag_sincronizaTreino=false;
                 break;
 
@@ -155,6 +193,7 @@ $(document).ready(function(){                   // Se o documento estiver pronto
                     btn_widgetHTML.textContent = 'Parar lance'
                     btn_FecharModal_js.classList.remove("active");
                     btn_FecharModal_js.classList.add("disabled");
+                    document.getElementById('btn_PauseResume').style.display = 'block'; // Mostr o botão Pause/resume  
                     btn_closeSuperior.removeClass("active").addClass("disabled");     // Desativa o botão X (close()
                     flag_sincronizaLance=true;
                 }
@@ -181,6 +220,7 @@ $(document).ready(function(){                   // Se o documento estiver pronto
                 btn_FecharModal_js.classList.remove("disabled");
                 btn_FecharModal_js.classList.add("active");
                 btn_closeSuperior.removeClass("disabled").addClass("active");
+                document.getElementById('btn_PauseResume').style.display = 'none'; // Mostr o botão Pause/resume 
                 
                 break;
             default:
@@ -192,8 +232,8 @@ $(document).ready(function(){                   // Se o documento estiver pronto
 
     $('#tableLanceBody').children("tr").on('click', function(){
 
-        ID_selected= $(this).children("th").text();
-        //console.log(ID_selected);
+        ID_selected= $(this).children("th").text();                      // Recebe o ID do lance para poder utilizar globalmente
+        SG_ASK_TREINOorLANCE="LANCE"
 
         $.ajax({                                                         // Chamada Ajax
             url: $("#id_table2").data('url'),                            // Qual o URL definido para a chamada desta tabela, está no html data-url
@@ -206,7 +246,7 @@ $(document).ready(function(){                   // Se o documento estiver pronto
             },
             success: (data) => {
                 
-                console.log("Envio ajax");
+                console.log("Envio ajax");              
                 //alert(typeof(Nome_selected));
                 
                 var HTMLtitulo = $("#TituloModal");                     // Recebo o componente HTML 
@@ -301,8 +341,9 @@ $(document).ready(function(){                   // Se o documento estiver pronto
     $('#tableTreinoBody').children("tr").on('click',                           // Se clicar na tabela em cima do seu filho TR, executa:
         function()
             {
-                ID_selected= $(this).children("th").text();
-                
+                ID_selected= $(this).children("th").text();                     // Recebe o ID do treino para poder utilizar globalmente
+                SG_ASK_TREINOorLANCE="TREINO"
+
                 //Nome_selected=$(this).children("td").text();
                 var lines = $('td', this).map(function(index, td){
                     return $(td).text();

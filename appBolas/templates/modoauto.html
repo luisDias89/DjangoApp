@@ -7,19 +7,21 @@
 <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="TituloModal"></h5>
-          <!--Titulo Modal-->
-          <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"
-            aria-label="Close"></button>
+
+        <div class="modal-header">                                                                            <!-- DIV CABEÇALHO -->
+          <h5 class="modal-title" id="TituloModal"></h5>                                                          <!-- Titulo Modal -->
+          
+          <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"       
+            aria-label="Close"></button>                                                                          <!-- botão X superior direito -->
         </div>
-      <div class="modal-body" id="context_modal" style="text-align: left;">
+
+      <div class="modal-body" id="context_modal" style="text-align: left;">                                   <!-- CORPO MODAL -->
           <!--Informação do Body-->
-            <div id="HR"> 
+            <div id="HR">                             
             </div>
 
-            <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022 
-            </div>
+            <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022            
+            </div>                                                                                                <!-- Inserido a: xxxxxx -->  
       
             <div> <span id="InformacaoLabel" style="font-weight: bold;">Lista de lances a executar:</span>
               <ol id="modelData_Exec_treino">
@@ -44,7 +46,9 @@
             <div id="id_treino" style="position: absolute; left: 15px;">Treino 1</div>
             <button type="button" class="btn btn-secondary active" id="btn_fecharModal"
             data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="btn_PauseResume" style="display:none">Pause</button>    <!-- Botão pausa, inicia escondido -->
             <button type="button" class="btn btn-primary" id="btn_iniciarTreino">Iniciar Treino</button>
+
       </div>
     </div>
   </div>

@@ -181,7 +181,7 @@ def index(request):
         # context é a estrutura que é enviada para o template python, que vai ser interpretado pelo render HTML
         context ={
             'curso': 'Engenharia de Automação Industrial 2019 - 2023',
-            'mensagem':'O Lúis Dias é o melhor engenheiro do planeta!',
+            'mensagem':'O Luís Dias é o melhor engenheiro do planeta!',
             'logado': msgQuemEstaLogado,
             'showLogedIcons': request.user.is_authenticated,                    # Retorna um valor boleano para mostrar ou não o menu de settings
             #'SerialPort':SerialPort,
