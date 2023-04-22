@@ -19,17 +19,15 @@ def modoauto(request):
     
 
     if is_ajax:                                                                 # Se o metodo for ajax, então a resposta é em JSON
-        if request.method=="GET":                                               # Se GET então
-            #print("chamada Ajax, metodo GET")                                  # Troubleshoting
-            todos = list(treino.objects.all().values())                         # Recebe os valores da base de dados
-            return JsonResponse({'context': todos}, status=200)                 # Envia os valores por JSON, e retorna 200(ok)
+        if request.method=="GET":                                                # Se GET então
+            todos = list(treino.objects.all().values())                          # Recebe os valores da base de dados
+            return JsonResponse({'context': todos}, status=200)                  # Envia os valores por JSON, e retorna 200(ok)
 
         if request.method=="POST":                                              # Se o methodo for POST então
-            #print("chamada Ajax, metodo POST")                                 # Troubleshoting
-            dataFromPost=json.load(request)                                     # recebe os valores de POST
+            dataFromPost=json.load(request)                                      # recebe os valores de POST
             
             # Caso a mensagem pretenda obter informações da tabela de treino   
-            if "idlance" in dataFromPost:
+            if "idlance" in dataFromPost:                                       # idlance, é só para lances
                 dbLance = LanceDB.objects.get(id=dataFromPost["idlance"])  
                 print("Lance " + str(dataFromPost["idlance"]))
 
@@ -44,17 +42,18 @@ def modoauto(request):
                 return JsonResponse(respostaJson, status=200)
 
             # Para os treinos é só id
-            if "id" in dataFromPost:
-                dbTreino = treino.objects.get(id=dataFromPost["id"])  
-                serialized_q = serializers.serialize('json', dbTreino.lances.all())
-                #print(serialized_q)
-                #json_string = json.dumps(serialized_q)
-                lancesJson={}
-                i=0
-                lances = dbTreino.lances.all()
-                for lance in lances:
-                    lancesJson.update({'lance'+ str(i): lance.nomeLance})
-                    i=i+1
+            if "id" in dataFromPost:                                                        # se houver um pedido com id na mensagem então
+                dbTreino = treino.objects.get(id=dataFromPost["id"])                           #  vou ao models buscar toda a informacao do treino    
+                serialized_q = serializers.serialize('json', dbTreino.lances.all())            #  e serializo para poder enviar por ajax para o front
+                lancesJson={}                                                                  #  cria um Dicionario para guardar os lances iterados
+                i=0                                                                            #  declara um indice auxiliar
+                lances = dbTreino.lances.all()                                                 #  recebe os lances dentro de uma estrutura
+                #for lance in lances:                                                           # itera a estrutura dos lances e 
+                #    lancesJson.update({'lance'+ str(i): lance.nomeLance})                      # adiciona ao Dicionario
+                #    i=i+1                                                                      # incrementa o iterador
+
+                lancesJson = {'lance' + str(i): lance.nomeLance for i, lance in enumerate(dbTreino.lances.all())}
+                print(lancesJson)
 
                 respostaJson={
                     'statusID': dbTreino.id,
@@ -96,6 +95,7 @@ def modoauto(request):
                     if "id_treino" in dataFromPost:
                         engineLancadorBolas.resume(tipo="treino")
                     if "id_lance" in dataFromPost:
+                        engineLancadorBolas.resume(tipo="lance")
                         print("RESUME LANCE")
                         pass
                     respostaJson={'status': "run",}
@@ -104,6 +104,7 @@ def modoauto(request):
                     if "id_treino" in dataFromPost:
                         engineLancadorBolas.pause(tipo="treino")
                     if "id_lance" in dataFromPost:
+                        engineLancadorBolas.pause(tipo="lance")
                         print("PAUSE LANCE")
                         pass
                     respostaJson={'status': "pause",}

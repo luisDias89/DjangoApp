@@ -109,7 +109,7 @@ function getCookie(name) {
     //Junção JavaScript para tratamento do botão de inicio de treino e inicio de lance
     
 
-    // ======================== TRATAMENTO DO BOTÃO PAUSE/RESUME =============================
+    // ======================== TRATAMENTO DO BOTÃO PAUSE/RESUME ============================
 
     btn_PauseResume.onclick = function()  {                                         // Quando o utilizador carrega na tecla PAUSE/RESUME
         if(SG_ASK_TREINOorLANCE=="TREINO")                                              // Primeiro verifica se é um treino

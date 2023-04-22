@@ -78,13 +78,13 @@ class engineTreino:
 
         if (tipo=="lance"):                                         # Se for do tipo lance
             if "cadencia" in dataLance:
-                self.threadLance=ClasseThreadLance(ser)
-                self.dbLance = lance.objects.get(id=id_selected)
-                self.threadLance.startLance(
-                    nomeLance="random",
-                    velRoloEsq=int(self.dbLance.velocidadeRoloEsq), 
-                    velRoloDir=int(self.dbLance.velocidadeRoloDir), 
-                    angulo_X=int(self.dbLance.anguloX), 
+                self.threadLance=ClasseThreadLance(ser)                 # Cria uma nova instancia do objeto  lance  
+                self.dbLance = lance.objects.get(id=id_selected)        # vai a base de dados consultar os dados com o id selecionado  
+                self.threadLance.startLance(                            # e chama o metodo para configurar e iniciar o lance no novo objeto criado
+                    nomeLance="random",                                 # ???
+                    velRoloEsq=int(self.dbLance.velocidadeRoloEsq),     # atribui a velocidade do ROLO esquerdo
+                    velRoloDir=int(self.dbLance.velocidadeRoloDir),     # atribui a velocidade do ROLO Direito
+                    angulo_X=int(self.dbLance.anguloX),                 # ... e por ai fora.
                     angulo_Y=int(self.dbLance.anguloY), 
                     angulo_Z=int(self.dbLance.anguloInclinacao), 
                     cadencia=int(dataLance["cadencia"]), 
