@@ -49,22 +49,29 @@ class threadTreino(threading.Thread):
         self.objLances=objLances                    # recebe o objeto lances
         self.lancesJson={}
         i=0
+        quantidadeLancamentos=0
         for lance in self.objLances:
             self.lancesJson.update({'lance'+ str(i): lance.nomeLance})
+            quantidadeLancamentos+=qtLancamentos
             i=i+1
         
         self.cadencia=cadencia                      # Recebe a cadencia de lançamento
         self.tipoSequencia=tipoSequencia            # Recebe o tipo de Sequancia de lançamento, , (ALEATORIA = 1 SEQUENCIAL = 2)
         self.tempoTreino=tempoTreino                # Recebe o tempo de treino e itribui à variavel da classe
+    
+        
         # normalização do tempo de treino
         inteiro = int(tempoTreino)
-        virgula= tempoTreino-inteiro
-        tempoNormalizado= (float(virgula)*1.666666)+inteiro
-        self.tempoNormalizadoSegundos=tempoNormalizado*3600
+        virgula= tempoTreino-inteiro                            # separa o que esta para alem da virgula
+        tempoNormalizado= (float(virgula)*1.666666)+inteiro     # Normaliza o tempo de treino
+        self.tempoNormalizadoSegundos=tempoNormalizado*3600     # passa de horas para segundos ???
         
         
-
-
+        #Calcula se o tempo definido no treino é maior que o tempo do ciclo, se for então permanece o tempo do ciclo
+        tempoTreinoqtCadencia=(quantidadeLancamentos*cadencia)+18+2*quantidadeLancamentos             # Calcula o tempo de treino em funcao da cadencia e qtbolaslancadas
+        if (tempoTreinoqtCadencia<self.tempoNormalizadoSegundos):   # caso seja inferior ao tempo de treino programado na base de dados, é este o tempo que conta
+            self.tempoNormalizadoSegundos=tempoTreinoqtCadencia
+        
 
         
     def stop(self):                                 # set da flag para terminar a Thread
@@ -73,19 +80,25 @@ class threadTreino(threading.Thread):
     def stopped(self):                              # Retorna a informação se a thread já foi fechada
         return self._stop.is_set()
     
-    def set_pause(self):                            # Pausa o processamento dentro da Thread
-        if( self.runThread==True):
-            self.tic("pause")
-        trancaVariavel.acquire()
-        self.runThread=False
-        trancaVariavel.release()
+    def set_pause(self):                           
+        '''
+        Pausa o processamento dentro da Thread, registo do tempo
+        '''
+        if( self.runThread==True):                  # se a thead estiver a correr então 
+            self.tic("pause")                               # regista o tempo em que foi feita a pausa
+            trancaVariavel.acquire()                        # tranca a variavel para não haver conflitos de thread
+            self.runThread=False                            # e pára o loop da THREAD
+            trancaVariavel.release()                        # volta a libertar a variavel para processamento da thread
     
     def set_resume(self):                           # Continua a execução da Thread
+        '''
+        Faz resume se a thead estiver parada, regista o tempo
+        '''
         if(self.runThread==False):
-            self.totalPausa+=self.toc("pause")           # recebe a quantidade de tempo que esteve pausado, incrementa ao que já tem.
-        trancaVariavel.acquire()
-        self.runThread=True
-        trancaVariavel.release()
+            self.totalPausa+=self.toc("pause")              # recebe a quantidade de tempo que esteve pausado, incrementa ao que já tem.
+            trancaVariavel.acquire()                        # tranca a variavel para não haver conflitos de thread
+            self.runThread=True                             # continua loop da THREAD
+            trancaVariavel.release()                        # volta a libertar a variavel para processamento da thread
 
     #================================================#
     #       Metodo para comunicar com o GRBL         #
@@ -93,15 +106,15 @@ class threadTreino(threading.Thread):
     #       envia, retorna a primeira mensagem de    #
     #       resposta do GRBL                         #
     def send_to_GRBL(self, msg):
-        if self.ser.isOpen():
+        if self.ser.isOpen():                                   # se a porta com esta aberta
             self.ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens                                  
-            mensagem= msg + '\n'                                # Contrução da mensagem, não apagar o '\n', senão não funciona
-            #print('Sending: ' + mensagem)                      # Bloco de depuração
+            mensagem= msg + '\n'                                     # Contrução da mensagem, não apagar o '\n', senão não funciona
+            #print('Sending: ' + mensagem)                           # Bloco de depuração
             self.ser.write(mensagem.encode())                        # Bloco de envio de G-CODE
             time.sleep(0.1)                                     
             grbl_out = self.ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
             resposta=grbl_out[0].decode()
-            return resposta                                     # Quando pretendemos só o ok, ficamos apenas pela primeira linha [0]
+            return resposta                                          # Quando pretendemos só o ok, ficamos apenas pela primeira linha [0]
     #=================================================#
     
     # Metodo para aceder às variaveis do GRBL
@@ -140,8 +153,6 @@ class threadTreino(threading.Thread):
                 return False
 
 
-
-
     # Função concluida
     def get_timeleft(self):      
         # O tempo decrescent é dado por timeLeft-(toc("runTime"))+tempoTotaldePause
@@ -155,7 +166,10 @@ class threadTreino(threading.Thread):
     def get_percentleft(self):
         tempoDecorrido=self.tempoNormalizadoSegundos-self.timeLeft
         self.percentLeft=round((tempoDecorrido / self.tempoNormalizadoSegundos)*100, 2)      # Round a 2 casas decimais
-        return self.percentLeft                                          # Retorna a percentagem faltante do treino
+        return self.percentLeft                                                              # Retorna a percentagem faltante do treino
+        
+        # O erro da percentagem errada é devido ao tempo de ciclo não contabilizar quantas bola são lançadas e a cadencia delas.
+        # Deve portanto verificar qual demora menos tempo, e atribuir a self.tempoNormalizadoSegundos, que é a variavel que recebe o tempo do lançamento 
 
     def get_LanceAexecutar(self):
         pass
@@ -165,7 +179,6 @@ class threadTreino(threading.Thread):
         pass
     def __baralha():
         pass
-
     def __go2(self,x,y,z):
         pass
 
@@ -176,22 +189,23 @@ class threadTreino(threading.Thread):
         
         self.tic()                                  # Momento do inicialização, regista o momento em que é iniciado o treino, antes de entrar no loop
         i=0
-        #os lances são iterados de [0 até (len(lances)-1)]
-        quantidadeLances=len(self.objLances)-1      
-        iteradorLances=0
         
-        self.threadLance=ClasseThreadLance(self.ser)
+        quantidadeLances=len(self.objLances)-1                                   # os lances são iterados de [0 até (len(lances)-1)]
+        iteradorLances=0                                                         # Inicializa o iterador
         
+        self.threadLance=ClasseThreadLance(self.ser)                             # Cria um objeto da classe thead lance para executar lance a lance, enquato os itera.
+                                                                                 # importante, passa o objeto serialPort para ter controlo do GRBL
+        
+        # ============ LOOP DE CONTROLO DOS LANCES ==============
         while(True):
             
-            if(self.runThread):                                                  #self.runThread -> Variavel de pause da Thread
-                #dicCoordenadasAtuais=self.getCoordenadas()                      # Obtem coordendas atuais
-                if(self.tipoSequencia==2):                                       # Lances sequenciais
-                    # Se for o primeiro lance então
-                    if(iteradorLances==0):
-                        print("Inicializei")
-                        self.threadLance.startLance(
-                                        nomeLance=str(self.objLances[0].nomeLance), 
+            if(self.runThread):                                                                              # Se nao estiver em pausa  
+                self.threadLance.resume()                                                                       # garante que esta em andamento a thread                                     
+                if(self.tipoSequencia==2):                                                                      # e se o tipo de sequencia é igual a 2 (2-> Sequencial)         
+                    if(iteradorLances==0):                                                                          # Se for o primeiro lance então
+                        print("Inicializei lance 0 do treino")                                                          # Imprime na consola que está no lance zero
+                        self.threadLance.startLance(                                                                    # da inicio ao lance zero, enviando startLance
+                                        nomeLance=str(self.objLances[0].nomeLance),                                     # e as informações proveninentes da base de dados
                                         velRoloEsq=int(self.objLances[0].velocidadeRoloEsq), 
                                         velRoloDir=int(self.objLances[0].velocidadeRoloDir), 
                                         angulo_X=int(self.objLances[0].anguloX), 
@@ -200,10 +214,12 @@ class threadTreino(threading.Thread):
                                         cadencia=int(self.cadencia), 
                                         qtBolasLancadas=int(self.qtLancamentos)
                                         )
-                        iteradorLances+=1           # Garante que só executa este if uma vez, no posição 0
+                        # Garante que só executa este if uma vez, no posição 0  
+                        iteradorLances+=1                                                                               # Incrementa para que no lance seguinte, va para o step 2
                     # Se não estiver a correr um lance e o iterador for inferior à quantidade de lances
-                    elif((iteradorLances <= quantidadeLances) and self.threadLance.runing == False):
-                        self.threadLance.startLance(
+                    elif((iteradorLances <= quantidadeLances) and self.threadLance.runing == False):                    # enquato o iterador for inferior à quantidade de lances..
+                                                                                                                        # .. e já ter acabado o ultimo lance (runing vai a zero quando acaba o lance anterior)  
+                        self.threadLance.startLance(                                                                       # entao volta a iniciar o lance, no iterador que está parado             
                                         nomeLance=str(self.objLances[iteradorLances].nomeLance), 
                                         velRoloEsq=int(self.objLances[iteradorLances].velocidadeRoloEsq), 
                                         velRoloDir=int(self.objLances[iteradorLances].velocidadeRoloDir), 
@@ -222,11 +238,13 @@ class threadTreino(threading.Thread):
                     print(randomint)
                     print(self.objLances[randomint].nomeLance)
                     print(self.lancesJson)
+                    # =================================== FALTA IMPLEMENTAR ================================================
 
 
-                time.sleep(0.1)
-            # Acaba com a Thread se o tempo de treino acabar ou ouver ondem de paragem
-            if(self.stopped() or (self.get_timeleft() < 0) or ((iteradorLances-1) > quantidadeLances)):
-                #print("O Treino Terminou"  + str(self.stopped()) + str((self.get_timeleft() < 0)) + str((iteradorLances-1) > quantidadeLances))
-                self.threadLance.stop()
-                break
+                time.sleep(0.1)                                                                                         # Verifica este estados 10 vezes por segundo
+            else:
+                self.threadLance.pausar()
+            # Acaba com a Thread se o tempo de treino acabar ou houver ordem de paragem
+            if(self.stopped() or (self.get_timeleft() < 0) or ((iteradorLances-1) > quantidadeLances)):                 # Se alguem parar o lance ou acabar o tempo .. 
+                self.threadLance.stop()                                                                                 # .. ou o iterador for superior a quantidade de lances
+                break                                                                                                      # entao faz stop ao lance e sai da thread

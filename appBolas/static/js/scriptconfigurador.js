@@ -4,7 +4,7 @@
  necessária para que se dê inicio ao 
  treino, mensagens enviadas ao backend
  Parametros: 
- url: caminho da resquisição
+ url: caminho da requisição
  id_treino: treino a ser executado
  ---------------------------------------------------------------------------
  tipoRequisição: "START" , "STOP" , "PAUSE" , "RESUME" , "GET_INFO"

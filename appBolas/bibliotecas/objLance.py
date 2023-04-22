@@ -47,7 +47,7 @@ class ClasseThreadLance(threading.Thread):
 
         if(self.runing and (not self.stopped())):           # se o Thread não estiver parada então coloca em funcionamento
             self.lb_home()
-            print("ACABEIO O HOMING!!!!!!")
+            print("ACABEI O HOMING!!!!!!")
             self.start()
             print("START LANCE!!!!!!")
         else:

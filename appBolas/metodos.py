@@ -9,12 +9,13 @@ c = threading.Condition()
 from .models import treino, lance
 import serial
 from .bibliotecas.objLance import ClasseThreadLance
+from .bibliotecas.engineThread import threadTreino
 
 """
-Objeto que se conecta e contem auma serie de metodos para comunicar via serial com o GRBL
+Objeto que se conecta e contem uma serie de metodos para comunicar via serial com o GRBL
 """
 # ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
-#ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
+# ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
 ser = serial.Serial(
         port='/dev/ttyUSB0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
         baudrate = 115200,
@@ -42,8 +43,6 @@ def toc():
     return delta_t
 
 
-
-from .bibliotecas.engineThread import threadTreino
 class engineTreino:
     
     '''
@@ -61,7 +60,7 @@ class engineTreino:
     
     # metodos acessiveis
     def start(self, id_selected, tipo, dataLance={}):
-                                                     # Link para o objeto global do serialPort
+                                                                        # Link para o objeto global do serialPort
         global threadOP
         if (tipo=="treino"):
             self.dbTreino = treino.objects.get(id=id_selected)          # Consulta a base de dados, e obtem o objeto tabela com toda a informação                                   
@@ -117,12 +116,10 @@ class engineTreino:
         if (tipo=="lance"):
             self.threadLance.resume()
         
-        
-    # Função concluida
     def get_timeleft(self,tipo):                     
-        return threadOP.get_timeleft()                              # Retorna o tempo restante do treino
+        return threadOP.get_timeleft()                                             # Retorna o tempo restante do treino
 
-    # Função concluida
+
     def get_percentleft(self,tipo):
         if (tipo=="treino"):
             return threadOP.get_percentleft()                                      # Retorna a percentagem faltante do treino

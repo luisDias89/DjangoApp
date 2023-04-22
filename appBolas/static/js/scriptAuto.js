@@ -33,7 +33,7 @@ chatSocket.onmessage = function (e) {
     }
 }
 
-// Função teste se é numero e se não tem letras
+// Função que testa se é numero e se não tem letras
 function validaNumber(stringTeste, nNumeros){
     var valido = false;
     if(!(stringTeste.length > nNumeros) && !isNaN(stringTeste) )
@@ -195,12 +195,12 @@ $(document).ready(function(){                   // Se o documento estiver pronto
         ID_selected= $(this).children("th").text();
         //console.log(ID_selected);
 
-        $.ajax({                                                        // Chamada Ajax
+        $.ajax({                                                         // Chamada Ajax
             url: $("#id_table2").data('url'),                            // Qual o URL definido para a chamada desta tabela, está no html data-url
-            type: "post",                                               // Metodo POST
-            dataType: "json",                                           // Transmissão de DATA por JSON format
-            data: JSON.stringify({idlance: $(this).data("id"),}),            // Envio de uma mensagem com chave returnID-> ID(da linha BD)
-            headers: {                                                  // Cabeçalhos
+            type: "post",                                                // Metodo POST
+            dataType: "json",                                            // Transmissão de DATA por JSON format
+            data: JSON.stringify({idlance: $(this).data("id"),}),        // Envio de uma mensagem com chave returnID-> ID(da linha BD)
+            headers: {                                                   // Cabeçalhos
                 "X-Requested-With": "XMLHttpRequest",
                 "X-CSRFToken": getCookie("csrftoken"),                   // Não esquecer de criar a função 'getCookie'
             },

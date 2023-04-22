@@ -1,3 +1,6 @@
+//*-------------------------------------------
+//          @ Luís Dias 2022
+// Funções genericas para controlo da página manual
 
 //-------------- Relogio --------------------------------
 setInterval(myTimer, 1000);
@@ -9,10 +12,10 @@ function myTimer() {
 
 //-------------- WebSocket --------------------------------
 
-
 // Declaração dos caminhos e objetos WebSocket
 let url = `ws://${window.location.host}/ws/socket-server/`;
 const chatSocket = new WebSocket(url);
+
 
 // ------------------ Joystick ----------------------------------
 var joy1InputPosX;
@@ -112,7 +115,7 @@ var Joy1 = new JoyStick('joy1Div', {}, function (stickData) {
     joy1Direcao = stickData.cardinalDirection;              // Recebe qual o sentido
     
     //rotação para alcançarX
-    joy1X = bufferjoy1X = stickData.x;
+    joy1X = bufferjoy1X = stickData.x;                       // Recebe o valor de rotação a alcançarde X      
 
     //Inclinação
     joy1Y = bufferjoy1Y = stickData.y;                       //Atualiza a TextBox com o valor atual do Joystick      
