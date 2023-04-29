@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="{% static 'images/icons/bootstrap-icons.css' %} ">
 </head>
 
+
+
 <body>
     {# Display a form #}
     <!-- Container do cabeçalho, é uma barra preta(bg-dark) com letras brancas(navbar-dark), z-index para ficar no topo 999, posição fixa(position-fixed)  -->
@@ -52,6 +54,58 @@
             </div>
         </div>
     </nav>
+
+ <!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title custom-title">Adicionar novo lance</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="nomeLance" class="form-label">Nome do lance:</label>
+            <input type="text" class="form-control" id="nomeLance" name="nomeLance" required oninvalid="this.setCustomValidity('Por favor, preencha o campo Nome do lance.')">
+          </div>
+          <div class="mb-3">
+            <label for="anguloX" class="form-label">Ângulo em X:</label>
+            <input type="number" step="0.01" class="form-control" id="anguloX" required>
+          </div>
+          <div class="mb-3">
+            <label for="anguloY" class="form-label">Ângulo em Y:</label>
+            <input type="number" step="0.01" class="form-control" id="anguloY" required>
+          </div>
+          <div class="mb-3">
+            <label for="anguloInclinacao" class="form-label">Ângulo de inclinação:</label>
+            <input type="number" step="0.01" class="form-control" id="anguloInclinacao" required>
+          </div>
+          <div class="mb-3">
+            <label for="velocidadeRoloEsquerdo" class="form-label">Velocidade do rolo esquerdo:</label>
+            <input type="number" min="0" max="100" class="form-control" id="velocidadeRoloEsquerdo" required>
+          </div>
+          <div class="mb-3">
+            <label for="velocidadeRoloDireito" class="form-label">Velocidade do rolo direito:</label>
+            <input type="number" min="0" max="100" class="form-control" id="velocidadeRoloDireito" required>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-primary" onclick="salvarLance()">Salvar</button>
+      </div>
+      
+    </div>
+  </div>
+</div>
+<!-- Fim do Modal -->
+
+
+
 
     <div id="espacamento_topo"></div>
     
@@ -150,6 +204,8 @@
                                 </table>
                         </div>
                     </div>
+                    <button class="btn btn-success" type="button" onclick="createDialogToNewLance()" id="btn_AdicionarLance">Adicionar lance da posição atual</button>
+
             </div>
              <p class="m-auto" style="padding-top: 10px;" id="hora_atual"></p> 
         </div>

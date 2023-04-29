@@ -36,6 +36,9 @@ var rangeTorce=document.getElementById('id_inclinador');                    // O
 var RoloTorce=document.getElementById('RoloTorce');                         // Recebe o objeto Texto, Z(do GRBL)
 var txt_rotacao=document.getElementById('id_rotacao');                      // X
 
+var myModal = new bootstrap.Modal(document.getElementById('myModal'), {
+    keyboard: false
+  });                                                                       // Declaração do MODAL para inserir novo lance                    
 
 // Sempre que recebo uma mensagem do WebSocket é despoletado um evento que decide o que vai fazer com a informação recebida
 chatSocket.onmessage = function (e) {
@@ -304,6 +307,99 @@ function validaNumber(stringTeste, nNumeros){
     }
     return valido;
 }
+
+//==================================================================================
+//         Função link ao botão de criar lance a partir de posições atuais 
+//  Esta função lança um modal que captura as coordenadas atuais do lançador de bolas
+//  e velocidade dos rolos, é possivel editar os valore tanto de posições como de vel motores
+//  O modal deve ter uma zona para poder inserir o nome do lance
+//  CAMPOS:
+//  Nome do lance: ____________
+//  Angulo em X: Valor numérico com duas casas decimáis
+//  Angulo em Y: Valor numérico com duas casa decimais
+//  Angulo de inclinação: valor numérico com duas casa decimais
+//  Velocidade do rolo esquerdo: Numero inteiro de 0 a 100
+//  Velocidade do rolo direito: Numero inteiro de 0 a 100 
+
+    //-> recebo o objeto button do document
+    function createDialogToNewLance() {
+        
+        document.getElementById('nomeLance').value = '';                                // Garante que sempre que abre o modal o valor do nome é limpo
+      
+        var inputAngleX = document.getElementById('anguloX');                           // Recebe o objeto campo de entrada do modal para anguloX
+        var angleX = document.getElementById('id_inclina').innerText;                   // Recebe o valor atual do angulo que está fixo no FrontEND
+        if (angleX.endsWith('º')) {                                                     // se o valor vier com um º
+          inputAngleX.value = angleX.slice(0, -1);                                          // Entrao trunca o valor e atribui ao campo
+        } else {                                                                        // Senao
+          inputAngleX.value = angleX;                                                       // o valor é inserido diretamente
+        }
+      
+        var inputAngleY = document.getElementById('anguloY');                           // Recebe o objeto campo de entrada do modal para anguloY 
+        var angleY = document.getElementById('id_rotacao').innerText;                   // Recebe o valor atual do anguloY que está fixo no FrontENd
+        if (angleY.endsWith('º')) {                                                     // se o valor vier com um º
+          inputAngleY.value = angleY.slice(0, -1);                                          // Entrao trunca o valor e atribui ao campo
+        } else {                                                                        // Senao
+          inputAngleY.value = angleY;                                                        // o valor é inserido diretamente
+        }
+      
+        var inputInclination = document.getElementById('anguloInclinacao');             // MESMA COISA...
+        var inclination = document.getElementById('RoloTorce').innerText;
+        if (inclination.endsWith('º')) {
+          inputInclination.value = inclination.slice(0, -1);
+        } else {
+          inputInclination.value = inclination;
+        }
+      
+        var inputSpeedLeft = document.getElementById('velocidadeRoloEsquerdo');         // MESMA COISA...
+        var speedLeft = document.getElementById('roloesq').innerText;
+        if (speedLeft.endsWith('%')) {
+          inputSpeedLeft.value = speedLeft.slice(0, -1);
+        } else {
+          inputSpeedLeft.value = speedLeft;
+        }
+      
+        var inputSpeedRight = document.getElementById('velocidadeRoloDireito');         // MESMA COISA...
+        var speedRight = document.getElementById('rolodir').innerText;
+        if (speedRight.endsWith('%')) {
+          inputSpeedRight.value = speedRight.slice(0, -1);
+        } else {
+          inputSpeedRight.value = speedRight;
+        }
+      
+        myModal.show();                                                                 // Finalmente mostra o modal depois de atualizar os campos
+      }
+
+
+      function salvarLance() {                                                          // Funcao executada ao clicar no botão salvarLance
+        // obter os valores dos inputs
+        var nomeLance = document.getElementById('nomeLance').value;                     
+        var inputAngleX = document.getElementById('anguloX').value;
+        var inputAngleY = document.getElementById('anguloY').value;
+        var inputInclination = document.getElementById('anguloInclinacao').value;
+        var inputSpeedLeft = document.getElementById('velocidadeRoloEsquerdo').value;
+        var inputSpeedRight = document.getElementById('velocidadeRoloDireito').value;
+        
+                // Verificar se o campo está vazio
+        if (nomeLance.trim() === '') {
+            alert('O campo "Nome do lance" é obrigatório!');
+            return;
+        }
+
+        // fazer o que você quiser com os valores, por exemplo:
+        console.log('Valores salvos:');
+        console.log('Nome do lance:', nomeLance);
+        console.log('Angle X:', inputAngleX);
+        console.log('Angle Y:', inputAngleY);
+        console.log('Inclination:', inputInclination);
+        console.log('Speed Left:', inputSpeedLeft);
+        console.log('Speed Right:', inputSpeedRight);
+      
+        // fechar o modal
+        
+        myModal.hide();
+      }
+
+      
 
 
 /* ============================================================================================
