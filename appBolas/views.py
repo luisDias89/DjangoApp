@@ -10,7 +10,11 @@ from .models import lance as LanceDB
 from django.http import HttpResponseBadRequest, JsonResponse        # Importação bibliotecas para async ajax, resposta em JSON
 from django.views.decorators.csrf import requires_csrf_token
 from . import metodos
+from django.contrib.auth.decorators import login_required
 engineLancadorBolas= metodos.engineTreino()
+
+
+
 
 
 def modoauto(request):
@@ -20,11 +24,11 @@ def modoauto(request):
 
     if is_ajax:                                                                 # Se o metodo for ajax, então a resposta é em JSON
         if request.method=="GET":                                                # Se GET então
-            todos = list(treino.objects.all().values())                          # Recebe os valores da base de dados
-            return JsonResponse({'context': todos}, status=200)                  # Envia os valores por JSON, e retorna 200(ok)
+            todos = list(treino.objects.all().values())                             # Recebe os valores da base de dados
+            return JsonResponse({'context': todos}, status=200)                     # Envia os valores por JSON, e retorna 200(ok)
 
         if request.method=="POST":                                              # Se o methodo for POST então
-            dataFromPost=json.load(request)                                      # recebe os valores de POST
+            dataFromPost=json.load(request)                                         # recebe os valores de POST
             
             # Caso a mensagem pretenda obter informações da tabela de treino   
             if "idlance" in dataFromPost:                                       # idlance, é só para lances
@@ -168,10 +172,9 @@ def vel_mot_esq_aum(request):
     return render(request, 'index.html')
     '''
 
-
 def index(request):
     if request.method =="GET":                                                  # Se receber o metodo GET então retorno a app index somente
-        print(request.user)                                                     # Imprime o usuario que est a fazer a requisião de index na consola    
+        #print(request.user)                                                    # Imprime o usuario que est a fazer a requisião de index na consola    
         
         if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
             msgQuemEstaLogado='Utilizado nao logado'                            # Constroi uma mensagem que indica se está logado ou não            
@@ -209,3 +212,73 @@ def contato(request):
 # Sempre que alguem entra na página de controlo do lançador de bolas, é redirecionado para esta página
 def homepage(request):
     return render(request, 'homepage.html')
+
+
+@login_required
+def ajaxRequest(request):
+
+    is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+
+    # Se não for ajax então retorna um erro ao front end que não é uma chamada AJAX
+    if not is_ajax:
+        return HttpResponseBadRequest('This is not an AJAX request')
+
+    # Caso contrario é uma chama Ajax e Verifica se é POST ou GET
+    if request.method == 'POST':                                                # Se for POST, verifica os dados passados
+        
+        try:
+            data = json.loads(request.body)
+            if data["identificador"] == "NOVO_LANCE":                           # Se novo lance, guarda na base de dados
+                nomeLance = data["nomeLance"]
+                anguloX = data["anguloX"]
+                anguloY = data["anguloY"]
+                anguloInclinacao = data["anguloInclinacao"]
+                velocidadeRoloEsq = data["velocidadeRoloEsq"]
+                velocidadeRoloDir = data["velocidadeRoloDir"]
+                
+                # código para salvar os dados na base de dados
+
+                if nomeLance and anguloX and anguloY and anguloInclinacao and velocidadeRoloEsq and velocidadeRoloDir:
+                    lance = LanceDB.objects.create(nomeLance=nomeLance, anguloX=anguloX, anguloY=anguloY,
+                                                    anguloInclinacao=anguloInclinacao, velocidadeRoloEsq=velocidadeRoloEsq,
+                                                    velocidadeRoloDir=velocidadeRoloDir)
+                    response_data = {
+                        'message': 'Lance salvo com sucesso!'
+                    }
+                    status_code = 200  # OK
+                else:
+                    response_data = {
+                        'message': 'Erro ao salvar o lance. Preencha todos os campos!'
+                    }
+                    status_code = 400  # Bad Request
+
+            else:
+                response_data = {
+                    'message': 'Identificador inválido!'
+                }
+                status_code = 400  # Bad Request
+
+        except json.JSONDecodeError:
+            response_data = {
+                'message': 'Dados inválidos. JSON inválido!'
+            }
+            status_code = 400  # Bad Request
+        
+            
+        
+    elif request.method == 'GET':
+        response_data = {
+            'name': 'Luis Dias',
+            'age': 34
+        }
+        status_code = 200  # OK
+        print("GET")
+    else:
+        response_data = {
+            'message': 'Método inválido!'
+        }
+        status_code = 400  # Bad Request    
+    
+    
+    return JsonResponse(response_data, status=status_code)
+

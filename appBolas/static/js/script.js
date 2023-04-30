@@ -385,6 +385,16 @@ function validaNumber(stringTeste, nNumeros){
             return;
         }
 
+        var data = {
+            identificador: "NOVO_LANCE",
+            nomeLance: nomeLance,
+            anguloX: inputAngleX,
+            anguloY: inputAngleY,
+            anguloInclinacao: inputInclination,
+            velocidadeRoloEsq: inputSpeedLeft,
+            velocidadeRoloDir: inputSpeedRight
+        };
+
         // fazer o que você quiser com os valores, por exemplo:
         console.log('Valores salvos:');
         console.log('Nome do lance:', nomeLance);
@@ -393,8 +403,10 @@ function validaNumber(stringTeste, nNumeros){
         console.log('Inclination:', inputInclination);
         console.log('Speed Left:', inputSpeedLeft);
         console.log('Speed Right:', inputSpeedRight);
-      
+        
         // fechar o modal
+
+        ajaxRequest(data);
         
         myModal.hide();
       }

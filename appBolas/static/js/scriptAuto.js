@@ -91,11 +91,9 @@ function getCookie(name) {
     });
 
 
-    var ID_selected;            // Nota este ID_selected foi adicionado para resolver o BUG do jquery que não recebe os novos valores dentro dos data.
+    var ID_selected;                     // Nota este ID_selected foi adicionado para resolver o BUG do jquery que não recebe os novos valores dentro da data.
     var SG_ASK_TREINOorLANCE = "none"    // Quando alquem carrega na tabela, aqui fica guardado se é um treino ou lance que vai ser executado
-    //var myModal = new bootstrap.Modal(document.getElementById('myModal'),{ keyboard: false, backdrop: 'static' })
-
-    const myModal = new bootstrap.Modal('#myModal', { keyboard: false, backdrop: 'static' });
+    const myModal = new bootstrap.Modal('#myModal', { keyboard: false, backdrop: 'static' });           // Declaração global do modal
     
     
     var btn_FecharModal=$("#btn_fecharModal");
