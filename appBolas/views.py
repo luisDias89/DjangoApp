@@ -11,7 +11,7 @@ from django.http import HttpResponseBadRequest, JsonResponse        # Importaç�
 from django.views.decorators.csrf import requires_csrf_token
 from . import metodos
 from django.contrib.auth.decorators import login_required
-engineLancadorBolas= metodos.engineTreino()
+engineLancadorBolas= metodos.engineLancador()
 
 
 
@@ -117,10 +117,11 @@ def modoauto(request):
                 #======================================================
                 #=  USADO PARA OBTER INFORMAÇÃO CICLICA DO FRONT END  =  
                 # =====================================================
-                elif((dataFromPost["tipoRequisicao"]=="GET_INFO")):
-                    respostaJson={
-                    'timeLeft': engineLancadorBolas.get_timeleft(tipo="treino"),
-                    'get_percentleft' : engineLancadorBolas.get_percentleft(tipo="treino"),
+                elif((dataFromPost["tipoRequisicao"]=="GET_INFO")):                             #  se a requisição for para infor do treino
+                    respostaJson={                                                              #  responde com
+                    'timeLeft': engineLancadorBolas.get_timeleft(tipo="treino"),                #  tempo restante do treino
+                    'get_percentleft' : engineLancadorBolas.get_percentleft(tipo="treino"),     #  percentagem que falta para acabar o treino
+                    'get_Aexecutar' : engineLancadorBolas.get_Aexecutar()              #  Qual o lance que está a ser executado
                     }
                 elif((dataFromPost["tipoRequisicao"]=="GET_INFO_LANCE")):
                     if(engineLancadorBolas.threadLance.runing==False):
@@ -130,6 +131,9 @@ def modoauto(request):
                     'get_percent' : engineLancadorBolas.get_percentleft(tipo="lance"),
                     'isStoped'    : engineLancadorBolas.isStoped(tipo="lance")
                     }
+                else:                                                                           # Caso nenhuma opção seja válida
+                    return JsonResponse({'status': 'Invalid request'}, status=400)              # responde com Invalid request
+
             
                 return JsonResponse(respostaJson, status=200)
 
@@ -209,12 +213,13 @@ def settingsReturn(request):
 def contato(request):       
     return render(contato,'contato. ')
 
+
 # Sempre que alguem entra na página de controlo do lançador de bolas, é redirecionado para esta página
 def homepage(request):
     return render(request, 'homepage.html')
 
 
-@login_required
+#@login_required
 def ajaxRequest(request):
 
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -228,7 +233,10 @@ def ajaxRequest(request):
         
         try:
             data = json.loads(request.body)
-            if data["identificador"] == "NOVO_LANCE":                           # Se novo lance, guarda na base de dados
+            #==============================================
+            #================ NOVO_LANCE ==================
+            #==============================================
+            if data["identificador"] == "NOVO_LANCE":                           # Se novo lance
                 nomeLance = data["nomeLance"]
                 anguloX = data["anguloX"]
                 anguloY = data["anguloY"]
@@ -237,7 +245,7 @@ def ajaxRequest(request):
                 velocidadeRoloDir = data["velocidadeRoloDir"]
                 
                 # código para salvar os dados na base de dados
-
+                
                 if nomeLance and anguloX and anguloY and anguloInclinacao and velocidadeRoloEsq and velocidadeRoloDir:
                     lance = LanceDB.objects.create(nomeLance=nomeLance, anguloX=anguloX, anguloY=anguloY,
                                                     anguloInclinacao=anguloInclinacao, velocidadeRoloEsq=velocidadeRoloEsq,
@@ -251,6 +259,16 @@ def ajaxRequest(request):
                         'message': 'Erro ao salvar o lance. Preencha todos os campos!'
                     }
                     status_code = 400  # Bad Request
+            #==============================================
+            #================ LANCAR_BOLA =================
+            #==============================================
+            elif data["identificador"] == "LANCAR_BOLA":                       # Se pedido para lançar bola
+                # Programação do lancamento da bola 
+
+                response_data = {
+                        'message': 'OK'
+                }
+                status_code = 200  
 
             else:
                 response_data = {

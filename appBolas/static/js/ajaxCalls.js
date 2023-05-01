@@ -21,6 +21,11 @@ function getCookie(name) {
     return cookieValue;
   }
 
+  // -----------------------------  CHAMADA ASSINCRONA COM INPUT DE FUNÇÃO --------------------------
+  // Função geral para chamadas AJAX com ao backEND
+  // Chamada assincrona AJAX somente com Javascript, (Implementaão para subtituir a biblioteca Jquery)
+  // Funções programadas : "NOVO_LANCE", "LANCAR_BOLA", 
+
 function ajaxRequest(data) {
     var xhr = new XMLHttpRequest();
     xhr.open('POST', '/ajax_request/');
@@ -30,7 +35,11 @@ function ajaxRequest(data) {
     xhr.onload = function() {
         if (xhr.status === 200) {
             var dataReceived = JSON.parse(xhr.responseText);
-            callback(dataReceived);
+            if(dataReceived.message!="OK")
+            {
+                callback(dataReceived);
+            }
+              
         }
         else{
             var dataReceived = JSON.parse(xhr.responseText);
@@ -41,6 +50,6 @@ function ajaxRequest(data) {
 }
 
 function callback(data) {
-    
+
     alert(data.message);
 }

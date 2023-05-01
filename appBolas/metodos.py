@@ -14,8 +14,7 @@ from .bibliotecas.engineThread import threadTreino
 """
 Objeto que se conecta e contem uma serie de metodos para comunicar via serial com o GRBL
 """
-# ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
-# ligação Serial com o Arduino, initilizado após biblioteca de Motor com RaspBery
+# ligação Serial com o ESP32
 ser = serial.Serial(
         port='/dev/ttyUSB0', #Replace ttyS0 with ttyAM0 for Pi1,Pi2,Pi0
         baudrate = 115200,
@@ -43,7 +42,15 @@ def toc():
     return delta_t
 
 
-class engineTreino:
+# ============================================================#
+#              ENGINE DO LANCADOR DE BOLAS UA                 #
+
+#=============================================================#
+
+# ============================================================#
+#   TODOS OS MOVIMENTOS E PEDIDOS DE TREINOS E LANCES SAO     #
+#  GERIDOS POR ESTA CLASSE, que lança THREAD's DE CONTROLO    #
+class engineLancador:
     
     '''
     Variaveis Globais da função
@@ -54,19 +61,19 @@ class engineTreino:
     tempoNormalizadoSegundos=0
     id_treino=0
     def __init__(self):
-        global threadOP
+        global th_egineTreino
         # Inicia o objeto sem qualquer informação, só após o metodo start é que podemos arrancar com a Thread
         #threadOP=threadTreino(ser,tempoTreino=0, qtLancamentos=0,objLances=NULL, cadencia=0, tipoSequencia=0)
     
     # metodos acessiveis
     def start(self, id_selected, tipo, dataLance={}):
                                                                         # Link para o objeto global do serialPort
-        global threadOP
+        global th_egineTreino
         if (tipo=="treino"):
             self.dbTreino = treino.objects.get(id=id_selected)          # Consulta a base de dados, e obtem o objeto tabela com toda a informação                                   
 
             # -----------  Construção da THREAD com os dados do treino -------------------
-            threadOP=threadTreino(
+            th_egineTreino=threadTreino(
                 ser,
                 tempoTreino=self.dbTreino.tempoTreino,
                 qtLancamentos= self.dbTreino.Qt_bolas_lance,        # Quantidade de bolas lançadas por lance
@@ -74,7 +81,7 @@ class engineTreino:
                 cadencia=self.dbTreino.cadenciaTreino,              # recebe a cadencia da base de dados  
                 tipoSequencia=self.dbTreino.SequenciaLances)        # Qual o tipo de sequencia , (ALEATORIA = 1 SEQUENCIAL = 2)
             print("\n\n\n" + "Start treino nos metodos: " + str(id_selected) + "\n\n\n")
-            threadOP.start()
+            th_egineTreino.start()
 
         if (tipo=="lance"):                                         # Se for do tipo lance
             if "cadencia" in dataLance:
@@ -94,40 +101,41 @@ class engineTreino:
 
     def stop(self,tipo):
         if (tipo=="treino"):
-            global threadOP
-            threadOP.stop()
+            global th_egineTreino
+            th_egineTreino.stop()
             print("Stop Treino")
         if (tipo=="lance"):
             self.threadLance.stop()
 
     def pause(self,tipo):
         if (tipo=="treino"):
-            global threadOP
-            threadOP.set_pause()
+            global th_egineTreino
+            th_egineTreino.set_pause()
             print("pause treino")
         if (tipo=="lance"):
             self.threadLance.pausar()
 
     def resume(self,tipo):
         if (tipo=="treino"):
-            global threadOP
-            threadOP.set_resume()
+            global th_egineTreino
+            th_egineTreino.set_resume()
             print("resume treino")
         if (tipo=="lance"):
             self.threadLance.resume()
         
     def get_timeleft(self,tipo):                     
-        return threadOP.get_timeleft()                                             # Retorna o tempo restante do treino
+        return th_egineTreino.get_timeleft()                                             # Retorna o tempo restante do treino
 
 
     def get_percentleft(self,tipo):
         if (tipo=="treino"):
-            return threadOP.get_percentleft()                                      # Retorna a percentagem faltante do treino
+            return th_egineTreino.get_percentleft()                                      # Retorna a percentagem faltante do treino
         if (tipo=="lance"):
             return self.threadLance.get_percentLeft_porbolas()
 
-    def get_LanceAexecutar(self,tipo):
-        pass
+    # Somenta válito para treinos, não recebe o tipo
+    def get_Aexecutar(self):
+        return th_egineTreino.get_Aexecutar()
 
     def get_bolasPorLance(self,tipo):
         pass

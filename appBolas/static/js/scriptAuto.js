@@ -437,25 +437,27 @@ function getCookie(name) {
             }
     );
 
-    //-------------- Relogio --------------------------------
+    //-------------- Timer para Relgio e GET_INFO ciclico--------------------------------
     setInterval(myTimer, 1000);
     
     function myTimer() {
         const d = new Date();
         document.getElementById("hora_atual").innerHTML = d.toLocaleTimeString();
+        
         if(flag_sincronizaTreino)
         {
-            //console.log("sincronização com treino"); //debug mode
             var request = init_stop_Treino($("#id_table").data('url'),Present_id_treino,"GET_INFO");
 
             request.done(function( ) {                                                                          // Se a comunicação for bem executada então muda o botão e inicia o treino
-                console.log(`TimeLeft do treino: ${request.responseJSON.timeLeft}`);
+                console.log(` TimeLeft do treino: ${request.responseJSON.timeLeft}`);
                 console.log(` Percentagem para acabar o teino ${request.responseJSON.get_percentleft}%`);
+                console.log(` Lance em execução ${request.responseJSON.get_Aexecutar}`);
                 // Tempo de treino
                 var HTMLtempoDeTreino=$("#modelData_timeleft");
                 HTMLtempoDeTreino.html(
                     `<div id="amostrador">
-                        <strong> Tempo de treino:  </strong>
+                        <p id="lbl_tempoTreino"> <strong> Treino termina em: </strong> ${request.responseJSON.timeLeft} segundos</p>
+                        <p id="lance-executando">A executar: ${request.responseJSON.get_Aexecutar}</p>
                         <div class="progress">
                         <span id="label_percentagem"> ${request.responseJSON.get_percentleft} % </span>
                         <br>

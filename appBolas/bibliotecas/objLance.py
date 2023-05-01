@@ -218,14 +218,13 @@ class ClasseThreadLance(threading.Thread):
 
 
     def confirmaPosicaoFinal(self, X="n", Y="n", Z="n", A="n"):
-        # Garante que vem vem o dicionario e não ocorre um erro de RUNTIME
+        # Garante que vem o dicionario e não ocorre um erro de RUNTIME
         posAtual = self.getCoordenadas()
         while (posAtual == False):
             posAtual = self.getCoordenadas()     
         time.sleep(0.1)
         # Caso não seja passado o valor por parametro, então fica "n" e não entra nos calculos.
         if ((posAtual["X"] == X or X == "n") and (posAtual["Y"] == Y or Y == "n") and (posAtual["Z"] == Z or Z == "n") and (posAtual["A"] == A or A == "n")):
-            print("PASSEI no teste")
             return True
             
         else:

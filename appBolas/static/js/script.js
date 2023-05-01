@@ -369,6 +369,13 @@ function validaNumber(stringTeste, nNumeros){
         myModal.show();                                                                 // Finalmente mostra o modal depois de atualizar os campos
       }
 
+      function btn_lancarBola() {
+        // Envia uma chamada assincrona AJAX para inserir o lance na DB
+        // O tipo de ação da chamada é atruibuido ao identificador, ver na função ajaxRequest quais os programados
+        ajaxRequest({identificador: "LANCAR_BOLA"});                                    
+      
+    }
+
 
       function salvarLance() {                                                          // Funcao executada ao clicar no botão salvarLance
         // obter os valores dos inputs
@@ -381,12 +388,13 @@ function validaNumber(stringTeste, nNumeros){
         
                 // Verificar se o campo está vazio
         if (nomeLance.trim() === '') {
-            alert('O campo "Nome do lance" é obrigatório!');
-            return;
+            alert('O campo "Nome do lance" é obrigatório!');    // se o lance estiver vazio envia um alert
+            return;                                             // e sai da função
         }
 
+        // Constroi a informação para enviar ao BACKEND
         var data = {
-            identificador: "NOVO_LANCE",
+            identificador: "NOVO_LANCE",                        // Este  o campo que define o que o BACK END vai fazer com esta informação!!!
             nomeLance: nomeLance,
             anguloX: inputAngleX,
             anguloY: inputAngleY,
@@ -394,21 +402,12 @@ function validaNumber(stringTeste, nNumeros){
             velocidadeRoloEsq: inputSpeedLeft,
             velocidadeRoloDir: inputSpeedRight
         };
-
-        // fazer o que você quiser com os valores, por exemplo:
-        console.log('Valores salvos:');
-        console.log('Nome do lance:', nomeLance);
-        console.log('Angle X:', inputAngleX);
-        console.log('Angle Y:', inputAngleY);
-        console.log('Inclination:', inputInclination);
-        console.log('Speed Left:', inputSpeedLeft);
-        console.log('Speed Right:', inputSpeedRight);
         
         // fechar o modal
 
-        ajaxRequest(data);
+        ajaxRequest(data);                                      // Envia uma chamada assincrona AJAX para inserir o lance na DB
         
-        myModal.hide();
+        myModal.hide();                                         // Esconde o MODAL
       }
 
       

@@ -35,7 +35,7 @@ function init_stop_Treino(url, id_treino, data_requisicao){
           error: (error) => {
             
             jQuery.globalEval( "var mensagemResposta = false");
-            console.log(error + " dafunção init_stop_Treino()");
+            console.log(error + " da função init_stop_Treino()");
             
           }
         }

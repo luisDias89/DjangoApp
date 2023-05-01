@@ -19,6 +19,7 @@ class threadTreino(threading.Thread):
     timeLeft=0
     percentLeft=0
     tempoDePausa=0
+    str_getAexecutar= ""
 
     #Variaveis auxiliares para contabilizar o tempo de pausa
     totalPausa=0
@@ -171,8 +172,13 @@ class threadTreino(threading.Thread):
         # O erro da percentagem errada é devido ao tempo de ciclo não contabilizar quantas bola são lançadas e a cadencia delas.
         # Deve portanto verificar qual demora menos tempo, e atribuir a self.tempoNormalizadoSegundos, que é a variavel que recebe o tempo do lançamento 
 
-    def get_LanceAexecutar(self):
-        pass
+    def get_Aexecutar(self):
+        # Tranca a variavel que pode estar a ser escrita na THREAD para guardar numa memoria buffer e fazer return
+        trancaVariavel.acquire()                        # tranca a variavel para não haver conflitos de thread
+        buffer= self.str_getAexecutar
+        trancaVariavel.release()                        # volta a libertar a variavel para processamento da thread
+        return buffer
+        
     def get_bolasPorLance(self):
         pass
     def get_bolasLancadasLeft(self):
@@ -204,6 +210,7 @@ class threadTreino(threading.Thread):
                 if(self.tipoSequencia==2):                                                                      # e se o tipo de sequencia é igual a 2 (2-> Sequencial)         
                     if(iteradorLances==0):                                                                          # Se for o primeiro lance então
                         print("Inicializei lance 0 do treino")                                                          # Imprime na consola que está no lance zero
+                        self.str_getAexecutar="Referenciação do lançador"
                         self.threadLance.startLance(                                                                    # da inicio ao lance zero, enviando startLance
                                         nomeLance=str(self.objLances[0].nomeLance),                                     # e as informações proveninentes da base de dados
                                         velRoloEsq=int(self.objLances[0].velocidadeRoloEsq), 
@@ -215,6 +222,7 @@ class threadTreino(threading.Thread):
                                         qtBolasLancadas=int(self.qtLancamentos)
                                         )
                         # Garante que só executa este if uma vez, no posição 0  
+                        self.str_getAexecutar=str(self.objLances[iteradorLances].nomeLance)
                         iteradorLances+=1                                                                               # Incrementa para que no lance seguinte, va para o step 2
                     # Se não estiver a correr um lance e o iterador for inferior à quantidade de lances
                     elif((iteradorLances <= quantidadeLances) and self.threadLance.runing == False):                    # enquato o iterador for inferior à quantidade de lances..
@@ -229,6 +237,7 @@ class threadTreino(threading.Thread):
                                         cadencia=int(self.cadencia), 
                                         qtBolasLancadas=int(self.qtLancamentos)
                                         )
+                        self.str_getAexecutar=str(self.objLances[iteradorLances].nomeLance)
                         iteradorLances+=1
                 elif(self.tipoSequencia==1):                           # Lances Aleatórios
                     print("Aleatória")
@@ -247,4 +256,5 @@ class threadTreino(threading.Thread):
             # Acaba com a Thread se o tempo de treino acabar ou houver ordem de paragem
             if(self.stopped() or (self.get_timeleft() < 0) or ((iteradorLances-1) > quantidadeLances)):                 # Se alguem parar o lance ou acabar o tempo .. 
                 self.threadLance.stop()                                                                                 # .. ou o iterador for superior a quantidade de lances
+                self.str_getAexecutar=""
                 break                                                                                                      # entao faz stop ao lance e sai da thread
