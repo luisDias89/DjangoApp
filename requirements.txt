@@ -136,7 +136,7 @@ soupsieve==2.2.1
 spidev==3.5
 sqlparse==0.4.2
 ssh-import-id==5.10
-thonny==3.3.14
+thonny==4.0.1
 toml==0.10.1
 tomli==2.0.1
 tornado==6.1
