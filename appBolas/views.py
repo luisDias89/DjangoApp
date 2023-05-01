@@ -13,10 +13,6 @@ from . import metodos
 from django.contrib.auth.decorators import login_required
 engineLancadorBolas= metodos.engineLancador()
 
-
-
-
-
 def modoauto(request):
     # request.is_ajax() is deprecated since django 3.1
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -181,7 +177,7 @@ def index(request):
         #print(request.user)                                                    # Imprime o usuario que est a fazer a requisião de index na consola    
         
         if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
-            msgQuemEstaLogado='Utilizado nao logado'                            # Constroi uma mensagem que indica se está logado ou não            
+            msgQuemEstaLogado='Utilizador não logado'                            # Constroi uma mensagem que indica se está logado ou não            
         else:
             msgQuemEstaLogado= 'Utilizador logado'
 
@@ -198,7 +194,7 @@ def index(request):
         return render(request, 'index.html', context)                           # A função retorna uma página HTML com a renderização de index.html
     elif request.method =="POST":                                               # Somente para testes, retorna página HTML segundo parmetros de entrada POST
         postVAR = request.POST
-        print(postVAR)
+        
 
 
 #Página onde é definidos as configurações do GRBL,os parâmetros podem ser adicionador progressivamente
@@ -263,7 +259,8 @@ def ajaxRequest(request):
             #================ LANCAR_BOLA =================
             #==============================================
             elif data["identificador"] == "LANCAR_BOLA":                       # Se pedido para lançar bola
-                # Programação do lancamento da bola 
+                global engineLancadorBolas
+                engineLancadorBolas.MM_lancar_bola()
 
                 response_data = {
                         'message': 'OK'
@@ -290,7 +287,6 @@ def ajaxRequest(request):
             'age': 34
         }
         status_code = 200  # OK
-        print("GET")
     else:
         response_data = {
             'message': 'Método inválido!'

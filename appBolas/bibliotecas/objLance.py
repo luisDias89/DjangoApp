@@ -11,7 +11,7 @@ from .machine_lb import *
 
 
 class ClasseThreadLance(threading.Thread):
-    lock=threading.Lock()
+    memoryLOCK=threading.Lock()
     runing=True
     quantidadeLances = 4
     iteradorLances = 0
@@ -140,7 +140,7 @@ class ClasseThreadLance(threading.Thread):
                 SerialPort = SerialPort.replace("|WCO:", ",")
                 SerialPort = SerialPort.replace("|Ov:", ",")
                 # Divide o que é separado por , em lista array
-                self.lock.acquire()                                 # Bloqueia as variavel para só poder ser acedida por uma Thread
+                self.memoryLOCK.acquire()                                 # Bloqueia as variavel para só poder ser acedida por uma Thread
                 arrayEstadoMaquina = SerialPort.split(",")
                 time.sleep(0.05)
                 if (numpy.size(arrayEstadoMaquina) > 2):
@@ -153,11 +153,11 @@ class ClasseThreadLance(threading.Thread):
                     }
                     # remove data after reading     # Limpa o buffer do SerialPort
                     self.ser.flushInput()
-                    self.lock.release()
+                    self.memoryLOCK.release()
                     return dic
                 # remove data after reading     # Limpa o buffer do SerialPort
                 self.ser.flushInput()
-                self.lock.release()                              # Desbloqueia as variaveis e já podem ser lidas e acedidas por outra Threads
+                self.memoryLOCK.release()                              # Desbloqueia as variaveis e já podem ser lidas e acedidas por outra Threads
                 return False
 
 
@@ -339,30 +339,5 @@ class ClasseThreadLance(threading.Thread):
 
  # ==================================
     #  Calcula o centro,
-
-'''
-
-cadencia = {
-    "Baixa": 1,
-    "Media": 2,
-    "Alta": 3,
-    "Elevada": 4,
-}
-novoObjeto = ClasseThreadLance(ser)
-novoObjeto.startLance( nomeLance="ola", velRoloEsq=50, velRoloDir=30, angulo_X=0, angulo_Y=0, angulo_Z=14, cadencia=cadencia["Baixa"], qtBolasLancadas=2)
-time.sleep(3)
-print(novoObjeto.stopped())
-time.sleep(3)
-novoObjeto.pausar()
-time.sleep(3)
-novoObjeto.resume()
-time.sleep(15)
-print("Start New Thread")
-novoObjeto.startLance(nomeLance="Ola mundo", velRoloEsq=50, velRoloDir=30, angulo_X=0, angulo_Y=0, angulo_Z=14, cadencia=cadencia["Baixa"], qtBolasLancadas=5)
-time.sleep(15)
-novoObjeto.stop()
-time.sleep(15)
-print(novoObjeto.stopped())
-'''
 
 

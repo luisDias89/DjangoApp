@@ -372,9 +372,14 @@ function validaNumber(stringTeste, nNumeros){
       function btn_lancarBola() {
         // Envia uma chamada assincrona AJAX para inserir o lance na DB
         // O tipo de ação da chamada é atruibuido ao identificador, ver na função ajaxRequest quais os programados
-        ajaxRequest({identificador: "LANCAR_BOLA"});                                    
-      
-    }
+        // Preparação da clase para lançar a bola a partir de AJAX
+        // ajaxRequest({identificador: "LANCAR_BOLA"}); 
+
+        // Lança bola por comunicação Websocket
+        chatSocket.send(JSON.stringify({
+            'LANCAR_BOLA': (novoValor.toString()),
+        }))
+       }
 
 
       function salvarLance() {                                                          // Funcao executada ao clicar no botão salvarLance

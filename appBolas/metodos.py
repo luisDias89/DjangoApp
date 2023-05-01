@@ -6,10 +6,15 @@ import threading
 from time import time as Time
 from .controlo_PID.PID import PID
 c = threading.Condition()
+memoryLOCK = threading.Lock()
 from .models import treino, lance
 import serial
+from .bibliotecas.machine_lb import *
+
+# Declara os 3 objetos que são controladors pelo enginelançador
 from .bibliotecas.objLance import ClasseThreadLance
 from .bibliotecas.engineThread import threadTreino
+from .bibliotecas.modoManual import threadManualMode
 
 """
 Objeto que se conecta e contem uma serie de metodos para comunicar via serial com o GRBL
@@ -50,6 +55,10 @@ def toc():
 # ============================================================#
 #   TODOS OS MOVIMENTOS E PEDIDOS DE TREINOS E LANCES SAO     #
 #  GERIDOS POR ESTA CLASSE, que lança THREAD's DE CONTROLO    #
+#  MM -> MANUAL MODE
+#  AM -> AUTOMATIC MODE
+#  LM -> LANCE MODE
+
 class engineLancador:
     
     '''
@@ -60,12 +69,14 @@ class engineLancador:
     tempoInicial=0
     tempoNormalizadoSegundos=0
     id_treino=0
+    threadManMode= threadManualMode(ser)
+
     def __init__(self):
         global th_egineTreino
         # Inicia o objeto sem qualquer informação, só após o metodo start é que podemos arrancar com a Thread
         #threadOP=threadTreino(ser,tempoTreino=0, qtLancamentos=0,objLances=NULL, cadencia=0, tipoSequencia=0)
     
-    # metodos acessiveis
+    # Inicio de um lance ou Treino, tipo pode ser treino ou lance
     def start(self, id_selected, tipo, dataLance={}):
                                                                         # Link para o objeto global do serialPort
         global th_egineTreino
@@ -133,7 +144,7 @@ class engineLancador:
         if (tipo=="lance"):
             return self.threadLance.get_percentLeft_porbolas()
 
-    # Somenta válito para treinos, não recebe o tipo
+    # Somenta válido para treinos
     def get_Aexecutar(self):
         return th_egineTreino.get_Aexecutar()
 
@@ -151,11 +162,48 @@ class engineLancador:
         pass
 
 
+    # ===== Metodos para controlo do MODO MANUAL, POWERED BY ENGINE =====
+    #  MM -> MANUAL MODE
+
+    def MM_lancar_bola(self):
+        self.threadManMode.set_LANCAR_BOLA()
+        if self.threadManMode.stopped:                      # Se a tinha Thread estiver parada inicializa-a
+            self.threadManMode.start()
+    
+        
+    def MM_mover_eixo_x(velocidade):
+        pass
+
+    def MM_mover_eixo_y(velocidade):
+        pass
+
+    def MM_mover_eixo_a(posicao):
+        pass
+
+    def MM_mover_rolo_esquerdo(percentagemVEL):
+        pass
+
+    def MM_mover_rolo_direito(percentagemVEL):
+        pass
+
+    def MM_stop():
+        pass
+
+    
+
+
+
+
+
+
+
+
 
 # Variaveis que definem a posição atual dos motores
 global varThread,X,Y,Z,velEsq,velDir
 Flag_comandoMotoresRolEsq = False
 Flag_comandoMotoresRolDir = False
+Flag_lancarBola           = False
 varThread=False
 X_USUARIO=0.00             # Comando recebido pelo usuario
 Y_USUARIO=0.00             # Comando recebido pelo usuario
@@ -164,6 +212,7 @@ velEsq=0
 velDir=0
 flag = 1
 objWebSocket=None          # Cria apenas memoria pois é atribuida no consumers->on connect
+
 
 
 # ============================================================#
@@ -186,9 +235,11 @@ presentValue= 0.00
 
 # Função criada com o proposito de enviar dados por WebSocket
 def enviaPorWebSocket(comando):
+    memoryLOCK.acquire()
     objWebSocket.send(text_data=json.dumps({
             comando : dicCordenadasControlador[comando],
     }))
+    memoryLOCK.release()
 def enviaMsgWebSocket(tagMensagem,Valor):
     objWebSocket.send(text_data=json.dumps({
             tagMensagem : Valor,
@@ -252,6 +303,18 @@ def setFalse_FlagRoloEsq():
 def setFalse_FlagRoloDir():
     global Flag_comandoMotoresRolDir
     Flag_comandoMotoresRolDir=False
+
+#=============================================================#
+#    Função lançar bola atravez da comunicação WebSocket      #
+#         Manda pulso, e a função depois de lançar a bola     #
+#                Coloca o pulso a zero                        #
+
+def lancar_bola():
+    global Flag_lancarBola
+    c.acquire()
+    Flag_lancarBola=True
+    c.release()
+    
 
 # Como a velocidade dos rolos não pertence ao comandos dos eixos, nas variaveis auxiliares, existe novo DICT
 velocidade_rolo = {
@@ -374,6 +437,7 @@ def funcComandoGRBL():
     global flag             
     global presentValue
     global dicCordenadasControlador
+    global Flag_lancarBola
     dicCordenadasControlador=getCoordenadas()
     
     while(dicCordenadasControlador==False):
@@ -437,7 +501,7 @@ def funcComandoGRBL():
                     vel_z=0.00
 
 
-                c.acquire()
+                
                 if flag==1:
                     flag=0
                     dicCordenadasControlador=getCoordenadas()
@@ -445,10 +509,6 @@ def funcComandoGRBL():
                         dicCordenadasControlador=getCoordenadas()
                     presentValue=dicCordenadasControlador['Z']
                     flag=1
-                    c.notify_all()
-                else:
-                    c.wait()
-                c.release()
 
                 
                 # Velocidade a 3 dimensões
@@ -473,3 +533,19 @@ def funcComandoGRBL():
                 print(mensagem)
                 enviaMsgWebSocket('rolDir',velocidade_rolo['direito'])
                 setFalse_FlagRoloDir()
+            
+            if (Flag_lancarBola):
+                print("Lançar Bola")
+                # nota o dicionario vem do settingsLB.py 
+
+                mensagem = "G90 G01 A" + \
+                    str(ConversorGrausToMM(graus_desl_a["lancaBola"], "A")) + " F" + velocidadeAvancoGate  + "\n"
+                #self.send_to_GRBL(mensagem)
+                ser.flushInput()
+                ser.write(mensagem.encode())                      # Bloco de envio de G-CODE
+                mensagem = "G90 G01 A" + \
+                    str(ConversorGrausToMM(graus_desl_a["retemBola"], "A")) + " F" + velocidadeAvancoGate  + "\n"
+                # Bloco de envio de G-CODE
+                ser.write(mensagem.encode())
+                Flag_lancarBola=False
+                pass

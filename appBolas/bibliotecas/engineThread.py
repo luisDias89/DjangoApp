@@ -2,7 +2,7 @@
 import threading
 import time
 from time import time as Time
-trancaVariavel = threading.Lock()
+memoryLOCK = threading.Lock()
 import random
 import numpy
 
@@ -87,9 +87,9 @@ class threadTreino(threading.Thread):
         '''
         if( self.runThread==True):                  # se a thead estiver a correr então 
             self.tic("pause")                               # regista o tempo em que foi feita a pausa
-            trancaVariavel.acquire()                        # tranca a variavel para não haver conflitos de thread
+            memoryLOCK.acquire()                        # tranca a variavel para não haver conflitos de thread
             self.runThread=False                            # e pára o loop da THREAD
-            trancaVariavel.release()                        # volta a libertar a variavel para processamento da thread
+            memoryLOCK.release()                        # volta a libertar a variavel para processamento da thread
     
     def set_resume(self):                           # Continua a execução da Thread
         '''
@@ -97,9 +97,9 @@ class threadTreino(threading.Thread):
         '''
         if(self.runThread==False):
             self.totalPausa+=self.toc("pause")              # recebe a quantidade de tempo que esteve pausado, incrementa ao que já tem.
-            trancaVariavel.acquire()                        # tranca a variavel para não haver conflitos de thread
+            memoryLOCK.acquire()                        # tranca a variavel para não haver conflitos de thread
             self.runThread=True                             # continua loop da THREAD
-            trancaVariavel.release()                        # volta a libertar a variavel para processamento da thread
+            memoryLOCK.release()                        # volta a libertar a variavel para processamento da thread
 
     #================================================#
     #       Metodo para comunicar com o GRBL         #
@@ -138,7 +138,7 @@ class threadTreino(threading.Thread):
                 arrayEstadoMaquina = SerialPort.split(",")           # Divide o que é separado por , em lista array
                 
                 if(numpy.size(arrayEstadoMaquina)>2):
-                    trancaVariavel.acquire()
+                    memoryLOCK.acquire()
                     self.dic = {
                     'X': float(arrayEstadoMaquina[0]), 
                     'Y': float(arrayEstadoMaquina[1]), 
@@ -146,7 +146,7 @@ class threadTreino(threading.Thread):
                     "gateBola": float(arrayEstadoMaquina[3]), 
                     #"rolDir":float(arrayEstadoMaquina[4])
                     }
-                    trancaVariavel.release()
+                    memoryLOCK.release()
                     self.ser.flushInput()                                 # remove data after reading     # Limpa o buffer do SerialPort
                     return self.dic
                 
@@ -174,9 +174,9 @@ class threadTreino(threading.Thread):
 
     def get_Aexecutar(self):
         # Tranca a variavel que pode estar a ser escrita na THREAD para guardar numa memoria buffer e fazer return
-        trancaVariavel.acquire()                        # tranca a variavel para não haver conflitos de thread
+        memoryLOCK.acquire()                        # tranca a variavel para não haver conflitos de thread
         buffer= self.str_getAexecutar
-        trancaVariavel.release()                        # volta a libertar a variavel para processamento da thread
+        memoryLOCK.release()                        # volta a libertar a variavel para processamento da thread
         return buffer
         
     def get_bolasPorLance(self):
@@ -209,7 +209,7 @@ class threadTreino(threading.Thread):
                 self.threadLance.resume()                                                                       # garante que esta em andamento a thread                                     
                 if(self.tipoSequencia==2):                                                                      # e se o tipo de sequencia é igual a 2 (2-> Sequencial)         
                     if(iteradorLances==0):                                                                          # Se for o primeiro lance então
-                        print("Inicializei lance 0 do treino")                                                          # Imprime na consola que está no lance zero
+                        #print("Inicializei lance 0 do treino")                                                          # Imprime na consola que está no lance zero
                         self.str_getAexecutar="Referenciação do lançador"
                         self.threadLance.startLance(                                                                    # da inicio ao lance zero, enviando startLance
                                         nomeLance=str(self.objLances[0].nomeLance),                                     # e as informações proveninentes da base de dados
@@ -257,4 +257,4 @@ class threadTreino(threading.Thread):
             if(self.stopped() or (self.get_timeleft() < 0) or ((iteradorLances-1) > quantidadeLances)):                 # Se alguem parar o lance ou acabar o tempo .. 
                 self.threadLance.stop()                                                                                 # .. ou o iterador for superior a quantidade de lances
                 self.str_getAexecutar=""
-                break                                                                                                      # entao faz stop ao lance e sai da thread
+                break                                                                                                   # entao faz stop ao lance e sai da thread

@@ -81,7 +81,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'projeto_app_bolas.wsgi.application'
 ASGI_APPLICATION ='projeto_app_bolas.asgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 

@@ -124,13 +124,18 @@ class ConsumerJoystick(WebsocketConsumer):
             #print("Posição em Z atual",self.varPosicaoInic )
             #print("Comando RoloTorce Recebido:", metodos.Z)                 # Nos metodos tenho uma função que retorna a posição e Z
 
+        if 'LANCAR_BOLA' in text_data_json:                                  # Se contiver a mensagem para LANÇAR BOLA
+            metodos.lancar_bola()                                            # Seta a função para lançar a bola
+            
+    
+
     
 
     # Função para enviar valores do dicCordenadas Controlador para o interface
     # inclui a função de bloquear as variaveis para não entrar em conflito com 
     # a thread paralela de processamento da maquina.
     def sendToInterface(self,comando):
-        self.c.acquire()
+        metodos.memoryLOCK.acquire()
         if metodos.flag==1:
             metodos.flag=0
             self.send(text_data=json.dumps({
@@ -138,9 +143,6 @@ class ConsumerJoystick(WebsocketConsumer):
             }))
             #print(metodos.vel_x,metodos.vel_y)
             metodos.flag=1
-            self.c.notify_all()
-        else:
-            self.c.wait()
-        self.c.release()
+        metodos.memoryLOCK.release()
     
    
