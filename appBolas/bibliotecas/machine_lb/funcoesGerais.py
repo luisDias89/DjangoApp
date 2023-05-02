@@ -59,9 +59,10 @@ def getCoordenadas(ser):
                 ser.flushInput()
                 return False
 
-# ========= A seguinte função confirma se a posição foi atingida ou o conjuntos das posições passadas foram atingidas =====
-#   Para não verificar possição deve ser passado o parametro "n" na posição não verificada para não realizar a comparação    
-#   
+#=========================================================================================================================#
+# ========= A seguinte função confirma se a posição foi atingida ou o conjuntos das posições passadas foram atingidas ====#
+#   Para não verificar possição deve ser passado o parametro "n" na posição não verificada para não realizar a comparação #   
+#                                                                                                                         #
 def confirmaPosicaoFinal(ser, X="n", Y="n", Z="n", A="n"):
         # Garante que vem o dicionario e não ocorre um erro de RUNTIME
         posAtual = getCoordenadas(ser)
@@ -73,3 +74,24 @@ def confirmaPosicaoFinal(ser, X="n", Y="n", Z="n", A="n"):
         else:
             return False
 
+#================================================#
+#       Metodo para comunicar com o GRBL         #
+#       Recebe o parâmetro mensagem em "msg"     #
+#       envia com \n, retorna a primeira msg de  #
+#       resposta do GRBL                         #
+def send_to_GRBL(ser, msg):
+    """
+    Ser -> Objeto Serial Port
+    msg -> String de envio
+    Instruões: envia e aguarda resposta sempre, retorna a primeira
+    mensagem de n possiveis.
+    """
+    if ser.isOpen():                                   # se a porta com esta aberta
+        ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens                                  
+        mensagem= msg + '\n'                                     # Contrução da mensagem, não apagar o '\n', senão não funciona
+        #print('Sending: ' + mensagem)                           # Bloco de depuração
+        ser.write(mensagem.encode())                        # Bloco de envio de G-CODE
+        time.sleep(0.1)                                     
+        grbl_out = ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
+        resposta=grbl_out[0].decode()
+        return resposta                                     # Quando pretendemos só o ok, ficamos apenas pela primeira linha [0]

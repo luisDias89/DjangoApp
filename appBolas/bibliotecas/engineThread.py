@@ -69,7 +69,7 @@ class threadTreino(threading.Thread):
         
         
         #Calcula se o tempo definido no treino é maior que o tempo do ciclo, se for então permanece o tempo do ciclo
-        tempoTreinoqtCadencia=(quantidadeLancamentos*cadencia)+18+2*quantidadeLancamentos             # Calcula o tempo de treino em funcao da cadencia e qtbolaslancadas
+        tempoTreinoqtCadencia=(quantidadeLancamentos*cadencia)+24+2*quantidadeLancamentos             # Calcula o tempo de treino em funcao da cadencia e qtbolaslancadas
         if (tempoTreinoqtCadencia<self.tempoNormalizadoSegundos):   # caso seja inferior ao tempo de treino programado na base de dados, é este o tempo que conta
             self.tempoNormalizadoSegundos=tempoTreinoqtCadencia
         
@@ -101,60 +101,7 @@ class threadTreino(threading.Thread):
             self.runThread=True                             # continua loop da THREAD
             memoryLOCK.release()                        # volta a libertar a variavel para processamento da thread
 
-    #================================================#
-    #       Metodo para comunicar com o GRBL         #
-    #       A mensagem que recebe é a mensagem que   #
-    #       envia, retorna a primeira mensagem de    #
-    #       resposta do GRBL                         #
-    def send_to_GRBL(self, msg):
-        if self.ser.isOpen():                                   # se a porta com esta aberta
-            self.ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens                                  
-            mensagem= msg + '\n'                                     # Contrução da mensagem, não apagar o '\n', senão não funciona
-            #print('Sending: ' + mensagem)                           # Bloco de depuração
-            self.ser.write(mensagem.encode())                        # Bloco de envio de G-CODE
-            time.sleep(0.1)                                     
-            grbl_out = self.ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
-            resposta=grbl_out[0].decode()
-            return resposta                                          # Quando pretendemos só o ok, ficamos apenas pela primeira linha [0]
-    #=================================================#
-    
-    # Metodo para aceder às variaveis do GRBL
-    def getCoordenadas(self):
-        if self.ser.isOpen():                                        # Se a porta serial está aberta
-            self.ser.flushInput()                                    # remove toda a data na fila de entrada, só para se focar no pedido seguinte    
-            mensagem="?\n"                                           # Pergunta quais as coordenadas atuais (Comando GRBL "?\n")
-            self.ser.write(mensagem.encode())                        # Escreve na SerialPort "?\n" para receber as coordenadas
-            time.sleep(0.05)                                         # Espera a resposta do arduino
-            if  self.ser.inWaiting()>0 :                             # Se tiver algum caracter então executa
-                mensagemlida=self.ser.readline()                     # recebe a mensagem e insere na variavel
-                SerialPort = mensagemlida.decode()                   # Passa de Byte para string
-                #SerialPort=SerialPort[11:]                          # Correção de bug !!!
-                SerialPort = SerialPort.replace('<Run|MPos:', "")    # Elimina os primeiros 11 caracteres
-                SerialPort = SerialPort.replace('<Idle|MPos:', "")
-                SerialPort = SerialPort.replace("|FS:", ",")         # Replaces seguintes é para limpar a mensagem 
-                SerialPort = SerialPort.replace(">\r\n", "")
-                SerialPort = SerialPort.replace("|WCO:", ",")
-                SerialPort = SerialPort.replace("|Ov:", ",")
-                arrayEstadoMaquina = SerialPort.split(",")           # Divide o que é separado por , em lista array
-                
-                if(numpy.size(arrayEstadoMaquina)>2):
-                    memoryLOCK.acquire()
-                    self.dic = {
-                    'X': float(arrayEstadoMaquina[0]), 
-                    'Y': float(arrayEstadoMaquina[1]), 
-                    'Z': float(arrayEstadoMaquina[2]), 
-                    "gateBola": float(arrayEstadoMaquina[3]), 
-                    #"rolDir":float(arrayEstadoMaquina[4])
-                    }
-                    memoryLOCK.release()
-                    self.ser.flushInput()                                 # remove data after reading     # Limpa o buffer do SerialPort
-                    return self.dic
-                
-                self.ser.flushInput()                                 # remove data after reading     # Limpa o buffer do SerialPort
-                return False
 
-
-    # Função concluida
     def get_timeleft(self):      
         # O tempo decrescent é dado por timeLeft-(toc("runTime"))+tempoTotaldePause
         # caso esteja na pause então é contabilizado tambem o toc da pause porque ainda não foi aficionado ao tempo total de pausa               
@@ -163,7 +110,8 @@ class threadTreino(threading.Thread):
         if( self.runThread==False):
             self.timeLeft= int((self.tempoNormalizadoSegundos - self.toc())+self.totalPausa+self.toc("pause"))
         return self.timeLeft                                       # Retorna o tempo restante do treino
-    # Função concluida
+    
+
     def get_percentleft(self):
         tempoDecorrido=self.tempoNormalizadoSegundos-self.timeLeft
         self.percentLeft=round((tempoDecorrido / self.tempoNormalizadoSegundos)*100, 2)      # Round a 2 casas decimais
@@ -173,18 +121,29 @@ class threadTreino(threading.Thread):
         # Deve portanto verificar qual demora menos tempo, e atribuir a self.tempoNormalizadoSegundos, que é a variavel que recebe o tempo do lançamento 
 
     def get_Aexecutar(self):
+        """
+        Durante a execução do treino retorna qual o lance que está a 
+        ser executado em tempo real.
+        """
         # Tranca a variavel que pode estar a ser escrita na THREAD para guardar numa memoria buffer e fazer return
         memoryLOCK.acquire()                        # tranca a variavel para não haver conflitos de thread
         buffer= self.str_getAexecutar
         memoryLOCK.release()                        # volta a libertar a variavel para processamento da thread
         return buffer
-        
+    
+    # Por implementar @LuisDias
     def get_bolasPorLance(self):
         pass
+
+    # Por implementar @LuisDias
     def get_bolasLancadasLeft(self):
         pass
+
+    # Por implementar @LuisDias
     def __baralha():
         pass
+
+    # Por implementar @LuisDias
     def __go2(self,x,y,z):
         pass
 
@@ -195,7 +154,7 @@ class threadTreino(threading.Thread):
         
         self.tic()                                  # Momento do inicialização, regista o momento em que é iniciado o treino, antes de entrar no loop
         i=0
-        
+        iteradorGrafset = 0
         quantidadeLances=len(self.objLances)-1                                   # os lances são iterados de [0 até (len(lances)-1)]
         iteradorLances=0                                                         # Inicializa o iterador
         
@@ -206,8 +165,8 @@ class threadTreino(threading.Thread):
         while(True):
             
             if(self.runThread):                                                                              # Se nao estiver em pausa  
-                self.threadLance.resume()                                                                       # garante que esta em andamento a thread                                     
-                if(self.tipoSequencia==2):                                                                      # e se o tipo de sequencia é igual a 2 (2-> Sequencial)         
+                self.threadLance.resume()                                                                       # Força resume na Thread lance                                  
+                if(self.tipoSequencia==2):                                                                      # e se o tipo de sequencia é igual a 2 (2-> treino com lances Sequencial)         
                     if(iteradorLances==0):                                                                          # Se for o primeiro lance então
                         #print("Inicializei lance 0 do treino")                                                          # Imprime na consola que está no lance zero
                         self.str_getAexecutar="Referenciação do lançador"
@@ -239,16 +198,74 @@ class threadTreino(threading.Thread):
                                         )
                         self.str_getAexecutar=str(self.objLances[iteradorLances].nomeLance)
                         iteradorLances+=1
-                elif(self.tipoSequencia==1):                           # Lances Aleatórios
-                    print("Aleatória")
-                    #Retorna um inteiro aleatório N de forma que a <= N <= b        ->    random.randint(a, b))
+                
+                elif(self.tipoSequencia==1):                                                                               # e se o tipo de sequencia é igual a 2 (2-> treino com lances aleatório) 
                     
-                    randomint=random.randint(0,len(self.objLances)-1)
-                    print(randomint)
-                    print(self.objLances[randomint].nomeLance)
-                    print(self.lancesJson)
-                    # =================================== FALTA IMPLEMENTAR ================================================
+                    # Implementação de Grafset em Python de lances aleatórios
+                    
+                    # 0 -> Iterador lance a 0 ,  "Temporário" atualiza estado do lançador para o front end
+                    # 1 -> Inicialização do grafset, com randomInt do lance 
+                    # 2 -> Comando para inicial lance
+                    # 3 -> Atualiza para o Front End qual o nome do lance
+                    # 4 -> Decisão de lançar novo lance ou saltar para o reset do grafset
+                    # 5 -> Reset das variáveis e saida do Grafset
 
+                    if iteradorGrafset == 0: 
+                        """
+                        STEP 0
+                        """          
+                        self.str_getAexecutar="Referenciação do lançador"
+                        iteradorLances = 0
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 1:
+                        """
+                        STEP 1
+                        """  
+                        randomint=random.randint(0,quantidadeLances)     
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 2:
+                        """
+                        STEP 2
+                        """ 
+                        self.threadLance.startLance(                                                                   
+                                        nomeLance=str(self.objLances[randomint].nomeLance),                                    
+                                        velRoloEsq=int(self.objLances[randomint].velocidadeRoloEsq), 
+                                        velRoloDir=int(self.objLances[randomint].velocidadeRoloDir), 
+                                        angulo_X=int(self.objLances[randomint].anguloX), 
+                                        angulo_Y=int(self.objLances[randomint].anguloY), 
+                                        angulo_Z=int(self.objLances[randomint].anguloInclinacao), 
+                                        cadencia=int(self.cadencia), 
+                                        qtBolasLancadas=int(self.qtLancamentos)
+                                        )
+                        iteradorLances+=1           
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 3: 
+                        """
+                        STEP 3
+                        """  
+                        self.str_getAexecutar=str(self.objLances[randomint].nomeLance)
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 4:
+                        """
+                        STEP 4
+                        """  
+                        if (iteradorLances <= quantidadeLances) and (self.threadLance.runing == False):
+                            iteradorGrafset = 1             # Salta para o Step 1 para fazer novo random e inicial novo lance
+
+                        if (iteradorLances > quantidadeLances) and (self.threadLance.runing == False):
+                            iteradorGrafset += 1
+                    elif iteradorGrafset == 5:
+                        """
+                        STEP 5
+                        """ 
+                        # Reset às variaveis do grafset
+                        iteradorGrafset = 0
+                        randomint = 0
+                        iteradorLances = 0
+                        # Para o lance
+                        self.stop() 
+                    else:
+                        print("Grafset Overflow engineThread.py")                                                
 
                 time.sleep(0.1)                                                                                         # Verifica este estados 10 vezes por segundo
             else:
