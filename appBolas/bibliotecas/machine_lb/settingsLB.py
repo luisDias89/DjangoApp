@@ -1,4 +1,5 @@
 #  Luís Dias @ 2022  #
+
 '''
 Este ficheiro contem as configurações da máquina na qual o software é instalado.
 Devemos inserir no dicionario o maximo em mm do curso de navegação dos eixos, este valor
@@ -7,39 +8,37 @@ um bloquei da maquina em RUNTIME.
 Nos angulos devemos inserir qual o angulo minimo e maximo de cada eixo de modo 
 a que o algoritmo consiga calcular qual o ponto 0 em milimetros, após o reset da máquina 
 o software envia os motores para o angulo 0, que  o angulo de repouso
-
 X-> É o eixo horizontal do lançador de bolas.
 Y-> É o eixo vertival do lançador de bolas.
 Z-> É o eixo de inclinação do lançador de bolas.
 A-> motor que libera as bolas.
 '''
 
+import os
+import json
 
-maximo = {"X": 25,
-          "Y": 25,
-          "Z": 25,
-          "A": 15.5
-         }
+# Recebe o path real deste script
+dir_path = os.path.dirname(os.path.realpath(__file__))
 
-angulo = {
-    "min_X": -45,
-    "max_X": 45,
-    "min_Y": -3,
-    "max_Y": 20,
-    "min_Z": -20,
-    "max_Z": 18,
-    "min_A": 0,
-    "max_A": 90,
-}
+# Lê o arquivo JSON
+with open(dir_path + "/config.json", "r") as f:
+    config = json.load(f)
 
-graus_desl_a={                  # Angulo de inicio de fim da porta do lançador de bolas
-    "retemBola": 10,
-    "lancaBola": 45
-}
+# Atualiza os dicionários e variáveis
+maximo = config["maximo"]
+angulo = config["angulo"]
+graus_desl_a = config["graus_desl_a"]
+velocidadeAvancoGate = config["velocidadeAvancoGate"]
+velocidadeZeroMaquina = config["velocidadeZeroMaquina"]
 
-velocidadeAvancoGate="5000"   # em mm/min    # Velocidade de avanço da porta de bolas, nota que tambem é imposto pelas definições do GRBL
+# Usar para sincronizar configs !
+def sincronizar_dados():
+    with open(dir_path + "/config.json", "r") as f:
+        dados = json.load(f)
 
-velocidadeZeroMaquina=3000
+    maximo = dados["maximo"]
+    angulo = dados["angulo"]
+    graus_desl_a = dados["graus_desl_a"]
+    velocidadeAvancoGate = dados["velocidadeAvancoGate"]
+    velocidadeZeroMaquina = dados["velocidadeZeroMaquina"]
 
-def soma(a,b):
-    return a+b
