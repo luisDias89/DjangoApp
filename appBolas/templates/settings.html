@@ -75,71 +75,120 @@
                                     {% else %}
                                     {% endif %}
                                 </div>       
-                                
                         </div>                                         
-                        <div class="card-body">                                                             <!--Corpo do card-->
+                    <div class="card-body">                                                             <!--Corpo do card-->
                         <p class="card-text">
+                                    
+                        <!-- ========== insira a informação no corpo do card ==========-->
+                        <!--Copiar daqui-->
+
+                        
+                        <div class="container">
+                        <div class="row">
+                            <div class="col-12 text-center mb-3">
+                                <div class="bg-light text-primary pt-2 pb-1 rounded">
+                                 <h5>Configs JSON</h5>
+                                </div>
+
+                                
+                                <p></p>
+                                <!-- Botão Download json configs -->
+                                <div class="btn-group" role="group" aria-label="Botões de download e upload">
+                                    <button type="button" class="btn btn-primary" onclick="btn_downloaJsonConfigs()" id="btn_download_JSON" style="margin: 1px;">
+                                        <i class="bi bi-box-arrow-down"></i> Download JSON configs
+                                    </button>
+                                    <button type="button" class="btn btn-primary" onclick="btn_uploadJsonConfigs()" id="btn_UPLOAD_JSON" style="margin: 1px;" disabled>
+                                        <i class="bi bi-box-arrow-up"></i> Upload JSON configs
+                                    </button>
+                                </div>
+
+                        
+                                <!-- Form Dynamico JSON -->
+                                <form id="form_container">
+                                </form>
+                                <!-- END OFF FORM JSON -->
+
+                                </p>
+
+                                
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-center">
+                            <span class="border-bottom"></span>
+                            <br>
+                            <span style="display:block; border-top: 1px solid black;"></span>
+                            <br>
+                            <span class="border-top"></span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 text-center mt-3">
                             
-                            <!--insira a informação no corpo do card-->
-                              <!--Copiar daqui-->
-        <div class="accordion" id="accordionExample">
-            
-            <!-- Construção automatizada dos formularios, segundo a informação que consta na base de dados -->
-            {% for comando in SettingsGRBL %}
-                <div class="accordion-item"><h2 class="accordion-header" 
-                    id="panelsStayOpen-heading{{ comando.id }}"> 
-                    <button 
-                    id="botaoSlider{{ comando.id }}" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
-                    data-bs-target="#panelsStayOpen-collapse{{ comando.id }}" aria-expanded="false" 
-                    aria-controls="panelsStayOpen-collapse{{ comando.id }}">
-                      {{ comando.titulo }}
-                  </button>
-                </h2>
-                <div id="panelsStayOpen-collapse{{ comando.id }}" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-heading{{ comando.id }}">
-                  <div class="accordion-body">
-                      <h6 class="card-title">{{ comando.textoInformação }} </h6>  <!--Titulo do card-->
-                      <p></p>
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th scope="col">Default</th>
-                            <th scope="col">Min</th>
-                            <th scope="col">Max</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td>{{ comando.valorDefault }}</td>
-                            <td>{{ comando.valorMin }}</td>
-                            <td>{{ comando.valorMax }}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                      <h6 id="stepPulseValue{{comando.id}}"> Valor atual: </h6>
-                      <div class="input-group mb-3">
-                        <span class="input-group-text" id="basic-addon{{ comando.id }}">Novo valor: </span>
-                        <input type="text" class="form-control" id="stepPulseInput{{comando.id}}"   aria-describedby="basic-addon1">
-                        <button type="button " style="text-align: right ;" id="stepPulsebtn{{comando.id}}" class="btn btn-primary btn-sm float-right">Atribuir</button>
-                      </div>
-                  </div>
+                            <div class="bg-light text-primary pt-2 pb-1 rounded">
+                                 <h5>Configs ESP32-GRBL</h5>
+                            </div>
+                            <p></p>
+                                <!-- Inicio da config GRBL-->
+                                <div class="accordion" id="accordionExample">
+                                    <!-- Construção automatizada dos formularios, segundo a informação que consta na base de dados -->
+                                    {% for comando in SettingsGRBL %}
+                                    <div class="accordion-item"><h2 class="accordion-header" 
+                                        id="panelsStayOpen-heading{{ comando.id }}"> 
+                                        <button 
+                                            id="botaoSlider{{ comando.id }}" class="accordion-button collapsed" type="button" data-bs-toggle="collapse" 
+                                            data-bs-target="#panelsStayOpen-collapse{{ comando.id }}" aria-expanded="false" 
+                                            aria-controls="panelsStayOpen-collapse{{ comando.id }}">
+                                            {{ comando.titulo }}
+                                        </button>
+                                        </h2>
+                                        <div id="panelsStayOpen-collapse{{ comando.id }}" class="accordion-collapse collapse" aria-labelledby="panelsStayOpen-heading{{ comando.id }}">
+                                            <div class="accordion-body">
+                                                <h6 class="card-title">{{ comando.textoInformação }} </h6>  <!--Titulo do card-->
+                                                <p></p>
+                                                <table class="table">
+                                                    <thead>
+                                                    <tr>
+                                                        <th scope="col">Default</th>
+                                                        <th scope="col">Min</th>
+                                                        <th scope="col">Max</th>
+                                                    </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    <tr>
+                                                        <td>{{ comando.valorDefault }}</td>
+                                                        <td>{{ comando.valorMin }}</td>
+                                                        <td>{{ comando.valorMax }}</td>
+                                                    </tr>
+                                                    </tbody>
+                                                </table>
+                                                <h6 id="stepPulseValue{{comando.id}}"> Valor atual: </h6>
+                                                <div class="input-group mb-3">
+                                                    <span class="input-group-text" id="basic-addon{{ comando.id }}">Novo valor: </span>
+                                                    <input type="text" class="form-control" id="stepPulseInput{{comando.id}}"   aria-describedby="basic-addon1">
+                                                    <button type="button " style="text-align: right ;" id="stepPulsebtn{{comando.id}}" class="btn btn-primary btn-sm float-right">Atribuir</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                        </div> 
+                        <!--END OFF config GRBL-->
+                    </div>
                 </div>
             </div>
-            {% endfor %}
-            
-
-            </div>      <!--DivcardBody-->
-
-        </div>    <!-- FechododivCARD  -->
-
-          <!--Copiar ate aqui-->
-                            
 
 
+
+                             
+                                
+                    </div>    <!-- FechododivCARD  -->
+                   
                     <div>
                         <br>
                         <p class="m-auto" id="hora_atual"></p> 
                         <!-- textos que são apresentados em cima da imagem -->
                     </div>
+                </div>
             </div>
         </div>
     </div>
@@ -157,7 +206,6 @@
     <script type="text/javascript" src="{% static 'js/bootstrap.js' %}"></script>
     <!--O Objeto WebSocket vem deste SCRIPT-->
     <script type="text/javascript" src="{% static 'js/script.js' %}"></script>
-
     
     <!--SCRIPT PARA PODER JUNTAR SCRIPT JAVASCRIPT E SCRIPDJANGO-->
 
@@ -250,6 +298,10 @@
           
     </script>
     
+    <!-- Biblioteca para comunicar por AJAX com o back END -->
+    <script type="text/javascript" src="{% static 'js/ajaxCalls.js' %}"></script>
+    <!-- Não tirar deste ponto, este script necessida de acesso ao WebSocket -->
+    <script type="text/javascript" src="{% static 'js/scriptsettings.js' %}"></script>
 </body>
 
 </html>

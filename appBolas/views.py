@@ -11,6 +11,7 @@ from django.http import HttpResponseBadRequest, JsonResponse        # Importaç�
 from django.views.decorators.csrf import requires_csrf_token
 from . import metodos
 from django.contrib.auth.decorators import login_required
+from .bibliotecas.machine_lb import get_configJSON, set_configJSON
 engineLancadorBolas= metodos.engineLancador()
 
 def modoauto(request):
@@ -150,27 +151,7 @@ def modoauto(request):
 def post(self,request):
     variavel = request.POST
 
-def vel_mot_esq_aum(request):
-    '''
-    ser.write(b'G91')     # write a string
-    
-    try:
-        nome=request.POST["subir"]
-        mensagem="G00 X10  F500\n"
-        ser.write(mensagem.encode())
-        print("enviei ao motor a mensagem" + mensagem)
-    except Exception as e:
-        print("")
-    try:
-        nome=request.POST["descer"]
-        mensagem="G00 X-10  F500\n"
-        ser.write(mensagem.encode())
-        print("enviei ao motor a mensagem" + mensagem)
-    except Exception as e:
-        print("")
-    print("\n o nome é: " + nome )
-    return render(request, 'index.html')
-    '''
+
 
 def index(request):
     if request.method =="GET":                                                  # Se receber o metodo GET então retorno a app index somente
@@ -255,6 +236,7 @@ def ajaxRequest(request):
                         'message': 'Erro ao salvar o lance. Preencha todos os campos!'
                     }
                     status_code = 400  # Bad Request
+
             #==============================================
             #================ LANCAR_BOLA =================
             #==============================================
@@ -266,6 +248,27 @@ def ajaxRequest(request):
                         'message': 'OK'
                 }
                 status_code = 200  
+
+            #==============================================
+            #=========== DOWNLOAD_JSON TO FE ==============
+            #==============================================
+            elif data["identificador"] == "DOWNLOAD_JSON":
+                config = get_configJSON()
+                print(config)
+                response_data = {
+                        'message': config
+                }
+                status_code = 200
+            
+            #==============================================
+            #============ UPLOAD_JSON TO FILE =============
+            #==============================================
+            elif data["identificador"] == "UPLOAD_JSON":
+                set_configJSON(data["config_JSON"])
+                response_data = {
+                        'message': 'OK'
+                }
+                status_code = 200
 
             else:
                 response_data = {

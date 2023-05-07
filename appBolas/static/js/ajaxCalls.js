@@ -24,7 +24,7 @@ function getCookie(name) {
   // -----------------------------  CHAMADA ASSINCRONA COM INPUT DE FUNÇÃO --------------------------
   // Função geral para chamadas AJAX com ao backEND
   // Chamada assincrona AJAX somente com Javascript, (Implementaão para subtituir a biblioteca Jquery)
-  // Funções programadas : "NOVO_LANCE", "LANCAR_BOLA", 
+  // Funções programadas : "NOVO_LANCE", "LANCAR_BOLA", "DOWNLOAD_JSON", "UPLOAD_JSON"
 
 function ajaxRequest(data) {
     var xhr = new XMLHttpRequest();
@@ -37,9 +37,15 @@ function ajaxRequest(data) {
             var dataReceived = JSON.parse(xhr.responseText);
             if(dataReceived.message!="OK")
             {
-                callback(dataReceived);
+               console.log(dataReceived.message)
+               if(dataReceived.message.hasOwnProperty("configs_lb"))          // se receber um objeto com configs_lb então inseres novo FORM JSON
+               {
+                cria_formularioJSON(dataReceived.message);                    // Chama uma função que vai inserir um novo formulário
+               }
+               else{
+                  callback(dataReceived);
+               }
             }
-              
         }
         else{
             var dataReceived = JSON.parse(xhr.responseText);
@@ -52,4 +58,5 @@ function ajaxRequest(data) {
 function callback(data) {
 
     alert(data.message);
+    
 }

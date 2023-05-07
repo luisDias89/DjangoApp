@@ -25,20 +25,36 @@ with open(dir_path + "/config.json", "r") as f:
     config = json.load(f)
 
 # Atualiza os dicionários e variáveis
-maximo = config["maximo"]
-angulo = config["angulo"]
-graus_desl_a = config["graus_desl_a"]
-velocidadeAvancoGate = config["velocidadeAvancoGate"]
-velocidadeZeroMaquina = config["velocidadeZeroMaquina"]
+maximo = config["configs_lb"]["maximo"]
+angulo = config["configs_lb"]["angulo"]
+graus_desl_a = config["configs_lb"]["graus_desl_a"]
+velocidadeAvancoGate = config["configs_lb"]["velocidadeAvancoGate"]
+velocidadeZeroMaquina = config["configs_lb"]["velocidadeZeroMaquina"]
 
 # Usar para sincronizar configs !
 def sincronizar_dados():
     with open(dir_path + "/config.json", "r") as f:
         dados = json.load(f)
+    global maximo
+    global angulo
+    global graus_desl_a
+    global velocidadeAvancoGate
+    global velocidadeZeroMaquina
+    maximo = dados["configs_lb"]["maximo"]
+    angulo = dados["configs_lb"]["angulo"]
+    graus_desl_a = dados["configs_lb"]["graus_desl_a"]
+    velocidadeAvancoGate = dados["configs_lb"]["velocidadeAvancoGate"]
+    velocidadeZeroMaquina = dados["configs_lb"]["velocidadeZeroMaquina"]
 
-    maximo = dados["maximo"]
-    angulo = dados["angulo"]
-    graus_desl_a = dados["graus_desl_a"]
-    velocidadeAvancoGate = dados["velocidadeAvancoGate"]
-    velocidadeZeroMaquina = dados["velocidadeZeroMaquina"]
+
+def get_configJSON():
+    # Lê o arquivo JSON
+    with open(dir_path + "/config.json", "r") as f:
+        config = json.load(f)
+    return config
+
+def set_configJSON(json_dict):
+    # Escreve o arquivo JSON com o novo dicionário
+    with open(dir_path + "/config.json", "w") as f:
+        json.dump(json_dict, f)
 
