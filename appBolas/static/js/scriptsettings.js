@@ -14,32 +14,38 @@ function btn_downloaJsonConfigs()
 // e carregar novas configurações                                                       //
 function btn_uploadJsonConfigs()
 {   
-    reconstruirJsonConfigs();
-    //ajaxRequest({'identificador':'UPLOAD_JSON'});
+    
+    ajaxRequest({'identificador':'UPLOAD_JSON','config_JSON': reconstruirJsonConfigs()});
 }
 
 function reconstruirJsonConfigs() {
     const jsonConfig = {};
   
     // Percorre todos os elementos com a classe form-control
-    const inputs = document.querySelectorAll('.form-control');
+    const inputs = document.querySelectorAll('#form_container .form-control');
     inputs.forEach(input => {
-      const idParts = input.id.split('#');  // Divide o id em partes
-      const grupo = idParts[0];
-      const sub = idParts[2];
-      const tipo = idParts[4];
-  
-      if (!sub) {  // Se não houver subgrupo
-        jsonConfig[grupo] = tipo === 'str' ? input.value : parseInt(input.value);
-      } else {  // Se houver subgrupo
-        if (!jsonConfig[grupo]) {
-          jsonConfig[grupo] = {};
-        }
-        jsonConfig[grupo][sub] = tipo === 'str' ? input.value : parseInt(input.value);
+      
+      auxiliarVAR= input.id.split('#TYPE#');                   // Começa por dividir para saber qual é o tipo de variavel
+      const tipo = auxiliarVAR[1]; 
+      auxiliarVAR_sub = auxiliarVAR[0].split("#SUB#");
+      const sub = auxiliarVAR_sub[1];
+      const grupo = auxiliarVAR_sub[0];
+      
+      // Cria o grupo pai de todos
+      if (!jsonConfig["configs_lb"]) {
+         jsonConfig["configs_lb"] = {};
+      }
+      if (!sub) {                                                                           // Se não houver subgrupo
+        jsonConfig["configs_lb"][grupo] = (tipo === 'str' ? input.value : parseInt(input.value));             // então atribui string ou value dpendedo do tipo
+      } else {  // Se houver subgrupo                                                       // Senão
+        if (!jsonConfig["configs_lb"][grupo]) {                                                              // se ainda não existir o grupo, cria-o         
+            jsonConfig["configs_lb"][grupo] = {};
+        }                                                                                      // se ja existir só adiciona mais items  lista
+        jsonConfig["configs_lb"][grupo][sub] = tipo === 'str' ? input.value : parseInt(input.value);         // e atribui string ou value dependedo do tipo
       }
     });
   
-    console.log(jsonConfig);
+    return jsonConfig;
   }
 
 // ============== CRIA FORMULARIO JSON ATRAVEZ DO CALBACK AJAX =========================//

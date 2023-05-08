@@ -1,19 +1,19 @@
-from .settingsLB import angulo, maximo
+from .settingsLB import configLB
 import time
 import numpy
 
 def ConversorGrausToMM(Valorangulo, eixo):
     # Garante que o valor do angulo não ultrapassa o valor minimo ou maximo definido nos settingsLB.py
-    if (Valorangulo > angulo["max_" + str(eixo)]):
-        Valorangulo = angulo["max_" + str(eixo)]
-    elif (Valorangulo < angulo["min_" + str(eixo)]):
-        Valorangulo = angulo["min_" + str(eixo)]
+    if (Valorangulo > configLB.angulo["max_" + str(eixo)]):
+        Valorangulo = configLB.angulo["max_" + str(eixo)]
+    elif (Valorangulo < configLB.angulo["min_" + str(eixo)]):
+        Valorangulo = configLB.angulo["min_" + str(eixo)]
 
     # Encontra o zero em mm da maquina
-    somaAngulos = abs(angulo["min_" + str(eixo)]) + angulo["max_" + str(eixo)]
-    anguloNormalizado = abs(angulo["min_" + str(eixo)]) + Valorangulo
+    somaAngulos = abs(configLB.angulo["min_" + str(eixo)]) + configLB.angulo["max_" + str(eixo)]
+    anguloNormalizado = abs(configLB.angulo["min_" + str(eixo)]) + Valorangulo
     # (Valor do angulo *maximo do eixo) / maximo de angulos
-    retorno = (anguloNormalizado*maximo[str(eixo)])/somaAngulos
+    retorno = (anguloNormalizado*configLB.maximo[str(eixo)])/somaAngulos
     return round(retorno, 2)
 
 

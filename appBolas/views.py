@@ -11,7 +11,7 @@ from django.http import HttpResponseBadRequest, JsonResponse        # Importa√ß√
 from django.views.decorators.csrf import requires_csrf_token
 from . import metodos
 from django.contrib.auth.decorators import login_required
-from .bibliotecas.machine_lb import get_configJSON, set_configJSON
+from .bibliotecas.machine_lb import configLB
 engineLancadorBolas= metodos.engineLancador()
 
 def modoauto(request):
@@ -253,8 +253,7 @@ def ajaxRequest(request):
             #=========== DOWNLOAD_JSON TO FE ==============
             #==============================================
             elif data["identificador"] == "DOWNLOAD_JSON":
-                config = get_configJSON()
-                print(config)
+                config = configLB.get_configJSON()
                 response_data = {
                         'message': config
                 }
@@ -264,7 +263,9 @@ def ajaxRequest(request):
             #============ UPLOAD_JSON TO FILE =============
             #==============================================
             elif data["identificador"] == "UPLOAD_JSON":
-                set_configJSON(data["config_JSON"])
+                configLB.set_configJSON(data["config_JSON"])
+                configLB.sincronizar_dados()
+                
                 response_data = {
                         'message': 'OK'
                 }

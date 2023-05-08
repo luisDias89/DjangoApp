@@ -6,7 +6,7 @@ import time
 import numpy
 from time import time as Time
 import threading
-from .machine_lb import *
+from .machine_lb import configLB
 
 
 
@@ -20,8 +20,8 @@ class ClasseThreadLance(threading.Thread):
     #setPointZ = -60
 
     # Estes valores deveram estar num ficheiro .py com configurações gerais da máquina
-    print(angulo)
-    print(maximo)
+    print(configLB.angulo)
+    print(configLB.maximo)
 
     def __init__(self,ser):
         super(ClasseThreadLance, self).__init__()            # Extende os metodos deste objeto ao da class thread
@@ -163,8 +163,8 @@ class ClasseThreadLance(threading.Thread):
 
     def retorna_zero_Lancabolas_mm(self,eixo):
     # Encontra o zero em mm da maquina
-        somaAngulos = abs(angulo["min_" + str(eixo)]) + angulo["max_" + str(eixo)]
-        retorno = (abs(angulo["min_" + str(eixo)])*maximo[str(eixo)])/somaAngulos
+        somaAngulos = abs(configLB.angulo["min_" + str(eixo)]) + configLB.angulo["max_" + str(eixo)]
+        retorno = (abs(configLB.angulo["min_" + str(eixo)])*configLB.maximo[str(eixo)])/somaAngulos
         #print(str(eixo) + " " + str(round(retorno, 2)))
         return round(retorno, 2)
 
@@ -172,16 +172,16 @@ class ClasseThreadLance(threading.Thread):
     def ConversorGrausToMM(self, Valorangulo, eixo):
 
         # Garante que o valor do angulo não ultrapassa o valor minimo ou maximo definido nos settingsLB.py
-        if (Valorangulo > angulo["max_" + str(eixo)]):
-            Valorangulo = angulo["max_" + str(eixo)]
-        elif (Valorangulo < angulo["min_" + str(eixo)]):
-            Valorangulo = angulo["min_" + str(eixo)]
+        if (Valorangulo > configLB.angulo["max_" + str(eixo)]):
+            Valorangulo = configLB.angulo["max_" + str(eixo)]
+        elif (Valorangulo < configLB.angulo["min_" + str(eixo)]):
+            Valorangulo = configLB.angulo["min_" + str(eixo)]
 
         # Encontra o zero em mm da maquina
-        somaAngulos = abs(angulo["min_" + str(eixo)]) + angulo["max_" + str(eixo)]
-        anguloNormalizado = abs(angulo["min_" + str(eixo)]) + Valorangulo
+        somaAngulos = abs(configLB.angulo["min_" + str(eixo)]) + configLB.angulo["max_" + str(eixo)]
+        anguloNormalizado = abs(configLB.angulo["min_" + str(eixo)]) + Valorangulo
         # (Valor do angulo *maximo do eixo) / maximo de angulos
-        retorno = (anguloNormalizado*maximo[str(eixo)])/somaAngulos
+        retorno = (anguloNormalizado*configLB.maximo[str(eixo)])/somaAngulos
         return round(retorno, 2)
 
     
@@ -241,7 +241,7 @@ class ClasseThreadLance(threading.Thread):
         Z0=self.retorna_zero_Lancabolas_mm("Z")
         A0=self.retorna_zero_Lancabolas_mm("A")
         # vai para o centro de cada eixo, velocidadezeromaquina vem dos settingsLB
-        self.gotTo_mm(X=X0, Y=Y0, Z=Z0, A=A0, F=velocidadeZeroMaquina)
+        self.gotTo_mm(X=X0, Y=Y0, Z=Z0, A=A0, F=configLB.velocidadeZeroMaquina)
         
         # enquanto não atinge não procegue
         while (not self.confirmaPosicaoFinal(X=X0, Y=Y0, Z=Z0, A=A0)):
@@ -289,19 +289,19 @@ class ClasseThreadLance(threading.Thread):
                        
                         # nota o dicionario vem do settingsLB.py 
                         mensagem = "G01 A" + \
-                            str(self.ConversorGrausToMM(graus_desl_a["lancaBola"], "A")) + " F" + velocidadeAvancoGate  + "\n"
+                            str(self.ConversorGrausToMM(configLB.graus_desl_a["lancaBola"], "A")) + " F" + configLB.velocidadeAvancoGate  + "\n"
                         
                         #self.send_to_GRBL(mensagem)
                         self.ser.flushInput()
                         self.ser.write(mensagem.encode())                      # Bloco de envio de G-CODE
                         self.tic()
                         mensagem = "G01 A" + \
-                            str(self.ConversorGrausToMM(graus_desl_a["retemBola"], "A")) + " F" + velocidadeAvancoGate  + "\n"
+                            str(self.ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) + " F" + configLB.velocidadeAvancoGate  + "\n"
                         # Bloco de envio de G-CODE
                         self.ser.write(mensagem.encode())
                         #print("enviei o comando dos 10 graus")
                         
-                        while (not self.confirmaPosicaoFinal(A=self.ConversorGrausToMM(graus_desl_a["retemBola"], "A")) or self.toc()<=self.cadencia):
+                        while (not self.confirmaPosicaoFinal(A=self.ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) or self.toc()<=self.cadencia):
                             time.sleep(0.2)
                             if(self.stopped()):
                                 break
