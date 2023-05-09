@@ -118,7 +118,8 @@ def modoauto(request):
                     respostaJson={                                                              #  responde com
                     'timeLeft': engineLancadorBolas.get_timeleft(tipo="treino"),                #  tempo restante do treino
                     'get_percentleft' : engineLancadorBolas.get_percentleft(tipo="treino"),     #  percentagem que falta para acabar o treino
-                    'get_Aexecutar' : engineLancadorBolas.get_Aexecutar()              #  Qual o lance que está a ser executado
+                    'get_Aexecutar' : engineLancadorBolas.get_Aexecutar(),              #  Qual o lance que está a ser executado
+                    'isStoped'    : engineLancadorBolas.isStoped(tipo="treino")
                     }
                 elif((dataFromPost["tipoRequisicao"]=="GET_INFO_LANCE")):
                     if(engineLancadorBolas.threadLance.runing==False):
@@ -137,11 +138,20 @@ def modoauto(request):
         return JsonResponse({'status': 'Invalid request'}, status=400)
 
     else:                                       # else não é AJAX, e devolve a página.
+
+        if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
+            msgQuemEstaLogado='Utilizador não logado'                            # Constroi uma mensagem que indica se está logado ou não            
+        else:
+            msgQuemEstaLogado= 'Utilizador logado' 
+
+
         dbTreinos= treino.objects.all()
         dblances = LanceDB.objects.all()
         context={
             "treinos": dbTreinos,
             "lances":dblances,
+            'logado': msgQuemEstaLogado,
+            'showLogedIcons': request.user.is_authenticated,                    # Retorna um valor boleano para mostrar ou não o menu de settings
         }
         return render(request, 'modoauto.html', context)
         # return render(request, "chat/index.html")
@@ -193,7 +203,16 @@ def contato(request):
 
 # Sempre que alguem entra na página de controlo do lançador de bolas, é redirecionado para esta página
 def homepage(request):
-    return render(request, 'homepage.html')
+    if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
+            msgQuemEstaLogado='Utilizador não logado'                            # Constroi uma mensagem que indica se está logado ou não            
+    else:
+        msgQuemEstaLogado= 'Utilizador logado' 
+
+    context={
+        'logado': msgQuemEstaLogado,
+        'showLogedIcons': request.user.is_authenticated,                    # Retorna um valor boleano para mostrar ou não o menu de settings
+    }
+    return render(request, 'homepage.html', context)
 
 
 #@login_required

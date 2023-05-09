@@ -466,6 +466,22 @@ function getCookie(name) {
                      </div>
                     `
                 );
+                if( request.responseJSON.isStoped==true)
+                    {
+                        let btn_widgetHTML = document.getElementById('btn_iniciarTreino');
+                        var btn_FecharModal_js=document.getElementById("btn_fecharModal");
+                        var btn_closeSuperior_js=document.getElementById("btn_closeSuperior");
+                        btn_widgetHTML.textContent = 'Iniciar treino'
+                        btn_FecharModal_js.classList.remove("disabled");
+                        btn_FecharModal_js.classList.add("active");
+                        btn_closeSuperior_js.classList.remove("disabled");
+                        btn_closeSuperior_js.classList.add("active");
+                        treinoPausado = false;                                                           // assinala que esta em estado de PAUSE    
+                        btn_PauseResume.textContent = "Pause";                                           // e troca o nome do botão para Resume
+                        btn_PauseResume.style.display = 'none';                                          // Esconde o botão toogle de Pause/resume
+
+                        flag_sincronizaTreino=false;
+                    }
             
         });
             request.fail(function( jqXHR, textStatus ) {                        // Caso a ligação mal sucedida, aborta e avisa
@@ -505,8 +521,10 @@ function getCookie(name) {
                         btn_FecharModal_js.classList.remove("disabled");
                         btn_FecharModal_js.classList.add("active");
                         btn_closeSuperior_js.classList.remove("disabled");
-                        btn_closeSuperior_js.classList.add("active");
-                        flag_sincronizaLance=false;
+                        btn_PauseResume.style.display = 'none';                                          // Esconde o botão toogle de Pause/resume
+                        btn_PauseResume.textContent = "Pause";                                           // e troca o nome do botão para Pause
+
+                        flag_sincronizaLance=false;                                                      // Encerra a sincronização
                     }
 
 

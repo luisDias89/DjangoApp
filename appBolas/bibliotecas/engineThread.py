@@ -16,6 +16,7 @@ class threadTreino(threading.Thread):
     tempInicial=0                                   # Quando a Thread inicia regista nesta variavel qual o tempo de inicio
     tempoTreino=0                                   # Quando entra no __init__ regista o tempo do treino para o id selecionado
     tempoNormalizadoSegundos=0                      # Da base de dados vem o tempo no formato H:S, aqui já recebemos o tempo em segundos para descontar no toc() diretamente
+    MaxBolasTreino=0
     timeLeft=0
     percentLeft=0
     tempoDePausa=0
@@ -41,12 +42,13 @@ class threadTreino(threading.Thread):
         return delta_t
 
     
-    def __init__(self,ser, tempoTreino, qtLancamentos, objLances, cadencia, tipoSequencia):
+    def __init__(self,ser, tempoTreino, qtLancamentos, objLances, cadencia, tipoSequencia,MaxBolasTreino):
         super(threadTreino, self).__init__()        # Extende os metodos deste objeto ao da class thread
         self._stop = threading.Event()              # adiciona à variavel _stop o evento thread
         # -----------   Inicialização de variaveis --------------------------
         self.ser=ser                                # recebe o serialPort para dentro do objeto;
         self.qtLancamentos=qtLancamentos            # recebe a quantidade de lancamentos;
+        self.MaxBolasTreino=MaxBolasTreino
         self.objLances=objLances                    # recebe o objeto lances
         self.lancesJson={}
         i=0
@@ -62,18 +64,11 @@ class threadTreino(threading.Thread):
     
         
         # normalização do tempo de treino
-        inteiro = int(tempoTreino)
+        inteiro = int(tempoTreino)                              # 
         virgula= tempoTreino-inteiro                            # separa o que esta para alem da virgula
         tempoNormalizado= (float(virgula)*1.666666)+inteiro     # Normaliza o tempo de treino
-        self.tempoNormalizadoSegundos=tempoNormalizado*3600     # passa de horas para segundos ???
+        self.tempoNormalizadoSegundos=tempoNormalizado*60       # passa de minutos para segundos
         
-        
-        #Calcula se o tempo definido no treino é maior que o tempo do ciclo, se for então permanece o tempo do ciclo
-        tempoTreinoqtCadencia=(quantidadeLancamentos*cadencia)+24+2*quantidadeLancamentos             # Calcula o tempo de treino em funcao da cadencia e qtbolaslancadas
-        if (tempoTreinoqtCadencia<self.tempoNormalizadoSegundos):   # caso seja inferior ao tempo de treino programado na base de dados, é este o tempo que conta
-            self.tempoNormalizadoSegundos=tempoTreinoqtCadencia
-        
-
         
     def stop(self):                                 # set da flag para terminar a Thread
         self._stop.set()
@@ -166,41 +161,89 @@ class threadTreino(threading.Thread):
             
             if(self.runThread):                                                                              # Se nao estiver em pausa  
                 self.threadLance.resume()                                                                       # Força resume na Thread lance                                  
-                if(self.tipoSequencia==2):                                                                      # e se o tipo de sequencia é igual a 2 (2-> treino com lances Sequencial)         
-                    if(iteradorLances==0):                                                                          # Se for o primeiro lance então
-                        #print("Inicializei lance 0 do treino")                                                          # Imprime na consola que está no lance zero
-                        self.str_getAexecutar="Referenciação do lançador"
-                        self.threadLance.startLance(                                                                    # da inicio ao lance zero, enviando startLance
-                                        nomeLance=str(self.objLances[0].nomeLance),                                     # e as informações proveninentes da base de dados
-                                        velRoloEsq=int(self.objLances[0].velocidadeRoloEsq), 
-                                        velRoloDir=int(self.objLances[0].velocidadeRoloDir), 
-                                        angulo_X=int(self.objLances[0].anguloX), 
-                                        angulo_Y=int(self.objLances[0].anguloY), 
-                                        angulo_Z=int(self.objLances[0].anguloInclinacao), 
-                                        cadencia=int(self.cadencia), 
-                                        qtBolasLancadas=int(self.qtLancamentos)
-                                        )
-                        # Garante que só executa este if uma vez, no posição 0  
-                        self.str_getAexecutar=str(self.objLances[iteradorLances].nomeLance)
-                        iteradorLances+=1                                                                               # Incrementa para que no lance seguinte, va para o step 2
-                    # Se não estiver a correr um lance e o iterador for inferior à quantidade de lances
-                    elif((iteradorLances <= quantidadeLances) and self.threadLance.runing == False):                    # enquato o iterador for inferior à quantidade de lances..
-                                                                                                                        # .. e já ter acabado o ultimo lance (runing vai a zero quando acaba o lance anterior)  
-                        self.threadLance.startLance(                                                                       # entao volta a iniciar o lance, no iterador que está parado             
-                                        nomeLance=str(self.objLances[iteradorLances].nomeLance), 
+                if(self.tipoSequencia==2):                        # {SEQUENCIAL} (2-> treino com lances Sequencial)         
+                                       
+                    # Implementação de Grafset em Python de lances sequenciais
+                    
+                    # 0 -> Iterador lance a 0 ,  "Temporário" atualiza estado do lançador para o front end
+                    # 1 -> Inicialização do grafset, com verificação da lance a executar 
+                    # 2 -> Comando para inicial lance
+                    # 3 -> Atualiza para o Front End qual o nome do lance
+                    # 4 -> Decisão de lançar novo lance ou saltar para o reset do grafset
+                    # 5 -> Reset das variáveis e saida do Grafset
+                    if iteradorGrafset == 0: 
+                        """
+                        STEP 0
+                        """        
+                        # Inicialização das variaveis  
+                        self.str_getAexecutar="Referenciação do lançador"                           # Envia ao front end o que está a executar                                           # Inicializa o iterador de lances
+                        iteradorBolas = 0
+                        lançaQT=0 
+                        iteradorLances=0 
+                        #salta para o proximo passo
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 1:
+                        """
+                        STEP 1
+                        """  
+                        if( iteradorLances >= quantidadeLances):                                   # Quando o iterador de lances for igual ou superior ao máximo, então
+                            iteradorLances=0                                                            # Reinicia a sequencia
+                        
+                        if(iteradorBolas+self.qtLancamentos<self.MaxBolasTreino):                  # se o proximo incremento for inferior ao maximo possivel
+                            lançaQT = self.qtLancamentos                                                # e cria a variavel com a qt laçamentos
+                            iteradorBolas += lançaQT                                                    # Incrementa o numero de bolas normal registado na DB
+                            iteradorGrafset += 1                                                        # Continua para o passo seguinte do grafset
+                        elif(self.MaxBolasTreino-iteradorBolas ==0):                               # Caso não possa incrementar mais
+                            iteradorGrafset=4                                                           # não lança, Salta para o grafset de tomada de decisão       
+                        else:                                                                      # senão
+                            lançaQT = self.MaxBolasTreino-iteradorBolas                                 # e cria a variavel com a qt laçamentos
+                            iteradorBolas += lançaQT                                                    # incrementa a quantidade de bolas que falta até ao maximo
+                            iteradorGrafset += 1                                                        # Continua para o passo seguinte do grafset
+                    elif iteradorGrafset == 2:
+                        """
+                        STEP 2
+                        """ 
+                        self.threadLance.startLance(                                                                   
+                                        nomeLance=str(self.objLances[iteradorLances].nomeLance),                                    
                                         velRoloEsq=int(self.objLances[iteradorLances].velocidadeRoloEsq), 
                                         velRoloDir=int(self.objLances[iteradorLances].velocidadeRoloDir), 
                                         angulo_X=int(self.objLances[iteradorLances].anguloX), 
                                         angulo_Y=int(self.objLances[iteradorLances].anguloY), 
                                         angulo_Z=int(self.objLances[iteradorLances].anguloInclinacao), 
                                         cadencia=int(self.cadencia), 
-                                        qtBolasLancadas=int(self.qtLancamentos)
-                                        )
+                                        qtBolasLancadas=int(lançaQT)
+                                        )      
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 3: 
+                        """
+                        STEP 3
+                        """ 
                         self.str_getAexecutar=str(self.objLances[iteradorLances].nomeLance)
-                        iteradorLances+=1
+                        iteradorGrafset += 1
+                    elif iteradorGrafset == 4:
+                        """
+                        STEP 4
+                        """
+                        if(self.threadLance.runing == False):
+                            if (self.MaxBolasTreino-iteradorBolas <= 0 or (self.get_timeleft() < 0)):   # Se já lançou todas as bolas ou já passou o tempo de treino
+                                iteradorGrafset += 1                                                        # Para o treino continuando no grafset
+                            else:                                                                       # caso contrario
+                                iteradorLances += 1                                                         # Incrementa o lance
+                                iteradorGrafset = 1                                                         #  volta a lançar, passo 1
+
+
+                    elif iteradorGrafset == 5:
+                        """
+                        STEP 5
+                        """
+                        # Reset às variaveis do grafset
+                        iteradorGrafset = 0
+                        # Para o lance
+                        self.stop() 
+                    else:
+                        print("Iterador Grafset" + str(iteradorGrafset))
                 
-                elif(self.tipoSequencia==1):                                                                               # e se o tipo de sequencia é igual a 2 (2-> treino com lances aleatório) 
-                    
+                elif(self.tipoSequencia==1):                      # {ALEATORIO}  (1-> treino com lances Aleatorio)                     
                     # Implementação de Grafset em Python de lances aleatórios
                     
                     # 0 -> Iterador lance a 0 ,  "Temporário" atualiza estado do lançador para o front end
@@ -213,16 +256,28 @@ class threadTreino(threading.Thread):
                     if iteradorGrafset == 0: 
                         """
                         STEP 0
-                        """          
-                        self.str_getAexecutar="Referenciação do lançador"
-                        iteradorLances = 0
+                        """        
+                        # Inicialização das variaveis  
+                        self.str_getAexecutar="Referenciação do lançador"                           # Envia ao front end o que está a executar                                           # Inicializa o iterador de lances
+                        iteradorBolas = 0
                         iteradorGrafset += 1
+                        lançaQT=0               
                     elif iteradorGrafset == 1:
                         """
                         STEP 1
                         """  
-                        randomint=random.randint(0,quantidadeLances)     
-                        iteradorGrafset += 1
+                        randomint=random.randint(0,quantidadeLances)                               # Recebe um numero random dentro da quantidade de lances
+                        iteradorGrafset += 1                                                       # Incrementa a quantidade de bolas lançadas
+                        if(iteradorBolas+self.qtLancamentos<self.MaxBolasTreino):                  # se o proximo incremento for inferior ao maximo possivel
+                            lançaQT = self.qtLancamentos                                                # e cria a variavel com a qt laçamentos
+                            iteradorBolas += lançaQT                                                    # Incrementa o numero de bolas normal registado na DB
+                            
+                        elif(self.MaxBolasTreino-iteradorBolas ==0):                               # Caso não possa incrementar mais
+                            iteradorGrafset=4                                                           # não lança, Salta para o grafset de tomada de decisão       
+                        else:                                                                      # senão
+                            lançaQT = self.MaxBolasTreino-iteradorBolas                                 # e cria a variavel com a qt laçamentos
+                            iteradorBolas += lançaQT                                                    # incrementa a quantidade de bolas que falta até ao maximo
+                            
                     elif iteradorGrafset == 2:
                         """
                         STEP 2
@@ -235,9 +290,8 @@ class threadTreino(threading.Thread):
                                         angulo_Y=int(self.objLances[randomint].anguloY), 
                                         angulo_Z=int(self.objLances[randomint].anguloInclinacao), 
                                         cadencia=int(self.cadencia), 
-                                        qtBolasLancadas=int(self.qtLancamentos)
-                                        )
-                        iteradorLances+=1           
+                                        qtBolasLancadas=int(lançaQT)
+                                        )      
                         iteradorGrafset += 1
                     elif iteradorGrafset == 3: 
                         """
@@ -249,11 +303,14 @@ class threadTreino(threading.Thread):
                         """
                         STEP 4
                         """  
-                        if (iteradorLances <= quantidadeLances) and (self.threadLance.runing == False):
-                            iteradorGrafset = 1             # Salta para o Step 1 para fazer novo random e inicial novo lance
+                        if(self.threadLance.runing == False):
+                            # Se já lançou todas as bolas ou já passou o tempo de treino
+                            if (self.MaxBolasTreino-iteradorBolas <= 0 or (self.get_timeleft() < 0)): 
+                                iteradorGrafset += 1                            # Para o treino continuando no grafset
+                            else:
+                                iteradorGrafset = 1                             # caso contrario volta a lançar
 
-                        if (iteradorLances > quantidadeLances) and (self.threadLance.runing == False):
-                            iteradorGrafset += 1
+
                     elif iteradorGrafset == 5:
                         """
                         STEP 5
@@ -261,7 +318,6 @@ class threadTreino(threading.Thread):
                         # Reset às variaveis do grafset
                         iteradorGrafset = 0
                         randomint = 0
-                        iteradorLances = 0
                         # Para o lance
                         self.stop() 
                     else:
@@ -271,7 +327,9 @@ class threadTreino(threading.Thread):
             else:
                 self.threadLance.pausar()
             # Acaba com a Thread se o tempo de treino acabar ou houver ordem de paragem
-            if(self.stopped() or (self.get_timeleft() < 0) or ((iteradorLances-1) > quantidadeLances)):                 # Se alguem parar o lance ou acabar o tempo .. 
-                self.threadLance.stop()                                                                                 # .. ou o iterador for superior a quantidade de lances
+            if(self.stopped() or (self.get_timeleft() < 0)):                                                            # Se alguem parar o lance ou acabar o tempo .. 
+                self.threadLance.stop() 
+                self.stop()                                                                                # .. ou o iterador for superior a quantidade de lances
                 self.str_getAexecutar=""
+                print("SAIU DA TREATH TREINO!!!!")
                 break                                                                                                   # entao faz stop ao lance e sai da thread

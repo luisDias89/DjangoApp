@@ -58,7 +58,7 @@ class treino(models.Model):
     
     dataCriacao = models.DateTimeField("Data",default=datetime.now, editable=False)
 
-    tempoTreino=models.DecimalField("Tempo de treino(H,MIN)", default=5, max_digits=5, decimal_places=2)
+    tempoTreino=models.DecimalField("Tempo de treino em minutos", default=5, max_digits=5, decimal_places=2)
 
     #Formulario para editar hora e data
     #date = models.DateTimeField("Data",default=datetime.now, blank=True)
@@ -91,13 +91,3 @@ class treino(models.Model):
     def __str__(self):
         #return f'{self.comandoGRBL}{self.titulo}'
         return self.nomeTreino + " -- Adicionado: " + str(self.dataCriacao.day) +"-"+ str(self.dataCriacao.month) +"-"+ str(self.dataCriacao.year)
-
-        '''
-        print("The current year is ", currentDateAndTime.year) # Output: The current year is  2022
-        print("The current month is ", currentDateAndTime.month) # Output: The current month is  3 
-        print("The current day is ", currentDateAndTime.day) # Output: The current day is  19
-        print("The current hour is ", currentDateAndTime.hour) # Output: The current hour is  10 
-        print("The current minute is ", currentDateAndTime.minute) # Output: The current minute is  49
-        print("The current second is ", currentDateAndTime.second) # Output: The current second is  18
-
-        '''

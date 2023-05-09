@@ -285,7 +285,7 @@ class ClasseThreadLance(threading.Thread):
                 if (prontoSequencialancamento):
                     #print("passei no if dos setpoints")
                     # Simulação do Loop de controlo da Thread
-                    if (self.iteradorLances <= self.qtBolasLancadas):
+                    if (self.iteradorLances < self.qtBolasLancadas):
                        
                         # nota o dicionario vem do settingsLB.py 
                         mensagem = "G01 A" + \
