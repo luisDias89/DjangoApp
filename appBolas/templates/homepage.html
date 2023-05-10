@@ -1,4 +1,13 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block css %}
+<!-- CSS only -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/icons/bootstrap-icons.css' %} ">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.dataTables.min.css' %}">
+{% endblock css%}
 
 {% block modal %}
 
@@ -54,26 +63,37 @@
 
 {% block body %}
 
-
-<div class="container mt-5">
-  <div class="card">
-    <div class="card-body">
-      <h3 class="card-title">Bem-vindo ao lançador de Bolas UA</h3>
-      <p class="card-text">Escolha o modo de lançamento pretendido:</p>
-      <div class="btn-group btn-group-spacing">
-        <a href="/modoauto"><button type="button" class="btn btn-primary mx-1" >Modo Automático</button></a>
-        <a href="/"><button type="button" class="btn btn-primary" >Modo Manual</button></a>
+<!-- Corpo do contextInformaço-->
+<div class="col-lg-12 align-items-center" id="ColunaContainer" style="margin-top: 1%;">
+  <div class="container mt-5">
+    <div class="card">
+      <div class="card-body">
+        <h3 class="card-title">Bem-vindo ao lançador de Bolas UA</h3>
+        <p class="card-text">Escolha o modo de lançamento pretendido:</p>
+        <div class="btn-group btn-group-spacing">
+          <a href="/modoauto"><button type="button" class="btn btn-primary mx-1" >Modo Automático</button></a>
+          <a href="/"><button type="button" class="btn btn-primary" >Modo Manual</button></a>
+        </div>
+        <hr>
+        <p>
+          <div class="col" style="color: aliceblue;text-align: center; "><a href="/admin"><button type="button" class="btn btn-primary">Login</button></a></div>
+        
       </div>
-      <hr>
-      <p>
-        <div class="col" style="color: aliceblue;text-align: center; "><a href="/admin"><button type="button" class="btn btn-primary">Login</button></a></div>
-      
     </div>
   </div>
 </div>
 
-
 {% endblock body %}
+
+{% block scripts %}
+
+<!-- JavaScript's -->
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.6.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scriptAuto.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scriptconfigurador.js' %}"> </script>
+{% endblock scripts %}
 
 
 

@@ -191,7 +191,12 @@ def index(request):
 #Página onde é definidos as configurações do GRBL,os parâmetros podem ser adicionador progressivamente
 def settingsReturn(request):
     #Passa um dicionario que contem a informação da base de dados sobre os SettingsGRBL
+    if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
+            msgQuemEstaLogado='Utilizador não logado'                            # Constroi uma mensagem que indica se está logado ou não            
+    else:
+        msgQuemEstaLogado= 'Utilizador logado' 
     context ={
+            'logado': msgQuemEstaLogado,
             'SettingsGRBL': SettingsGRBL.objects.all(),         # passa uma query com todos os objetos contidos nesta tabela
         }
     return render(request, 'settings.html', context)

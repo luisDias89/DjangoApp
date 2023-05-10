@@ -1,140 +1,130 @@
 {% extends 'base.html' %}
+{% load static %}
 
+{% block css %}
+    <!-- CSS only -->
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.css' %}">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/icons/bootstrap-icons.css' %} ">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/jquery.dataTables.min.css' %}">
+{% endblock css%}
 
 {% block modal %}
+  <!-- Modal -->
+  <div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
 
-<!-- Modal -->
-<div class="modal fade" id="myModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
+          <div class="modal-header">                                                                            <!-- DIV CABEÇALHO -->
+            <h5 class="modal-title" id="TituloModal"></h5>                                                          <!-- Titulo Modal -->
+            
+            <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"       
+              aria-label="Close"></button>                                                                          <!-- botão X superior direito -->
+          </div>
 
-        <div class="modal-header">                                                                            <!-- DIV CABEÇALHO -->
-          <h5 class="modal-title" id="TituloModal"></h5>                                                          <!-- Titulo Modal -->
-          
-          <button type="button" class="btn-close active" id="btn_closeSuperior" data-bs-dismiss="modal"       
-            aria-label="Close"></button>                                                                          <!-- botão X superior direito -->
+        <div class="modal-body" id="context_modal" style="text-align: left;">                                   <!-- CORPO MODAL -->
+            <!--Informação do Body-->
+              <div id="HR">                             
+              </div>
+
+              <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022            
+              </div>                                                                                                <!-- Inserido a: xxxxxx -->  
+        
+              <div> <span id="InformacaoLabel" style="font-weight: bold;">Lista de lances a executar:</span>
+                <ol id="modelData_Exec_treino">
+                </ol>
+              </div>
+
+              <div id="modelData_Cadencia" style="margin-bottom: 16px">Cadencia: 
+              </div>
+
+              <div id="modelData_timeleft">Tempo restante do treino: 
+              </div>
+
+              <div id="amostradorLance"> 
+              </div>
+
+              <br>
+              <div id="modelData_Tiposelecao" > 
+              </div>
+              <br>
         </div>
+        <div class="modal-footer" style="text-align: left;">
+              <div id="id_treino" style="position: absolute; left: 15px;">Treino 1</div>
+              <button type="button" class="btn btn-secondary active" id="btn_fecharModal"
+              data-bs-dismiss="modal">Close</button>
+              <button type="button" class="btn btn-primary" id="btn_PauseResume" style="display:none">Pause</button>    <!-- Botão pausa, inicia escondido -->
+              <button type="button" class="btn btn-primary" id="btn_iniciarTreino">Iniciar Treino</button>
 
-      <div class="modal-body" id="context_modal" style="text-align: left;">                                   <!-- CORPO MODAL -->
-          <!--Informação do Body-->
-            <div id="HR">                             
-            </div>
-
-            <div id="modelData_treino"> <b>Data da criação:</b> 12 de Setembro de 2022            
-            </div>                                                                                                <!-- Inserido a: xxxxxx -->  
-      
-            <div> <span id="InformacaoLabel" style="font-weight: bold;">Lista de lances a executar:</span>
-              <ol id="modelData_Exec_treino">
-              </ol>
-            </div>
-
-            <div id="modelData_Cadencia" style="margin-bottom: 16px">Cadencia: 
-            </div>
-
-            <div id="modelData_timeleft">Tempo restante do treino: 
-            </div>
-
-            <div id="amostradorLance"> 
-            </div>
-
-            <br>
-            <div id="modelData_Tiposelecao" > 
-            </div>
-            <br>
-      </div>
-      <div class="modal-footer" style="text-align: left;">
-            <div id="id_treino" style="position: absolute; left: 15px;">Treino 1</div>
-            <button type="button" class="btn btn-secondary active" id="btn_fecharModal"
-            data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" id="btn_PauseResume" style="display:none">Pause</button>    <!-- Botão pausa, inicia escondido -->
-            <button type="button" class="btn btn-primary" id="btn_iniciarTreino">Iniciar Treino</button>
-
+        </div>
       </div>
     </div>
   </div>
-</div>
-<!-- Fim do Modal -->
-
+  <!-- Fim do Modal -->
 {% endblock modal %}
 
-
-
 {% block body %}
+<!-- Corpo do contextInformaço-->
+<div class="col-lg-12 align-items-center" id="ColunaContainer" style="margin-top: 1%;">
 
 <!--Botão DropDown-->
-                <div class="dropdown" style="text-align: right;">
-                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
-                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Adicionar
-                    </button>
-                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
-                        <li><a class="dropdown-item " href="#">Novo Lance</a></li>
-                        <li><a class="dropdown-item" href="#">Novo Treino</a></li>
-                        <!--<li><hr class="dropdown-divider"></li>
-                    <li><a class="dropdown-item" href="#">Separated link</a></li>-->
-                    </ul>
-                </div>
-                <!--Fim do botão DropDown-->
-
-            
-                <nav>
-                    <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                        <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
-                            data-bs-target="#nav-treino" type="button" role="tab" aria-controls="nav-home"
-                            aria-selected="true">Modo treino</button>
-                        <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-lances"
-                            type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Executar lances
-                        </button>
-                    </div>
-                </nav>
-                <div class="tab-content" id="div-NaveBody">
-                    <div class="tab-pane fade show active" id="nav-treino" role="tabpanel"
-                        aria-labelledby="nav-home-tab">
-                        <!--Inicio da Div Treino-->
-
-<!--
-<form action="insertdb" method="get" target="_self">
-  {% csrf_token %}
-  <label for="fname">First name:</label>
-  <input type="text" id="fname" name="Nome"><br><br>
-  <label for="lname">Last name:</label>
-  <input type="text" id="lname" name="LastName"><br><br>
-  <input type="submit" formmethod="post" value="Submit using POST">
-</form>
-
-{{ data.Nome }} {{ data.LastName}}-->
+  <div class="dropdown" style="text-align: right;">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton2"
+          data-bs-toggle="dropdown" aria-expanded="false">
+          Adicionar
+      </button>
+      <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2">
+          <li><a class="dropdown-item " href="#">Novo Lance</a></li>
+          <li><a class="dropdown-item" href="#">Novo Treino</a></li>
+          <!--<li><hr class="dropdown-divider"></li>
+      <li><a class="dropdown-item" href="#">Separated link</a></li>-->
+      </ul>
+  </div>
+  <!--Fim do botão DropDown-->
 
 
-<div class="bg-light" id="tituloListas_treinos">
-  Lista de treinos configurados
-</div>
-<div class="table-responsive" style="margin: 10px;">
-  <table class=" table table-sm table-striped" id="id_table" data-url={% url 'modoauto' %}>
-    <!-- Chamada template django para receber o URL do name=index-->
-    <thead>
-      <tr>
-        <th scope="col" class="text-center">&nbsp; id</th>
-        <th scope="col" class="text-center">Nome</th>
-        <th scope="col" class="text-center">Cadencia</th>
-        <th scope="col" class="text-center">Tempo</th>
-      </tr>
-    </thead>
-    <tbody id="tableTreinoBody">
-      <!-- Contrução de cada linha da tabela, em cada linha é atribuido no HTML o ID da base de dados-->
-      {% for treino in treinos %}
-      <tr data-id="{{treino.id}}">
-        <th scope="row">&nbsp;{{treino.id}}</th>
-        <td>{{treino.nomeTreino}}</td>
-        <td>{{treino.cadenciaTreino}}</td>
-        <td>{{treino.tempoTreino}}</td>
-      </tr>
-      {% endfor %}
+  <nav>
+      <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab"
+              data-bs-target="#nav-treino" type="button" role="tab" aria-controls="nav-home"
+              aria-selected="true">Modo treino</button>
+          <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-lances"
+              type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Executar lances
+          </button>
+      </div>
+  </nav>
+  <div class="tab-content" id="div-NaveBody">
+      <div class="tab-pane fade show active" id="nav-treino" role="tabpanel"
+          aria-labelledby="nav-home-tab">
+          <div class="bg-light" id="tituloListas_treinos">
+            Lista de treinos configurados
+          </div>
+          <div class="table-responsive" style="margin: 10px;">
+            <table class=" table table-sm table-striped" id="id_table" data-url={% url 'modoauto' %}>
+              <!-- Chamada template django para receber o URL do name=index-->
+              <thead>
+                <tr>
+                  <th scope="col" class="text-center">&nbsp; id</th>
+                  <th scope="col" class="text-center">Nome</th>
+                  <th scope="col" class="text-center">Cadencia</th>
+                  <th scope="col" class="text-center">Tempo</th>
+                </tr>
+              </thead>
+              <tbody id="tableTreinoBody">
+                <!-- Contrução de cada linha da tabela, em cada linha é atribuido no HTML o ID da base de dados-->
+                {% for treino in treinos %}
+                <tr data-id="{{treino.id}}">
+                  <th scope="row">&nbsp;{{treino.id}}</th>
+                  <td>{{treino.nomeTreino}}</td>
+                  <td>{{treino.cadenciaTreino}}</td>
+                  <td>{{treino.tempoTreino}}</td>
+                </tr>
+                {% endfor %}
 
-    </tbody>
-  </table>
-</div>
-
-
+              </tbody>
+            </table>
+          </div>
+       
 <!--Fim da div -->
 </div>
 
@@ -145,44 +135,54 @@
 
 {% block nav-lances %}
 
-
 <!-- Table lances -->
 <div class="tab-pane fade" id="nav-lances" role="tabpanel" aria-labelledby="nav-profile-tab">
-<div class="bg-light" id="tituloListas_lances">
-  Lista de lances configurados
-</div>
-<div class="table-responsive" style="margin: 10px;">
-  <table class=" table table-sm table-striped" id="id_table2" data-url={% url 'modoauto' %}>
-    <!-- Chamada template django para receber o URL do name=index-->
-    <thead>
-      <tr>
-        <th scope="col" class="text-center">&nbsp; id</th>
-        <th scope="col" class="text-center">Nome</th>
-        <th scope="col" class="text-center">X</th>
-        <th scope="col" class="text-center">Y</th>
-        <th scope="col" class="text-center">Inclinação</th>
-        <th scope="col" class="text-center">Rolo Esquerdo</th>
-        <th scope="col" class="text-center">Rolo Direito</th>
-      </tr>
-    </thead>
-    <tbody id="tableLanceBody">
-      <!-- Contrução de cada linha da tabela, em cada linha é atribuido no HTML o ID da base de dados-->
-      {% for lance in lances %}
-      <tr data-id="{{lance.id}}">
-        <th scope="row">&nbsp;{{lance.id}}</th>
-        <td>{{lance.nomeLance}}</td>
-        <td>{{lance.anguloX}}</td>
-        <td>{{lance.anguloY}}</td>
-        <td>{{lance.anguloInclinacao}}</td>
-        <td>{{lance.velocidadeRoloEsq}}</td>
-        <td>{{lance.velocidadeRoloDir}}</td>
-      </tr>
-      {% endfor %}
+    <div class="bg-light" id="tituloListas_lances">
+      Lista de lances configurados
+    </div>
+    <div class="table-responsive" style="margin: 10px;">
+      <table class=" table table-sm table-striped" id="id_table2" data-url={% url 'modoauto' %}>
+        <!-- Chamada template django para receber o URL do name=index-->
+        <thead>
+          <tr>
+            <th scope="col" class="text-center">&nbsp; id</th>
+            <th scope="col" class="text-center">Nome</th>
+            <th scope="col" class="text-center">X</th>
+            <th scope="col" class="text-center">Y</th>
+            <th scope="col" class="text-center">Inclinação</th>
+            <th scope="col" class="text-center">Rolo Esquerdo</th>
+            <th scope="col" class="text-center">Rolo Direito</th>
+          </tr>
+        </thead>
+        <tbody id="tableLanceBody">
+          <!-- Contrução de cada linha da tabela, em cada linha é atribuido no HTML o ID da base de dados-->
+          {% for lance in lances %}
+          <tr data-id="{{lance.id}}">
+            <th scope="row">&nbsp;{{lance.id}}</th>
+            <td>{{lance.nomeLance}}</td>
+            <td>{{lance.anguloX}}</td>
+            <td>{{lance.anguloY}}</td>
+            <td>{{lance.anguloInclinacao}}</td>
+            <td>{{lance.velocidadeRoloEsq}}</td>
+            <td>{{lance.velocidadeRoloDir}}</td>
+          </tr>
+          {% endfor %}
 
-    </tbody>
-  </table>
+        </tbody>
+      </table>
+    </div>
 </div>
-</div>
+
+</div> <!-- Esta tag de fechamento pertence à primeira linha do corpo body!!!-->
 
 {% endblock nav-lances %}
+
+{% block scripts %}
+<!-- JavaScript's -->
+    <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery-3.6.1.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scriptAuto.js' %}"></script>
+    <script type="text/javascript" src="{% static 'js/scriptconfigurador.js' %}"> </script>
+{% endblock scripts %}
 
