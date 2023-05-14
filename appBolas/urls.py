@@ -7,7 +7,8 @@ from django.conf.urls import handler404,handler500
 from appBolas import views
 
 urlpatterns = [
-    path('', index),                                                            # Quando vem um pedido do '' browser retorna a funcao index
+    path('', homepage, name='home'),                                                            # Quando vem um pedido do '' browser retorna a funcao index
+    path('modomanual', index, name='index'),                                                            # Quando vem um pedido do '' browser retorna a funcao index
     path("modoauto", views.modoauto, name="modoauto"),                          # Quando vem um pedido de 'modoauto' browser retorna a funcao modoauto     NÃO UTILIZADO!!!!
     path('contato', contato, name='contato'),                                   # contato -> retorna a funcao homepage       NÃO IMPLEMENTADO!!!!
     path('homepage', homepage, name='home'),                                    # homepage -> retorna a funcao homepage

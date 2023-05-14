@@ -81,36 +81,6 @@ var bufferjoy1X=0;
 // 
 // 
 
-//setInterval(funcIterador, 200); 
-/*                                               // Intervalo de 200 ms entre cada ciclo
-let bufferValorY=0;
-let bufferValorX=0;
-
-function funcIterador() {
-    if((bufferValorY-bufferjoy1Y)!=0){                                                              // Se ouver uma alteração no joystick
-        bufferValorY=parseInt(bufferjoy1Y);                                                         // guarda o valor anterior
-        var valor = parseInt(txt_inclina.textContent.slice(0, txt_inclina.textContent.length-1));   // Recebe o valor atual(não necessario agora)
-        novoValorInclina=parseInt(bufferjoy1Y);                                                     // novoValor igual ao valor atual do Joystick
-        if (novoValorInclina>100){                                                                  // Caso seja maior que 100 então é 100, (Prevent BUG JS)
-            novoValorInclina=100;
-        }
-        //txt_inclina.textContent = novoValorInclina.toString()+"º";                                  // Constroi a mensagem e envia para a tela.
-        
-    }              // se a valor for diferente de 0 ou a diferença entre a atual e o ultimo for dif de zero executa
-
-    if((bufferValorX-bufferjoy1X)!=0){
-        bufferValorX=parseInt(bufferjoy1X);
-        var valor = parseInt(txt_rotacao.textContent.slice(0, txt_rotacao.textContent.length-1));
-        novoValorRotacao=parseInt(bufferjoy1X);
-        if (novoValorRotacao>100){
-            novoValorRotacao=100;
-        }
-        //txt_rotacao.textContent = novoValorRotacao.toString()+"º";
-        // se a valor for diferente de 0 ou a diferença entre a atual e o ultimo for dif de zero executa
-    }
-}
-*/
-
 var Joy1 = new JoyStick('joy1Div', {}, function (stickData) {
     //
     joy1InputPosX = stickData.xPosition;                    // Recebe a posição X do Joystick
@@ -145,7 +115,7 @@ rangeTorce.onchange=()=>
 
 
 //========================================================
-// Envia um conjunto de informações por WebSocket via JSON
+// Envia um conjunto de informações por WebSocket em formato JSON
 function sendWebSocket(){
     chatSocket.send(JSON.stringify({
         'xPosition': joy1InputPosX,
@@ -373,8 +343,10 @@ function validaNumber(stringTeste, nNumeros){
         // Envia uma chamada assincrona AJAX para inserir o lance na DB
         // O tipo de ação da chamada é atruibuido ao identificador, ver na função ajaxRequest quais os programados
         // Preparação da clase para lançar a bola a partir de AJAX
-        // ajaxRequest({identificador: "LANCAR_BOLA"}); 
-
+        //ajaxRequest({identificador: "LANCAR_BOLA"}); 
+        var id_lbl_bolasLan = document.getElementById("id_lbl_bolasLan");
+        var bolasLan = parseInt(id_lbl_bolasLan.innerHTML) + 1;
+        id_lbl_bolasLan.innerHTML = bolasLan.toString();
         // Lança bola por comunicação Websocket
         chatSocket.send(JSON.stringify({
             'LANCAR_BOLA': (novoValor.toString()),
@@ -409,9 +381,7 @@ function validaNumber(stringTeste, nNumeros){
         };
         
         // fechar o modal
-
         ajaxRequest(data);                                      // Envia uma chamada assincrona AJAX para inserir o lance na DB
-        
         myModal.hide();                                         // Esconde o MODAL
       }
 

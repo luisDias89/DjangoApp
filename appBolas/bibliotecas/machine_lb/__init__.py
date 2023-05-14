@@ -1,3 +1,3 @@
 from .settingsLB import *
 from .funcoesGerais import *
-from .Rolos import *
+from .master_serialCentralControl import serCentralControl

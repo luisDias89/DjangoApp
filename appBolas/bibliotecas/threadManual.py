@@ -7,6 +7,8 @@
 #   TODOS OS MOVIMENTOS EM MODO MANUAL SÃO GERIDOS POR ESTA   #
 #  CLASSE E AS BIBLIOTECAS FILHAS QUE A COMPOEM               #
 
+## EM DESENVOLVIMENTO, NÃO ESTÁ EM FUNCIONAMENTO!!!!
+
 '''
 A classe threading.Thread é uma subclasse da classe threading._Verbose. Ela herda os seguintes métodos:
 
@@ -71,16 +73,14 @@ class threadManualMode(threading.Thread):
                     print("Enviei valor ao GRBL")
                     # nota o dicionario vem do settingsLB.py 
                     mensagem = "G90 G01 A" + \
-                        str(ConversorGrausToMM(graus_desl_a["lancaBola"], "A")) + " F" + velocidadeAvancoGate  + "\n"
+                        str(ConversorGrausToMM(configLB.graus_desl_a["lancaBola"], "A")) + " F" + configLB.velocidadeAvancoGate
                     
-                    #self.send_to_GRBL(mensagem)
-                    self.ser.flushInput()
-                    self.ser.write(mensagem.encode())                      # Bloco de envio de G-CODE
+                    serCentralControl.send_toGRBL(mensagem)
+                    
                     mensagem = "G90 G01 A" + \
-                        str(ConversorGrausToMM(graus_desl_a["retemBola"], "A")) + " F" + velocidadeAvancoGate  + "\n"
-                    # Bloco de envio de G-CODE
-                    self.ser.write(mensagem.encode())
-                    print("Entrei no While")
+                        str(ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) + " F" + configLB.velocidadeAvancoGate
+                    
+                    serCentralControl.send_toGRBL(mensagem)
                     
                     self.LANCAR_BOLA = False    
                     

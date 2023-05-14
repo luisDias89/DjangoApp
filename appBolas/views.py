@@ -10,10 +10,12 @@ from .models import lance as LanceDB
 from django.http import HttpResponseBadRequest, JsonResponse        # Importação bibliotecas para async ajax, resposta em JSON
 from django.views.decorators.csrf import requires_csrf_token
 from . import metodos
+from .metodos import engineLancador
 from django.contrib.auth.decorators import login_required
-from .bibliotecas.machine_lb import configLB
-engineLancadorBolas= metodos.engineLancador()
+from django.views.decorators.csrf import csrf_exempt
+from .bibliotecas.machine_lb import configLB                        
 
+@csrf_exempt
 def modoauto(request):
     # request.is_ajax() is deprecated since django 3.1
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -74,38 +76,38 @@ def modoauto(request):
                     
                     if "id_treino" in dataFromPost:
                         print("START TREINO")
-                        engineLancadorBolas.start((dataFromPost["id_treino"]), tipo="treino")
+                        engineLancador.start((dataFromPost["id_treino"]), tipo="treino")
 
                     if "id_lance" in dataFromPost:
                         dictLance= { "cadencia": dataFromPost["cadencia_lance"],
                                       "qtBolas": dataFromPost["qtBolas"]  }
-                        engineLancadorBolas.start((dataFromPost["id_lance"]), tipo="lance", dataLance=dictLance  )
+                        engineLancador.start((dataFromPost["id_lance"]), tipo="lance", dataLance=dictLance  )
                         print("START LANCE")
                         pass
                     respostaJson={'status': "ok",}
 
                 elif(dataFromPost["tipoRequisicao"]=="STOP"):           # Pará o treino e envia o ID de paragem
                     if "id_treino" in dataFromPost:
-                        engineLancadorBolas.stop(tipo="treino")
+                        engineLancador.stop(tipo="treino")
                     if "id_lance" in dataFromPost:
-                        engineLancadorBolas.stop(tipo="lance")
+                        engineLancador.stop(tipo="lance")
                         pass
                     respostaJson={'status': "ok",}
 
                 elif(dataFromPost["tipoRequisicao"]=="RESUME"):
                     if "id_treino" in dataFromPost:
-                        engineLancadorBolas.resume(tipo="treino")
+                        engineLancador.resume(tipo="treino")
                     if "id_lance" in dataFromPost:
-                        engineLancadorBolas.resume(tipo="lance")
+                        engineLancador.resume(tipo="lance")
                         print("RESUME LANCE")
                         pass
                     respostaJson={'status': "run",}
                     
                 elif(dataFromPost["tipoRequisicao"]=="PAUSE"):
                     if "id_treino" in dataFromPost:
-                        engineLancadorBolas.pause(tipo="treino")
+                        engineLancador.pause(tipo="treino")
                     if "id_lance" in dataFromPost:
-                        engineLancadorBolas.pause(tipo="lance")
+                        engineLancador.pause(tipo="lance")
                         print("PAUSE LANCE")
                         pass
                     respostaJson={'status': "pause",}
@@ -116,18 +118,18 @@ def modoauto(request):
                 # =====================================================
                 elif((dataFromPost["tipoRequisicao"]=="GET_INFO")):                             #  se a requisição for para infor do treino
                     respostaJson={                                                              #  responde com
-                    'timeLeft': engineLancadorBolas.get_timeleft(tipo="treino"),                #  tempo restante do treino
-                    'get_percentleft' : engineLancadorBolas.get_percentleft(tipo="treino"),     #  percentagem que falta para acabar o treino
-                    'get_Aexecutar' : engineLancadorBolas.get_Aexecutar(),              #  Qual o lance que está a ser executado
-                    'isStoped'    : engineLancadorBolas.isStoped(tipo="treino")
+                    'timeLeft': engineLancador.get_timeleft(tipo="treino"),                #  tempo restante do treino
+                    'get_percentleft' : engineLancador.get_percentleft(tipo="treino"),     #  percentagem que falta para acabar o treino
+                    'get_Aexecutar' : engineLancador.get_Aexecutar(),              #  Qual o lance que está a ser executado
+                    'isStoped'    : engineLancador.isStoped(tipo="treino")
                     }
                 elif((dataFromPost["tipoRequisicao"]=="GET_INFO_LANCE")):
-                    if(engineLancadorBolas.threadLance.runing==False):
-                        engineLancadorBolas.threadLance.stop()
+                    if(engineLancador.threadLance.runing==False):
+                        engineLancador.threadLance.stop()
                     respostaJson={
-                    'qtBolasLeft': engineLancadorBolas.get_bolasLancadasLeft(tipo="lance"),
-                    'get_percent' : engineLancadorBolas.get_percentleft(tipo="lance"),
-                    'isStoped'    : engineLancadorBolas.isStoped(tipo="lance")
+                    'qtBolasLeft': engineLancador.get_bolasLancadasLeft(tipo="lance"),
+                    'get_percent' : engineLancador.get_percentleft(tipo="lance"),
+                    'isStoped'    : engineLancador.isStoped(tipo="lance")
                     }
                 else:                                                                           # Caso nenhuma opção seja válida
                     return JsonResponse({'status': 'Invalid request'}, status=400)              # responde com Invalid request
@@ -189,6 +191,7 @@ def index(request):
 
 
 #Página onde é definidos as configurações do GRBL,os parâmetros podem ser adicionador progressivamente
+@login_required
 def settingsReturn(request):
     #Passa um dicionario que contem a informação da base de dados sobre os SettingsGRBL
     if str(request.user) == 'AnonymousUser':                                # Se o usuario não estiver logado
@@ -221,6 +224,7 @@ def homepage(request):
 
 
 #@login_required
+@csrf_exempt
 def ajaxRequest(request):
 
     is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
@@ -265,8 +269,7 @@ def ajaxRequest(request):
             #================ LANCAR_BOLA =================
             #==============================================
             elif data["identificador"] == "LANCAR_BOLA":                       # Se pedido para lançar bola
-                global engineLancadorBolas
-                engineLancadorBolas.MM_lancar_bola()
+                engineLancador.MM_lancar_bola()
 
                 response_data = {
                         'message': 'OK'
@@ -294,7 +297,39 @@ def ajaxRequest(request):
                         'message': 'OK'
                 }
                 status_code = 200
+            
+            #==============================================
+            #=========== REFERENCIAR_LANCADOR =============
+            #==============================================
+            elif data["identificador"] == "REFERENCIAR_LANCADOR":
+                resposta = engineLancador.Ref_lancador()
+                if(resposta==True):
+                    resposta="REFERENCIADO"
+                else:
+                    resposta="N_REFERENCIADO"
+                response_data = {
+                        'message': resposta
+                }
+                status_code = 200
+            #==============================================
+            #=========== ASK-EIXOS-REFERENCIADOS =============
+            #==============================================    
+            elif data["identificador"] == "ASK-EIXOS-REF":
+                resposta = engineLancador.getInfo_eixos_ref()
+                if(resposta==True):
+                    resposta="refTRUE"
+                else:
+                    resposta="refFALSE"
+                response_data = {
+                        'message': resposta
+                }
+                status_code = 200
 
+                
+            
+            #==============================================
+            #========== SE NÃO EXISTIR A FUNCAO ===========
+            #==============================================
             else:
                 response_data = {
                     'message': 'Identificador inválido!'
@@ -306,12 +341,10 @@ def ajaxRequest(request):
                 'message': 'Dados inválidos. JSON inválido!'
             }
             status_code = 400  # Bad Request
-        
             
-        
     elif request.method == 'GET':
         response_data = {
-            'name': 'Luis Dias',
+            'name': 'Luis Dias 2023',
             'age': 34
         }
         status_code = 200  # OK
@@ -320,7 +353,5 @@ def ajaxRequest(request):
             'message': 'Método inválido!'
         }
         status_code = 400  # Bad Request    
-    
-    
     return JsonResponse(response_data, status=status_code)
 

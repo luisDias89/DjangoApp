@@ -19,7 +19,7 @@ class ConsumerJoystick(WebsocketConsumer):
         metodos.enviaPorWebSocket()
         self.send(text_data=json.dumps({
             'type': 'conexão com sucesso',
-            'message': 'Tu estás agora conectado!'
+            'message': 'Estás agora conectado!'
         }))
         '''
         
@@ -28,8 +28,7 @@ class ConsumerJoystick(WebsocketConsumer):
     def envioObjetoSendParaThread(self):
         metodos.objWebSocket=self
 
-    # O Objeto Thread conditions tem que ser partilhado pelas duas Threads
-    c = metodos.c
+
 
     #def init(self):
     threading.Thread(target=metodos.funcComandoGRBL, args=()).start()
@@ -78,13 +77,11 @@ class ConsumerJoystick(WebsocketConsumer):
         if 'comando_rolo_esq' in text_data_json:
             metodos.comando_rolos_esquerdo(text_data_json['comando_rolo_esq'])
             time.sleep(0.2)                    #Espero pelo processamento
-            #self.sendToInterface('rolDir')
 
 
         if 'comando_rolo_dir' in text_data_json:
             metodos.comando_rolos_direito(text_data_json['comando_rolo_dir'])
             time.sleep(0.2)
-            #self.sendToInterface('rolDir')     # Caso queimaros enviar diretamente 
             
             
         # Recebe as mensagem em espera do WebSocket
@@ -118,16 +115,11 @@ class ConsumerJoystick(WebsocketConsumer):
             # Internamnte o metodo consumers está constantemente a monitorizar a posição
             # e a corrigila
             # Recebe a inclinação do lançador
-            print("Recebo do pagina Web: ",text_data_json['RoloTorce'])
             metodos.Z_USUARIO=int(text_data_json['RoloTorce'])              # Atribui o angulo
-            
-            #print("Posição em Z atual",self.varPosicaoInic )
-            #print("Comando RoloTorce Recebido:", metodos.Z)                 # Nos metodos tenho uma função que retorna a posição e Z
 
         if 'LANCAR_BOLA' in text_data_json:                                  # Se contiver a mensagem para LANÇAR BOLA
             metodos.lancar_bola()                                            # Seta a função para lançar a bola
             
-    
 
     
 
@@ -135,14 +127,20 @@ class ConsumerJoystick(WebsocketConsumer):
     # inclui a função de bloquear as variaveis para não entrar em conflito com 
     # a thread paralela de processamento da maquina.
     def sendToInterface(self,comando):
+        
         metodos.memoryLOCK.acquire()
-        if metodos.flag==1:
-            metodos.flag=0
-            self.send(text_data=json.dumps({
-                comando: metodos.dicCordenadasControlador[comando],
-            }))
-            #print(metodos.vel_x,metodos.vel_y)
-            metodos.flag=1
+        X,Y,Z,A = metodos.serCentralControl.get_Coordenadas()
         metodos.memoryLOCK.release()
+
+        if comando == "X":
+            bufferValor = X
+        elif comando == "Y":
+            bufferValor = Y
+        elif comando == "Z":
+            bufferValor = Z
+        elif comando == "A":
+            bufferValor = A
+        metodos.objWebSocket.send(text_data=json.dumps({comando : bufferValor}))
+        
     
    

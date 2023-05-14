@@ -70,9 +70,10 @@
       <div class="card-body">
         <h3 class="card-title">Bem-vindo ao lançador de Bolas UA</h3>
         <p class="card-text">Escolha o modo de lançamento pretendido:</p>
-        <div class="btn-group btn-group-spacing">
-          <a href="/modoauto"><button type="button" class="btn btn-primary mx-1" >Modo Automático</button></a>
-          <a href="/"><button type="button" class="btn btn-primary" >Modo Manual</button></a>
+        <div id="toogle_ref_modos">
+          <button type="button" class="btn btn-primary" id="referenciar_btn">Referenciar Lançador</button>
+          <a href="/modoauto"><button type="button" class="btn btn-primary mx-1" id="modo-automatico" style="display:none;">Modo Automático</button></a>
+          <a href="/modomanual"><button type="button" class="btn btn-primary" id="modo-manual" style="display:none;">Modo Manual</button></a>
         </div>
         <hr>
         <p>
@@ -83,16 +84,69 @@
   </div>
 </div>
 
+
+
 {% endblock body %}
 
-{% block scripts %}
 
+{% csrf_token %}
+{% block scripts %}
 <!-- JavaScript's -->
     <script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery-3.6.1.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.dataTables.min.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/scriptAuto.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/scriptconfigurador.js' %}"> </script>
+    <script type="text/javascript" src="{% static 'js/ajaxCalls.js' %}"></script>
+    <script>
+
+        window.addEventListener("load", verificaReferenciação);                                     // Quando a janela é aberta corr
+
+        var btn_referencial_lancador = document.getElementById("referenciar_btn");
+        
+        btn_referencial_lancador.addEventListener("click", function() {
+
+          document.getElementById("referenciar_btn").innerHTML="Em referenciação, aguarde!";
+          ajaxRequest({identificador: "REFERENCIAR_LANCADOR"}); 
+
+        
+        });
+
+        function callback_referenciado() {
+          
+          document.getElementById("referenciar_btn").innerHTML="Referenciar Lançador";
+          document.getElementById("toogle_ref_modos").classList.add("btn-group-spacing");
+          document.getElementById("referenciar_btn").style.display = "none";
+          document.getElementById("modo-automatico").style.display = "inline-block";
+          document.getElementById("modo-manual").style.display = "inline-block";
+          
+        };
+
+        function callback_n_referenciado() {
+  
+          document.getElementById("referenciar_btn").innerHTML="Referenciar Lançador";
+          
+        };
+
+        function verificaReferenciação(){
+          ajaxRequest({identificador: "ASK-EIXOS-REF"}); 
+        };
+        function refTRUE(){
+          document.getElementById("referenciar_btn").innerHTML="Referenciar Lançador";
+          document.getElementById("toogle_ref_modos").classList.add("btn-group-spacing");
+          document.getElementById("referenciar_btn").style.display = "none";
+          document.getElementById("modo-automatico").style.display = "inline-block";
+          document.getElementById("modo-manual").style.display = "inline-block";
+        };
+        function refFALSE(){
+          document.getElementById("referenciar_btn").innerHTML="Referenciar Lançador";
+          document.getElementById("referenciar_btn").style.display = "inline-block";
+          document.getElementById("modo-automatico").style.display = "none";
+          document.getElementById("modo-manual").style.display = "none";
+        };
+
+
+
+        
+
+  </script>
+
 {% endblock scripts %}
 
 

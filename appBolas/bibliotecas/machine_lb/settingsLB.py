@@ -2,7 +2,7 @@
 
 '''
 Este ficheiro contem as configurações da máquina na qual o software é instalado.
-Devemos inserir no dicionario o maximo em mm do curso de navegação dos eixos, este valor
+Devemos inserir no dicionario o valor maximo em mm do curso de navegação dos eixos, este valor
 deve ser inferiores aos soft switch se ativado nas configurações GRBL de modo a não haver
 um bloquei da maquina em RUNTIME.
 Nos angulos devemos inserir qual o angulo minimo e maximo de cada eixo de modo 

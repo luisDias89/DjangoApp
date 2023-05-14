@@ -7,7 +7,7 @@ import random
 import numpy
 
 
-from .objLance import ClasseThreadLance
+from .threadLance import ClasseThreadLance
 class threadTreino(threading.Thread):
     """Thread class com metodo de stop(). A thread precisa checar 
     regularmente pela condição de stopped() ."""
