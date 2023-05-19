@@ -33,6 +33,7 @@ chatSocket.onmessage = function (e) {
     }
 }
 
+
 // Função que testa se é numero e se não tem letras
 function validaNumber(stringTeste, nNumeros){
     var valido = false;
@@ -65,7 +66,7 @@ function getCookie(name) {
 
 
 
-  window.addEventListener('load',function(){                   // Se o documento estiver pronto, então executa os scripts
+window.addEventListener('load',function(){                   // Se o documento estiver pronto, então executa os scripts
     
     var Present_id_treino=0;                    // variavel auxiliar de ciclo  
     $('#id_table').DataTable({
@@ -94,13 +95,16 @@ function getCookie(name) {
     var ID_selected;                     // Nota este ID_selected foi adicionado para resolver o BUG do jquery que não recebe os novos valores dentro da data.
     var SG_ASK_TREINOorLANCE = "none"    // Quando alquem carrega na tabela, aqui fica guardado se é um treino ou lance que vai ser executado
     const myModal = new bootstrap.Modal('#myModal', { keyboard: false, backdrop: 'static' });           // Declaração global do modal
-    
+    const modalLance = new bootstrap.Modal('#modalLance', { keyboard: false, backdrop: 'static' });           // Declaração global do modal
+    //const modalTreino = new bootstrap.Modal('#modalTreino', { keyboard: false, backdrop: 'static' });            // Declaração global do modal
     
     var btn_FecharModal=$("#btn_fecharModal");
     var btn_closeSuperior=$("#btn_closeSuperior");
     var btn_FecharModal_js=document.getElementById("btn_fecharModal");
     var btn_PauseResume= document.getElementById('btn_PauseResume');
     var btn_closeSuperior_js=document.getElementById("btn_closeSuperior");
+    let botaoInserirLances = document.getElementById('id_inserirLance');
+    let botaoInserirTreino = document.getElementById('id_inserirTreino');
     var flag_sincronizaTreino=false;                                                // Variavel que o timer espera para iniciar a sincronização do treino na tela
     var flag_sincronizaLance=false;
     let treinoPausado = false;
@@ -436,6 +440,21 @@ function getCookie(name) {
                 myModal.show()
             }
     );
+
+   
+    botaoInserirLances.onclick = function() {
+        // Lógica para lidar com o clique no botão de inserir lances
+        modalLance.show()
+        // Coloque aqui o código que você deseja executar quando o botão for clicado
+    };
+
+   
+    botaoInserirTreino.onclick = function() {
+        // Lógica para lidar com o clique no botão de inserir treino
+        alert("Botão Inserir Treino clicado");
+        // Coloque aqui o código que você deseja executar quando o botão for clicado
+    };
+
 
     //-------------- Timer para Relgio e GET_INFO ciclico--------------------------------
     setInterval(myTimer, 1000);

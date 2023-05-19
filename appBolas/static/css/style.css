@@ -3,7 +3,7 @@ body {
 }
 
 .custom-title {
-    color: #5233ff; /* define a cor do texto para laranja */
+    color: #3369ff; /* define a cor do texto para laranja */
     font-size: large; /* aumenta o tamanho da fonte para 24 pixels */
     text-align: center; /* centraliza o texto no modal */
     text-transform: uppercase; /* converte o texto para letras maiúsculas */

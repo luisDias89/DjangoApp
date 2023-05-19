@@ -256,12 +256,12 @@ def ajaxRequest(request):
                                                     anguloInclinacao=anguloInclinacao, velocidadeRoloEsq=velocidadeRoloEsq,
                                                     velocidadeRoloDir=velocidadeRoloDir)
                     response_data = {
-                        'message': 'Lance salvo com sucesso!'
+                        'message': 'Lance inserido com sucesso!'
                     }
                     status_code = 200  # OK
                 else:
                     response_data = {
-                        'message': 'Erro ao salvar o lance. Preencha todos os campos!'
+                        'message': 'Erro ao inserir o lance. Preencha todos os campos!'
                     }
                     status_code = 400  # Bad Request
 
