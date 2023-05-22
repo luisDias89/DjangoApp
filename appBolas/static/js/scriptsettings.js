@@ -48,7 +48,7 @@ function reconstruirJsonConfigs() {
     return jsonConfig;
   }
 
-// ============== CRIA FORMULARIO JSON ATRAVEZ DO CALBACK AJAX =========================//
+// ============== CRIA FORMULARIO JSON ATRAVÉS DO CALBACK AJAX =========================//
 // A FUNCAO RECEBE AS CONFIGS JSON DO BACK END                                          //   
 // E CRIA UM FORMULARIO DINAMICO EM TEMPO DE EXECUÇÃO                                   //
 // LIBERA O BOTAO UPLOAD JSON                                                           //
@@ -65,20 +65,21 @@ function cria_formularioJSON(config_json) {
 
         // ====== CRIA O CABEÇALHO DE CADA GRUPO ==============
         // Cria um elemento fieldset para cada grupo
-        const fieldset = document.createElement("fieldset");
-        fieldset.className = "text-primary col-sd m-4 rounded";
-        const legend = document.createElement("div");
-        legend.textContent = grupo;
-        legend.className = "bg-light text-primary col-md-5 p-2 mx-auto text-center rounded"; 
-        fieldset.appendChild(legend);
+        const fieldset = document.createElement("fieldset");                      // Cada grupo contem um elemento container pai de todo do tipo fieldset
+        fieldset.className = "text-primary col-sd m-4 rounded";                   // Que é da classe 
+        // Cria uma div para inserir os filhos do cabeçalho
+        const legend = document.createElement("div");                             // Cria uma div que inserir a legenda do cabeçalho
+        legend.textContent = grupo;                                               // Atruibui o nome que vem do JSON ao texto do cabeçalho                                        
+        legend.className = "bg-light text-primary col-md-5 p-2 mx-auto text-center rounded";  // Atribui alguns estilos para ficar bonito
+        fieldset.appendChild(legend);                                             // e adiciona a legenda ao container do Grupo
 
         // Cria um elemento div com classe row para agrupar as form-group
         const divRow = document.createElement("div");
         divRow.classList.add("row", "d-flex", "justify-content-center"); // adiciona as classes d-flex e justify-content-center para centralizar os itens
 
 
-        //====== COMEÇA A ANALISAR OS CAMPOS DO GRUPO PARA SABER SE OS VAIS ITERAR OU SO CAMPOS DIRETOS
-        if (typeof grupoObj === "string") {                                 // SE FOR UM CAMPO STRING ENTÃO            
+        //====== COMEÇA A ANALISAR OS CAMPOS DO GRUPO PARA SABER SE OS VAIS ITERAR OU São CAMPOS DIRETOS
+        if (typeof grupoObj === "string") {                                     // SE FOR UM CAMPO STRING ENTÃO            
             // Cria um elemento input para o valor da chave                 
             const divFormGroup = document.createElement("div");
             divFormGroup.classList.add("form-group", "col-md-3", "mt-3");
@@ -88,7 +89,7 @@ function cria_formularioJSON(config_json) {
             input.name = grupo;
             input.value = grupoObj;
             // Adiciona o id ao input
-            input.id = `${grupo}#TYPE#${"str"}`;
+            input.id = `${grupo}#TYPE#${"str"}`;                                // Identificação para reconstrução do form em JSON  
 
 
             // Adiciona o label e o input ao form-group
@@ -106,7 +107,7 @@ function cria_formularioJSON(config_json) {
              input.type = "text";
              input.name = grupo;
              input.value = grupoObj;
-             input.id = `${grupo}#TYPE#${"value"}`;
+             input.id = `${grupo}#TYPE#${"value"}`;                     // Identificação para reconstrução do form em JSON 
 
              // Adiciona o label e o input ao form-group
              divFormGroup.appendChild(input);
@@ -114,10 +115,10 @@ function cria_formularioJSON(config_json) {
              // Adiciona o form-group ao divRow
              divRow.appendChild(divFormGroup);   
         }
-        else{
-            // Percorre todas as mensagens dentro do grupo
-            Object.keys(grupoObj).forEach((mensagem) => {
-                const valor = grupoObj[mensagem];
+        else{     // Senão é um grupo que contem subgrupos e tem que ser pecorrido por um for
+            
+            Object.keys(grupoObj).forEach((mensagem) => {         // Percorre todas as mensagens dentro do grupo
+                const valor = grupoObj[mensagem];   
 
                 // Cria um elemento input para cada mensagem
                 const divFormGroup = document.createElement("div");
@@ -137,7 +138,7 @@ function cria_formularioJSON(config_json) {
 
                 // Adiciona o form-group ao divRow
                 divRow.appendChild(divFormGroup);
-                input.id = `${grupo}#SUB#${mensagem}#TYPE#${"value"}`;
+                input.id = `${grupo}#SUB#${mensagem}#TYPE#${"value"}`;        // Identificação para reconstrução do form em JSON 
             });
 
     

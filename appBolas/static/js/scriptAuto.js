@@ -96,6 +96,7 @@ window.addEventListener('load',function(){                   // Se o documento e
     var SG_ASK_TREINOorLANCE = "none"    // Quando alquem carrega na tabela, aqui fica guardado se é um treino ou lance que vai ser executado
     const myModal = new bootstrap.Modal('#myModal', { keyboard: false, backdrop: 'static' });           // Declaração global do modal
     const modalLance = new bootstrap.Modal('#modalLance', { keyboard: false, backdrop: 'static' });           // Declaração global do modal
+    const modalTreino = new bootstrap.Modal('#modalTreino', { keyboard: false, backdrop: 'static' });           // Declaração global do modal
     //const modalTreino = new bootstrap.Modal('#modalTreino', { keyboard: false, backdrop: 'static' });            // Declaração global do modal
     
     var btn_FecharModal=$("#btn_fecharModal");
@@ -451,7 +452,7 @@ window.addEventListener('load',function(){                   // Se o documento e
    
     botaoInserirTreino.onclick = function() {
         // Lógica para lidar com o clique no botão de inserir treino
-        alert("Botão Inserir Treino clicado");
+        modalTreino.show()
         // Coloque aqui o código que você deseja executar quando o botão for clicado
     };
 

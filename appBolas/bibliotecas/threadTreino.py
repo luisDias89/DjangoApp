@@ -246,7 +246,7 @@ class threadTreino(threading.Thread):
                 elif(self.tipoSequencia==1):                      # {ALEATORIO}  (1-> treino com lances Aleatorio)                     
                     # Implementação de Grafset em Python de lances aleatórios
                     
-                    # 0 -> Iterador lance a 0 ,  "Temporário" atualiza estado do lançador para o front end
+                    # 0 -> Iterador lance a 0 ,  atualiza estado do lançador para o front end
                     # 1 -> Inicialização do grafset, com randomInt do lance 
                     # 2 -> Comando para inicial lance
                     # 3 -> Atualiza para o Front End qual o nome do lance
@@ -266,17 +266,17 @@ class threadTreino(threading.Thread):
                         """
                         STEP 1
                         """  
-                        randomint=random.randint(0,quantidadeLances)                               # Recebe um numero random dentro da quantidade de lances
+                        randomint=random.randint(0,quantidadeLances)                               # Recebe um numero random dentro do intervalo da quantidade de lances
                         iteradorGrafset += 1                                                       # Incrementa a quantidade de bolas lançadas
-                        if(iteradorBolas+self.qtLancamentos<self.MaxBolasTreino):                  # se o proximo incremento for inferior ao maximo possivel
-                            lançaQT = self.qtLancamentos                                                # e cria a variavel com a qt laçamentos
+                        if(iteradorBolas+self.qtLancamentos<self.MaxBolasTreino):                  # se o proximo incremento for inferior ao maximo possivel então
+                            lançaQT = self.qtLancamentos                                                # cria a variavel com a qt laçamentos
                             iteradorBolas += lançaQT                                                    # Incrementa o numero de bolas normal registado na DB
                             
                         elif(self.MaxBolasTreino-iteradorBolas ==0):                               # Caso não possa incrementar mais
                             iteradorGrafset=4                                                           # não lança, Salta para o grafset de tomada de decisão       
                         else:                                                                      # senão
-                            lançaQT = self.MaxBolasTreino-iteradorBolas                                 # e cria a variavel com a qt laçamentos
-                            iteradorBolas += lançaQT                                                    # incrementa a quantidade de bolas que falta até ao maximo
+                            lançaQT = self.MaxBolasTreino-iteradorBolas                                 # cria a variavel com a qt laçamentos
+                            iteradorBolas += lançaQT                                                    # e incrementa a quantidade de bolas que falta até ao maximo
                             
                     elif iteradorGrafset == 2:
                         """

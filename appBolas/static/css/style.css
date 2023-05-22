@@ -3,12 +3,12 @@ body {
 }
 
 .custom-title {
-    color: #3369ff; /* define a cor do texto para laranja */
-    font-size: large; /* aumenta o tamanho da fonte para 24 pixels */
-    text-align: center; /* centraliza o texto no modal */
-    text-transform: uppercase; /* converte o texto para letras maiúsculas */
-    font-weight: bold; /* adiciona negrito ao texto */
-    text-shadow: 1px 1px 2px #cfcfcf; /* adiciona sombra ao texto */
+    color: #3369ff;                                     /* define a cor do texto para azul */
+    font-size: large;                                     /* aumenta o tamanho da fonte para 24 pixels */
+    text-align: center;                                   /* centraliza o texto no modal */
+    text-transform: uppercase;                            /* converte o texto para letras maiúsculas */
+    font-weight: bold;                                    /* adiciona negrito ao texto */
+    text-shadow: 1px 1px 2px #cfcfcf;                   /* adiciona sombra ao texto */
   }
 
 #div1 {
