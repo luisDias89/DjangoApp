@@ -211,7 +211,7 @@ btn_rolo_esq_desc.onclick= function(){
     var tamnho = txt_rolo_esq_subir.textContent.length;
     var valor = parseInt(txt_rolo_esq_subir.textContent.slice(0, tamnho-1));
     if(valor>0){
-        novoValor = valor-1;
+        novoValor = valor-1;buttonRoloDir
         //txt_rolo_esq_subir.textContent= novoValor.toString()+ "%";
         chatSocket.send(JSON.stringify({
             'comando_rolo_esq': (novoValor.toString()),

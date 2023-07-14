@@ -55,20 +55,25 @@ def getCoordenadas(ser):
                 SerialPort = SerialPort.replace("<Alarm|MPos:", ",")
                 arrayEstadoMaquina = SerialPort.split(",")
 
-                if (numpy.size(arrayEstadoMaquina) > 2):
-                    dic = {
-                        'X': float(arrayEstadoMaquina[0]),
-                        'Y': float(arrayEstadoMaquina[1]),
-                        'Z': float(arrayEstadoMaquina[2]),
-                        "A": float(arrayEstadoMaquina[3]),
-                        # "rolDir":float(arrayEstadoMaquina[4])
-                    }
+                try:
+                    if (numpy.size(arrayEstadoMaquina) > 2):
+                        dic = {
+                            'X': float(arrayEstadoMaquina[0]),
+                            'Y': float(arrayEstadoMaquina[1]),
+                            'Z': float(arrayEstadoMaquina[2]),
+                            "A": float(arrayEstadoMaquina[3]),
+                            # "rolDir":float(arrayEstadoMaquina[4])
+                        }
+                        # remove data after reading     # Limpa o buffer do SerialPort
+                        ser.flushInput()
+                        return dic
                     # remove data after reading     # Limpa o buffer do SerialPort
                     ser.flushInput()
-                    return dic
-                # remove data after reading     # Limpa o buffer do SerialPort
-                ser.flushInput()
-                return False
+                    return False
+                except Exception as e:
+                    print("Erro em funçes Gerais getCoordenadas com a mensagem:", str(e))
+                    return False
+
 
 def get_Coordenadas(ser):
         if ser.isOpen():                                        # Se a porta serial está aberta
@@ -151,7 +156,7 @@ def SendToEsp32_waitResponse(ser,mensagem):
                     #print("fiquei no segundo IF")
                     TentaComunicar=False
                     ser.flushInput() 
-                    return ""
+                    return "OK"
                 if((time.time() - start_time) > timeout):
                     print("TIMEOUT - FUNCAO SendToEsp32_waitResponse (machine_lb/funcoesGerais)" )
                     return "TIMEOUT"

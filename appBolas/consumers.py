@@ -3,6 +3,7 @@ from channels.generic.websocket import WebsocketConsumer
 import threading
 from . import metodos
 import time
+from .bibliotecas.machine_lb import serCentralControl
 
 
 #Variaveis auxiliares
@@ -61,7 +62,7 @@ class ConsumerJoystick(WebsocketConsumer):
             comando = text_data_json['enviaComando_toGRBL']                     # Guarda na variavel o valor do comando
             if 'newValue' in text_data_json:
                 novoValor = text_data_json['newValue']                          # Guarda na variavel o novo valor a ser atribuido
-                if metodos.setGRBL(comando, novoValor) == "ok\r\n":             #Se a resposta da atribuição for ok, então envia o novo valor
+                if metodos.setGRBL(comando, novoValor) == "ok\r\n":             # Se a resposta da atribuição for ok, então envia o novo valor
                     self.send(text_data=json.dumps({
                         'DoComandoGRBL' :  text_data_json['enviaComando_toGRBL'],                      
                         'resposta': str(novoValor),
@@ -129,7 +130,8 @@ class ConsumerJoystick(WebsocketConsumer):
     def sendToInterface(self,comando):
         
         metodos.memoryLOCK.acquire()
-        X,Y,Z,A = metodos.serCentralControl.get_Coordenadas()
+        #X,Y,Z,A = metodos.serCentralControl.get_Coordenadas()
+        X,Y,Z,A = serCentralControl.requestFunction_GRBL("get_Coordenadas")
         metodos.memoryLOCK.release()
 
         if comando == "X":

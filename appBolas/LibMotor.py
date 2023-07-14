@@ -26,7 +26,6 @@ def tic():
 
 def toc():
     delta_t = time.time() - start
-    #print("Elapser time is " + str(delta_t) + " second.")
     return delta_t
 
 
@@ -72,6 +71,14 @@ class NewSteepMotor:
         threading.Thread(target=self.funcThread, args=()).start()               
     
     def printInfo(self):
+        '''
+            Imprime na consola:
+            Name of axys
+            miCrosteep
+            DIR_PIN
+            STEEP_PIN
+            ENABLE_PIN
+        '''
         print("Name of axys: ",self.eixoMot)
         print("miCrosteep: ",self.miCrosteep)
         print("DIR_PIN: ",self.DIR_PIN)

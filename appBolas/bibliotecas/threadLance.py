@@ -4,7 +4,7 @@ import numpy
 from time import time as Time
 import threading
 from .machine_lb import configLB
-from .machine_lb import serCentralControl
+from .machine_lb import serCentralControl, ConversorGrausToMM
 
 
 
@@ -12,6 +12,7 @@ class ClasseThreadLance(threading.Thread):
     memoryLOCK=threading.Lock()
     runing=True
     quantidadeLances = 4
+    qtBolasLancadas=0
     iteradorLances = 0
     #setPointX = 23
     #setPointY = 50
@@ -167,20 +168,6 @@ class ClasseThreadLance(threading.Thread):
         return round(retorno, 2)
 
 
-    def ConversorGrausToMM(self, Valorangulo, eixo):
-
-        # Garante que o valor do angulo não ultrapassa o valor minimo ou maximo definido nos settingsLB.py
-        if (Valorangulo > configLB.angulo["max_" + str(eixo)]):
-            Valorangulo = configLB.angulo["max_" + str(eixo)]
-        elif (Valorangulo < configLB.angulo["min_" + str(eixo)]):
-            Valorangulo = configLB.angulo["min_" + str(eixo)]
-
-        # Encontra o zero em mm da maquina
-        somaAngulos = abs(configLB.angulo["min_" + str(eixo)]) + configLB.angulo["max_" + str(eixo)]
-        anguloNormalizado = abs(configLB.angulo["min_" + str(eixo)]) + Valorangulo
-        # (Valor do angulo *maximo do eixo) / maximo de angulos
-        retorno = (anguloNormalizado*configLB.maximo[str(eixo)])/somaAngulos
-        return round(retorno, 2)
 
     
     def gotTo_mm(self, X="n", Y="n", Z="n", A="n", F=1000):
@@ -204,13 +191,13 @@ class ClasseThreadLance(threading.Thread):
         # send_to_GRBL("G90")
         mensagem = "G01"
         if (X != "n"):
-            mensagem += " X" + str(self.ConversorGrausToMM(X, "X"))
+            mensagem += " X" + str(ConversorGrausToMM(X, "X"))
         if (Y != "n"):
-            mensagem += " Y" + str(self.ConversorGrausToMM(Y, "Y"))
+            mensagem += " Y" + str(ConversorGrausToMM(Y, "Y"))
         if (Z != "n"):
-            mensagem += " Z" + str(self.ConversorGrausToMM(Z, "Z"))
+            mensagem += " Z" + str(ConversorGrausToMM(Z, "Z"))
         if (A != "n"):
-            mensagem += " A" + str(self.ConversorGrausToMM(A, "A"))
+            mensagem += " A" + str(ConversorGrausToMM(A, "A"))
         mensagem += " F" + str(F)
         self.send_to_GRBL(mensagem)
 
@@ -228,8 +215,9 @@ class ClasseThreadLance(threading.Thread):
             return False
 
     def lb_home(self):
-        if not serCentralControl.getInfo_eixos_ref():
-            serCentralControl.refEixos()
+        if not serCentralControl.requestFunction_GRBL("getInfo_eixos_ref"):
+            serCentralControl.requestFunction_GRBL("refEixos")
+
 
     # ======================== Ciclo de lancamento =============================
 
@@ -247,14 +235,17 @@ class ClasseThreadLance(threading.Thread):
                 # Condição usada no primeiro ciclo para enviar a mensagem de coordenadas do lance
                 if (flagEnviaCoordenadas):                                                     # Esta função chamada a cada ciclo e é responsavel por enviar
                                                                                                # de enviar as posições para o lança bolas através pela porta COM                        
+                    serCentralControl.requestFunction_GRBL("send_toGRBL:G90")
                     self.gotTo_graus(X=self.angulo_X, Y=self.angulo_Y, Z=self.angulo_Z, F=2000)
+                    
                     # Iterador de lançamento zerado
                     self.iteradorLances = 0                                                    
                     flagEnviaCoordenadas = False                                               # Baixa a flag porque ja foi enviado o comando
 
                 if (not prontoSequencialancamento):    # Quando chegar à posição final continua
-                    if (self.confirmaPosicaoFinal(X=self.ConversorGrausToMM(self.angulo_X, "X"), Y=self.ConversorGrausToMM(self.angulo_Y, "Y"), Z=self.ConversorGrausToMM(self.angulo_Z, "Z"))):
-                        serCentralControl.set_velocityRolos(velocidadeRolEsq=self.velRoloEsq,velocidadeRolDir=self.velRoloDir)
+                    print("Não estou pronto para lançamento")
+                    if (self.confirmaPosicaoFinal(X=ConversorGrausToMM(self.angulo_X, "X"), Y=ConversorGrausToMM(self.angulo_Y, "Y"), Z=ConversorGrausToMM(self.angulo_Z, "Z"))):
+                        serCentralControl.requestFunction_GRBL("set_velocityRolos:" + str(self.velRoloEsq) + "," + str(self.velRoloDir))
                         prontoSequencialancamento = True
 
                 if (prontoSequencialancamento):
@@ -263,28 +254,28 @@ class ClasseThreadLance(threading.Thread):
                        
                         # nota o dicionario vem do settingsLB.py 
                         mensagem = "G01 A" + \
-                            str(self.ConversorGrausToMM(configLB.graus_desl_a["lancaBola"], "A")) + " F" + configLB.velocidadeAvancoGate  + "\n"
+                            str(ConversorGrausToMM(configLB.graus_desl_a["lancaBola"], "A")) + " F" + configLB.velocidadeAvancoGate  + "\n"
                         self.ser.flushInput()
                         self.ser.write(mensagem.encode())                      # Bloco de envio de G-CODE
                         self.tic()
                         mensagem = "G01 A" + \
-                            str(self.ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) + " F" + configLB.velocidadeAvancoGate  + "\n"
+                            str(ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) + " F" + configLB.velocidadeAvancoGate  + "\n"
                         # Bloco de envio de G-CODE
                         self.ser.write(mensagem.encode())
                         #print("enviei o comando dos 10 graus")
                         
-                        while (not self.confirmaPosicaoFinal(A=self.ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) or self.toc()<=self.cadencia):
+                        while (not self.confirmaPosicaoFinal(A=ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) or self.toc()<=self.cadencia):
                             time.sleep(0.2)
                             if(self.stopped()):
                                 break
                         self.iteradorLances += 1                         # Itera a quantidade de bolas que já foram lançadas
                     else:                                                # Aqui inicia o processo de paragem do lançamento, porque acabou o sequenciamento
-                        serCentralControl.set_velocityRolos(velocidadeRolEsq=0,velocidadeRolDir=0)
+                        serCentralControl.requestFunction_GRBL("set_velocityRolos:" + str(0) + "," + str(0))
 
                         prontoSequencialancamento=False
                         flagEnviaCoordenadas=True
                         self.runing=False
-        serCentralControl.set_velocityRolos(velocidadeRolEsq=0,velocidadeRolDir=0)
+        serCentralControl.requestFunction_GRBL("set_velocityRolos:" + str(0) + "," + str(0))
 
  # ==================================
     #  Calcula o centro,

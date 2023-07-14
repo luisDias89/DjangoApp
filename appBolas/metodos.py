@@ -34,7 +34,6 @@ def tic():
 
 def toc():
     delta_t = Time() - start
-    #print("Elapser ime is " + str(delta_t) + " second.")
     return delta_t
 
 
@@ -176,8 +175,7 @@ class engineLancador:
     
     @staticmethod
     def Ref_lancador():
-        return serCentralControl.refEixos()
-    
+        return serCentralControl.requestFunction_GRBL("refEixos")
 
     @staticmethod    
     def MM_mover_eixo_x(velocidade):
@@ -204,11 +202,7 @@ class engineLancador:
 
     @staticmethod
     def getInfo_eixos_ref():
-        return serCentralControl.getInfo_eixos_ref()
-
-    
-
-
+        return serCentralControl.requestFunction_GRBL("getInfo_eixos_ref")
 
 
 
@@ -240,7 +234,7 @@ presentValue= 0.00
 def enviaPorWebSocket(comando):
 
     memoryLOCK.acquire()
-    X,Y,Z,A = serCentralControl.get_NotSyncPosMotor()
+    X,Y,Z,A = serCentralControl.requestFunction_GRBL("get_NotSyncPosMotor")
     memoryLOCK.release()
 
     if comando == "X":
@@ -339,14 +333,15 @@ velocidade_rolo = {
 #Comando para atribuir velocidade nos consumers
 def comando_rolos_esquerdo(velocidade):
     global Flag_comandoMotoresRolEsq                                # Assim estou a receber a variavel Global
-    velocidade_rolo['esquerdo']=velocidade
-    # Só ativa a flag depois do novo valor de velocidade ser atribuido
+    serCentralControl.requestFunction_GRBL("set_velocityRolo:" + velocidade +",esq")
+    # Só ativa a flag depois do novo valor de velocidade ser atribuido - Proxima implementaão, ativa FLAG quando está no menu manual mode
     Flag_comandoMotoresRolEsq=True 
 
 #Comando para atribuir velocidade nos consumers
 def comando_rolos_direito(velocidade):
     global Flag_comandoMotoresRolDir
-    velocidade_rolo['direito']=velocidade 
+    serCentralControl.requestFunction_GRBL("set_velocityRolo:" + velocidade +",dir")
+    
     # Só ativa a flag depois do novo valor de velocidade ser atribuido 
     Flag_comandoMotoresRolDir=True        
 #=============================================================#
@@ -354,7 +349,6 @@ def comando_rolos_direito(velocidade):
 def askGRBL(comandoAsk):
     if engineLancador.ser.isOpen():
         engineLancador.ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens.                                  
-        #print('Sending: ' + comandoAsk)
         engineLancador.ser.write(comandoAsk.encode() + str.encode('\n'))   # Bloco de envio de G-CODE
         # Espera 1/10 de segundo pela resposta do GRBL
         time.sleep(0.1)
@@ -367,7 +361,6 @@ def setGRBL(comandoSet, novoValor):
     if engineLancador.ser.isOpen():
         engineLancador.ser.flushInput()                                    # Remove o buffer de entrada, caso existam mensagens                                  
         mensagem= comandoSet+ "=" + novoValor + '\n'        # Contrução da mensagem, não apagar o '\n', senão não funciona
-        #print('Sending: ' + mensagem)                      # Bloco de depuração
         engineLancador.ser.write(mensagem.encode())                        # Bloco de envio de G-CODE
         time.sleep(0.1)                                     
         grbl_out = engineLancador.ser.readlines()                          # Lee todas as linhas que gera como resposta do GRBL
@@ -398,7 +391,8 @@ def funcComandoGRBL():
             
     global presentValue
     global Flag_lancarBola
-    X,Y,Z,A = serCentralControl.get_Coordenadas()
+    #X,Y,Z,A = serCentralControl.get_Coordenadas()
+    X,Y,Z,A = serCentralControl.requestFunction_GRBL("get_Coordenadas")
     
     
     print("Coordenadas maquina x iniciais: ", X)
@@ -426,12 +420,12 @@ def funcComandoGRBL():
             
             setpoint=Z_USUARIO*FatorDeCoorecaoGrausMilimetros
             
-            difEntreZ=float(f'{(presentValue-setpoint):.2f}') # padronizado em milimetros
+            difEntreZ=float(f'{(presentValue-setpoint):.3f}') # padronizado em milimetros
             
 
-            if (vel_x!=0 or vel_y!=0 or abs(difEntreZ)>0.02):                  # Se X ou Y for diferente de 0, então encerra o algoritmo e comunicaçâo
-                if not serCentralControl.getInfo_eixos_ref():                  # Caso alguem queira mover e ainda não esta referenciado, referencia
-                   BL_temp = serCentralControl.refEixos()
+            if (vel_x!=0 or vel_y!=0 or abs(difEntreZ)>0.18):                  # Se X ou Y for diferente de 0, então encerra o algoritmo e comunicaçâo
+                if not serCentralControl.requestFunction_GRBL("getInfo_eixos_ref"):                  # Caso alguem queira mover e ainda não esta referenciado, referencia
+                   BL_temp = serCentralControl.requestFunction_GRBL("refEixos")
                 
                 
                 #===========================================================================================================================================
@@ -444,7 +438,7 @@ def funcComandoGRBL():
                 #Algoritmo de calculo de passo em Z, vai andar semper à velocidade maxima definida
         
 
-                if(abs(difEntreZ)>0.01):
+                if(abs(difEntreZ)>0.18):
                     pidObj.setpoint=setpoint
                     vel_z=float(f'{pidObj(presentValue):.3f}')
                     PassoParaVelocidadeZ=vel_z/60*timeSleep
@@ -453,31 +447,30 @@ def funcComandoGRBL():
                     delta_DZ=0.00
                     vel_z=0.00
                 memoryLOCK.acquire()
-                X,Y,Z,A = serCentralControl.get_Coordenadas()
+                #X,Y,Z,A = serCentralControl.get_Coordenadas()
+                X,Y,Z,A = serCentralControl.requestFunction_GRBL("get_Coordenadas")
                 memoryLOCK.release()
 
                 presentValue=Z
                     
-
                 
                 # Velocidade a 3 dimensões
                 vectorialVel=math.sqrt(numpy.square(vel_x*factorVelocidade)+numpy.square(vel_y*factorVelocidade)+numpy.square(abs(vel_z)))       
-                
+
                 # Construção das mensagens
                 mensagem="G91 G01 X" + str(float(f'{delta_DX:.2f}')) + " Y" + str(float(f'{delta_DY:.2f}')) + " Z" + str(float(f'{delta_DZ:.3f}')) +" F" + str(abs(vectorialVel))
                 #__SendToEsp32_waitResponse(mensagem)
-                serCentralControl.send_toGRBL(mensagem)
+                serCentralControl.requestFunction_GRBL("send_toGRBL:" + mensagem)
+                print("send_toGRBL:" + mensagem)
                 # Se existir informação para ser enviada, envia pela SerialPort
                 #time.delay(1)
                 flag_AtualizaInterface=True
 
             if(getFlagRoloEsq()==True):
-                serCentralControl.set_velocityRolo(velocidade_rolo['esquerdo'],"esq")
-                enviaMsgWebSocket('rolEsq',velocidade_rolo['esquerdo'])
+                enviaMsgWebSocket('rolEsq',serCentralControl.requestFunction_GRBL("get_velocityRolo:esq"))
                 setFalse_FlagRoloEsq()
             if(getFlagRoloDir()==True):
-                serCentralControl.set_velocityRolo(velocidade_rolo['direito'],"dir")
-                enviaMsgWebSocket('rolDir',velocidade_rolo['direito'])
+                enviaMsgWebSocket('rolDir',serCentralControl.requestFunction_GRBL("get_velocityRolo:dir"))
                 setFalse_FlagRoloDir()
             
             if (Flag_lancarBola):
@@ -485,10 +478,10 @@ def funcComandoGRBL():
                 mensagem = "G90 G01 A" + \
                     str(ConversorGrausToMM(configLB.graus_desl_a["lancaBola"], "A")) + " F" + configLB.velocidadeAvancoGate
                 
-                serCentralControl.send_toGRBL(mensagem)                                         
+                serCentralControl.requestFunction_GRBL("send_toGRBL:" + mensagem)                                         
                 mensagem = "G90 G01 A" + \
                     str(ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) + " F" + configLB.velocidadeAvancoGate
                 # Bloco de envio de G-CODE
-                serCentralControl.send_toGRBL(mensagem)                                         
+                serCentralControl.requestFunction_GRBL("send_toGRBL:" + mensagem)                                        
                 Flag_lancarBola=False
                 pass

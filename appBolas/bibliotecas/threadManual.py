@@ -75,12 +75,12 @@ class threadManualMode(threading.Thread):
                     mensagem = "G90 G01 A" + \
                         str(ConversorGrausToMM(configLB.graus_desl_a["lancaBola"], "A")) + " F" + configLB.velocidadeAvancoGate
                     
-                    serCentralControl.send_toGRBL(mensagem)
+                    serCentralControl.requestFunction_GRBL("send_toGRBL:" + mensagem)
                     
                     mensagem = "G90 G01 A" + \
                         str(ConversorGrausToMM(configLB.graus_desl_a["retemBola"], "A")) + " F" + configLB.velocidadeAvancoGate
-                    
-                    serCentralControl.send_toGRBL(mensagem)
+                   
+                    serCentralControl.requestFunction_GRBL("send_toGRBL:" + mensagem)
                     
                     self.LANCAR_BOLA = False    
                     

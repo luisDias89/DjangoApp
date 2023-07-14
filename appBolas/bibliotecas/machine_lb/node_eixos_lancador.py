@@ -6,7 +6,7 @@ Classe estatica que contem os metodos para comandar os motores de passo a partir
 !!  Esta classe não é para ser instanciada  !!
 
 1º - A inicialização é feita após referenciação.
-2º - Existe um bit de velocityReached(estatic).
+2º - Existe um bit de velocityReached(static).
 
 # Sempre que alterar uma variavel dentro de uma THREAD não esquercer bloquer para escrever #
 '''

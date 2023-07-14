@@ -186,7 +186,7 @@ class threadTreino(threading.Thread):
                         """
                         STEP 1
                         """  
-                        if( iteradorLances >= quantidadeLances):                                   # Quando o iterador de lances for igual ou superior ao máximo, então
+                        if( iteradorLances > quantidadeLances):                                   # Quando o iterador de lances for igual ou superior ao máximo, então
                             iteradorLances=0                                                            # Reinicia a sequencia
                         
                         if(iteradorBolas+self.qtLancamentos<self.MaxBolasTreino):                  # se o proximo incremento for inferior ao maximo possivel

@@ -32,6 +32,7 @@ class configLB:
     graus_desl_a = config["configs_lb"]["graus_desl_a"]
     velocidadeAvancoGate = config["configs_lb"]["velocidadeAvancoGate"]
     velocidadeZeroMaquina = config["configs_lb"]["velocidadeZeroMaquina"]
+    print("A leer configurações do lançador de bolas:")
 
     @staticmethod
     # Usar para sincronizar configs !
@@ -43,6 +44,7 @@ class configLB:
         configLB.graus_desl_a = dados["configs_lb"]["graus_desl_a"]
         configLB.velocidadeAvancoGate = dados["configs_lb"]["velocidadeAvancoGate"]
         configLB.velocidadeZeroMaquina = dados["configs_lb"]["velocidadeZeroMaquina"]
+        print("Sincronismo de configuração")
 
     @staticmethod
     def get_configJSON():
