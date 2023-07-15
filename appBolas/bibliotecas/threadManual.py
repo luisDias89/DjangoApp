@@ -4,10 +4,10 @@
 #=============================================================#
 
 # ============================================================#
-#   TODOS OS MOVIMENTOS EM MODO MANUAL SÃO GERIDOS POR ESTA   #
+#  TODOS OS MOVIMENTOS EM MODO MANUAL SÃO GERIDOS POR ESTA   #
 #  CLASSE E AS BIBLIOTECAS FILHAS QUE A COMPOEM               #
 
-## EM DESENVOLVIMENTO, NÃO ESTÁ EM FUNCIONAMENTO!!!!
+## EM DESENVOLVIMENTO, NÃO ESTÁ EM FUNCIONAMENTO!!!! IRA SUBTITUIR A THREAD MANUAL MODE QUE ESTÁ nos metodos
 
 '''
 A classe threading.Thread é uma subclasse da classe threading._Verbose. Ela herda os seguintes métodos:

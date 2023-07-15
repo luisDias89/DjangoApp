@@ -106,7 +106,7 @@ var Joy1 = new JoyStick('joy1Div', {}, function (stickData) {
 rangeTorce.onchange=()=>
 {
     chatSocket.send(JSON.stringify({
-        'RoloTorce': (rangeTorce.value-50),
+        'RoloTorce': (rangeTorce.value),
     }))
     //RoloTorce.innerHTML=(rangeTorce.value-50) + "º";        // Atualiza o valor no HTML
 }
