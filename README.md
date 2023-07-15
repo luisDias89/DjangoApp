@@ -1,6 +1,6 @@
 # Lançador de Bolas com Django
 
-O lançador de bolas com Django é um projeto inovador que utiliza a tecnologia para melhorar a experiência de treinamento de Guarda redes de futebol. O projeto consiste em um lançador de bolas que é controlado por um microcontrolador ESP32, conectado a um Raspberry Pi 4 que é o cerebro de todo o controlo, este contem uma aplicação web desenvolvida com o framework Django. Com este projeto, é possível criar lances a partir de posições fixas do lançador, desenvolver treinos personalizados, tudo com acesso a partir de um smartphone, tablet ou PC em aplicação Web responsiva.
+O lançador de bolas com Django é um projeto inovador que utiliza a tecnologia para melhorar a experiência de treino de um Guarda redes de futebol. O projeto consiste em um lançador de bolas que é controlado por um microcontrolador ESP32, conectado a um Raspberry Pi 4 que é o cerebro de todo o controlo, este contem uma aplicação web desenvolvida com o framework Django. Com este projeto, é possível criar lances a partir de posições fixas do lançador, desenvolver treinos personalizados, tudo com acesso a partir de um smartphone, tablet ou PC em aplicação Web responsiva.
 
 ## Tecnologias Utilizadas
 
