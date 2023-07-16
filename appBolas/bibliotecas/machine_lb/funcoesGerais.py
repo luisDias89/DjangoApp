@@ -13,6 +13,11 @@ def retorna_zero_Lancabolas_mm(eixo):
         retorno = (abs(configLB.angulo["min_" + str(eixo)])*configLB.maximo[str(eixo)])/somaAngulos
         #print(str(eixo) + " " + str(round(retorno, 2)))
         return round(retorno, 2)
+def retorna_retemBolaDispensador():
+        '''
+        Retorna a posição em mm do dispensador de bolas, eixo A 
+        '''
+        return ConversorGrausToMM(configLB.graus_desl_a["retemBola"],"A")
 
 def ConversorGrausToMM(Valorangulo, eixo):
     # Garante que o valor do angulo não ultrapassa o valor minimo ou maximo definido nos settingsLB.py
@@ -168,10 +173,8 @@ def SendToEsp32_no_waitResponse(ser,mensagem):
         time.sleep(0.05)                           
         ser.flushInput() 
 
-
-
 def gotTo_mm(serialPort,X="n", Y="n", Z="n", A="n", F=1000):
-        mensagem = "G01"
+        mensagem = "G90 G01"
         if (X != "n"):
             mensagem += " X" + str(X)
         if (Y != "n"):
@@ -185,11 +188,25 @@ def gotTo_mm(serialPort,X="n", Y="n", Z="n", A="n", F=1000):
         #print("A mensagem GRBL é " + str(mensagem))
         SendToEsp32_waitResponse(serialPort,mensagem)
 
+def gotTo_graus(serialPort, X="n", Y="n", Z="n", A="n", F=1000):                  # Se não chegar nenhum valor, a posição do eixo que é atribuido é n -> nenhum valor
+        # send_to_GRBL("G90")
+        mensagem = "G90 G01"
+        if (X != "n"):
+            mensagem += " X" + str(ConversorGrausToMM(X, "X"))
+        if (Y != "n"):
+            mensagem += " Y" + str(ConversorGrausToMM(Y, "Y"))
+        if (Z != "n"):
+            mensagem += " Z" + str(ConversorGrausToMM(Z, "Z"))
+        if (A != "n"):
+            mensagem += " A" + str(ConversorGrausToMM(A, "A"))
+        mensagem += " F" + str(F)
+        SendToEsp32_waitResponse(serialPort,mensagem)
+
 def goToZeroAng(serialPort):
     X0=retorna_zero_Lancabolas_mm("X")
     Y0=retorna_zero_Lancabolas_mm("Y")
     Z0=retorna_zero_Lancabolas_mm("Z")
-    A0=retorna_zero_Lancabolas_mm("A")
+    A0=retorna_retemBolaDispensador()
     gotTo_mm(serialPort,X=X0, Y=Y0, Z=Z0, A=A0, F=configLB.velocidadeZeroMaquina)
     while (not confirmaPosicaoFinal(serialPort,X=X0, Y=Y0, Z=Z0, A=A0)):
         time.sleep(0.3)

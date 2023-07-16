@@ -43,10 +43,6 @@ class ConsumerJoystick(WebsocketConsumer):
     dicCoordenadas=False 
     tickrate=0.2
 
-    
-    #Equação para construir a equação do roloTorce
-    #rolo_torceMaximo=770                                     #Valor definido experimentalmente, maximo desde o meio até à ponta.
-    #mdwa=rolo_torceMaximo/50
 
     #Inicio do temporizador que envia as velocidades, este temporizador so executa 1 vez, após 2 segundos
     #t = threading.Timer(2, metodos.funcVelocidade(ser,X,Y,Z))      # Temporizador, a cada tickrate executa a função contida em metodos    

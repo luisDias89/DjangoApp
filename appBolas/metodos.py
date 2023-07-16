@@ -450,8 +450,7 @@ def funcComandoGRBL():
             # 
             difEntreZ=float(f'{(presentValue-setpoint):.3f}') # padronizado em milimetros
             
-
-            if (vel_x!=0 or vel_y!=0 or abs(difEntreZ)>0.20):                  # Se X ou Y for diferente de 0, então encerra o algoritmo e comunicaçâo
+            if ((vel_x!=0 or vel_y!=0 or abs(difEntreZ)>0.20) and not serCentralControl.requestFunction_GRBL("get_ModoLance")):                  # Se X ou Y for diferente de 0, então encerra o algoritmo e comunicaçâo
                 if not serCentralControl.requestFunction_GRBL("getInfo_eixos_ref"):                  # Caso alguem queira mover e ainda não esta referenciado, referencia
                    BL_temp = serCentralControl.requestFunction_GRBL("refEixos")
                 

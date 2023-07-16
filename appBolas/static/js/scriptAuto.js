@@ -7,29 +7,26 @@ const chatSocket = new WebSocket(url);
 // Sempre que recebo uma mensagem do WebSocket é despoletado um evento que decide o que vai fazer com a informação recebida
 chatSocket.onmessage = function (e) {
     let data = JSON.parse(e.data);
-    console.log('Data:', data);
-
-    console.log(data);
 
     if('X' in data)
     {
-        txt_rotacao.innerHTML=data['X'];
+      
     }
     if('Y' in data)
     {
-        txt_inclina.innerHTML=data['Y']
+      
     }
     if('Z' in data)
     {
-        RoloTorce.innerHTML=data['Z']
+       
     }
     if('rolEsq' in data)
     {
-        txt_rolo_esq_subir.innerHTML=data['rolEsq']+ "%";
+        
     }
     if('rolDir' in data)
     {
-        txt_rolo_dir_subir.innerHTML=data['rolDir']+ "%";
+      
     }
 }
 
@@ -141,7 +138,45 @@ window.addEventListener('load',function(){                   // Se o documento e
               } 
         }
       };
+
+    document.getElementById('salvarTreino_AT').onclick = ()=>{
+        // A comunicar
+        console.log("Siga!!")
+    }  
     
+    document.getElementById('salvarLance_AT').onclick = ()=>{
+
+        // obter os valores dos inputs
+        var nomeLance = document.getElementById('nomeLance').value;                     
+        var inputAngleX = document.getElementById('anguloX').value;
+        var inputAngleY = document.getElementById('anguloY').value;
+        var inputInclination = document.getElementById('anguloInclinacao').value;
+        var inputSpeedLeft = document.getElementById('velocidadeRoloEsquerdo').value;
+        var inputSpeedRight = document.getElementById('velocidadeRoloDireito').value;
+        
+                // Verificar se o campo está vazio
+        if (nomeLance.trim() === '') {
+            alert('O campo "Nome do lance" é obrigatório!');    // se o lance estiver vazio envia um alert
+            return;                                             // e sai da função
+        }
+
+        // Constroi a informação para enviar ao BACKEND
+        var data = {
+            identificador: "NOVO_LANCE",                        // Este  o campo que define o que o BACK END vai fazer com esta informação!!!
+            nomeLance: nomeLance,
+            anguloX: inputAngleX,
+            anguloY: inputAngleY,
+            anguloInclinacao: inputInclination,
+            velocidadeRoloEsq: inputSpeedLeft,
+            velocidadeRoloDir: inputSpeedRight
+        };
+        
+        // fechar o modal
+        ajaxRequest(data);                                      // Envia uma chamada assincrona AJAX para inserir o lance na DB
+        modalLance.hide();                                         // Esconde o MODAL
+
+    } 
+
     document.getElementById('btn_iniciarTreino').onclick = function() 
     {
         let btn_widgetHTML = document.getElementById('btn_iniciarTreino');
@@ -232,113 +267,116 @@ window.addEventListener('load',function(){                   // Se o documento e
     };
 
 
-
-    $('#tableLanceBody').children("tr").on('click', function(){
-
-        ID_selected= $(this).children("th").text();                      // Recebe o ID do lance para poder utilizar globalmente
-        SG_ASK_TREINOorLANCE="LANCE"
-
-        $.ajax({                                                         // Chamada Ajax
-            url: $("#id_table2").data('url'),                            // Qual o URL definido para a chamada desta tabela, está no html data-url
-            type: "post",                                                // Metodo POST
-            dataType: "json",                                            // Transmissão de DATA por JSON format
-            data: JSON.stringify({idlance: $(this).data("id"),}),        // Envio de uma mensagem com chave returnID-> ID(da linha BD)
-            headers: {                                                   // Cabeçalhos
-                "X-Requested-With": "XMLHttpRequest",
-                "X-CSRFToken": getCookie("csrftoken"),                   // Não esquecer de criar a função 'getCookie'
-            },
-            success: (data) => {
-                
-                console.log("Envio ajax");              
-                //alert(typeof(Nome_selected));
-                
-                var HTMLtitulo = $("#TituloModal");                     // Recebo o componente HTML 
-                HTMLtitulo.empty();
-                HTMLtitulo.append(`A executar o lance ${data["nomeLance"]}`);                // Insere o titulo do treino selecionado no modal
-                
-                let HTMLsubcabeçalho=$("#modelData_treino");
-                HTMLsubcabeçalho.empty();
-                HRcontrol=$("#HR");
-                HRcontrol.empty();
-
-                let HTMLlances=$("#modelData_Exec_treino");     // Lances, inserção da lista
-                HTMLlances.empty();
-
-                let HTMLinformacao=$("#InformacaoLabel");
-                HTMLinformacao.html(`
-                <h5 class="card-header" style="margin-bottom: 3px;">Informações do Lance:</h5>
-                        <ul class="list-group list-group-horizontal" >
-                            <li class="list-group-item " style="width: 50%;">
-                                <h6 class="card-title lbBold" style="margin-bottom: 10px;">Coordenadas:</h6>
-                                <h6>X: ${data["anguloX"]}<br></h6>
-                                <h6>Y: ${data["anguloY"]}<br></h6>
-                                <h6>Inclinação: ${data["anguloInclinacao"]}</h6>
-                            </li>
-                            <li class="list-group-item " style="width: 50%;">
-                                <h6 class="card-title lbBold" style="margin-bottom: 10px;">Velocidade dos rolos:</h6>
-                                <h6>Esquerdo: ${data["velocidadeRoloEsq"]}</h6>
-                                <h6>Direito: ${data["velocidadeRoloDir"]}</h6>
-                            </li> 
-                        </ul>
-                `);
-
-                
-                // Atualização da cadencia de treino no HTML
-                let HTMLcandencia=$("#modelData_Cadencia");
-                HTMLcandencia.html(`
-                <h5 style="margin-bottom: 3px;">Cadencia de lançamento:</h5>
-
-                <select class="form-select" id="seletor_cadencia" aria-label="Default select example">
-                <option selected>Selecione a cadência de lançamento</option>
-                <option value="1">2 Segundos</option>
-                <option value="1">4 Segundos</option>
-                <option value="1">6 Segundos</option>
-                <option value="1">8 Segundos</option>
-                <option value="1">10 Segundos</option>
-                <option value="1">12 Segundos</option>
-                <option value="1">14 Segundos</option>
-                <option value="1">16 Segundos</option>
-                <option value="1">18 Segundos</option>
-                <option value="1">20 Segundos</option>
-                </select>
-                
-                `);
-                
-                let HTMLtiposelecao=$("#modelData_Tiposelecao");
-                HTMLtiposelecao.empty();
-                let HTMLTempoRestanteTreino=$("#modelData_timeleft");
-                HTMLTempoRestanteTreino.html(`
-
-                    <div class="form-row align-items-center">
-                        <div class="col-sm my-1">
-                        <label class="sr-only" for="inlineFormInputName"><b>Quantas bolas pretende lançar? (max 999)</b></label>
-                        <input type="text" class="form-control" id="seletor_bolas" placeholder="">
-                        </div>
-                    </div>
-                    
-                `)
-                
-
-                let HTMLbottomIDlance= $("#id_treino");
-                HTMLbottomIDlance.html(`
-                    <h6>Lance ${ID_selected} </h6>
-                `);
-
-                
-                document.getElementById("btn_iniciarTreino").textContent="Iniciar lance"
-                $("#btn_iniciarTreino").attr('data-tipo',"lance");   
-                $("#btn_iniciarTreino").attr('data-id',$(this).data("id"));   
-                Present_id_treino=$(this).data("id");
-                
-
-                myModal.show()
-            },
-            error: (error) => {
-              console.log(error);
-            }
-          });
-
+    
+    // Funo obrigatoria para atualizar os Eventos quando muda para a segunda página.
+    const elements = document.querySelectorAll(".table-responsive"); 
+    elements.forEach((element) => {
+        element.addEventListener("mousedown", updateEventOpenModal);
     });
+      
+    function updateEventOpenModal(event) {
+      document.querySelectorAll('#tableLanceBody tr').forEach(function(row) {
+        row.addEventListener('click', function() {
+            var ID_selected = row.querySelector('th').textContent;
+            var SG_ASK_TREINOorLANCE = "LANCE";
+        
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', document.getElementById('id_table2').getAttribute('data-url'));
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            xhr.setRequestHeader('X-CSRFToken', getCookie('csrftoken'));
+        
+            xhr.onload = function() {
+            if (xhr.status === 200) {
+                var data = JSON.parse(xhr.responseText);
+                console.log("Envio ajax");
+        
+                var HTMLtitulo = document.getElementById('TituloModal');
+                HTMLtitulo.innerHTML = 'A executar o lance ' + data['nomeLance'];
+        
+                var HTMLsubcabeçho = document.getElementById('modelData_treino');
+                HTMLsubcabeçho.innerHTML = '';
+        
+                var HRcontrol = document.getElementById('HR');
+                HRcontrol.innerHTML = '';
+        
+                var HTMLlances = document.getElementById('modelData_Exec_treino');
+                HTMLlances.innerHTML = '';
+        
+                var HTMLinformacao = document.getElementById('InformacaoLabel');
+                HTMLinformacao.innerHTML = `
+                <h5 class="card-header" style="margin-bottom: 3px;">Informações do Lance:</h5>
+                <ul class="list-group list-group-horizontal">
+                    <li class="list-group-item " style="width: 50%;">
+                    <h6 class="card-title lbBold" style="margin-bottom: 10px;">Coordenadas:</h6>
+                    <h6>X: ${data['anguloX']}<br></h6>
+                    <h6>Y: ${data['anguloY']}<br></h6>
+                    <h6>Inclinação: ${data['anguloInclinacao']}</h6>
+                    </li>
+                    <li class="list-group-item " style="width: 50%;">
+                    <h6 class="card-title lbBold" style="margin-bottom: 10px;">Velocidade dos rolos:</h6>
+                    <h6>Esquerdo: ${data['velocidadeRoloEsq']}</h6>
+                    <h6>Direito: ${data['velocidadeRoloDir']}</h6>
+                    </li>
+                </ul>
+                `;
+        
+                var HTMLcandencia = document.getElementById('modelData_Cadencia');
+                HTMLcandencia.innerHTML = `
+                <h5 style="margin-bottom: 3px;">Cadencia de lançamento:</h5>
+                <select class="form-select" id="seletor_cadencia" aria-label="Default select example">
+                    <option selected>Selecione a cadência de lançamento</option>
+                    <option value="1">2 Segundos</option>
+                    <option value="1">4 Segundos</option>
+                    <option value="1">6 Segundos</option>
+                    <option value="1">8 Segundos</option>
+                    <option value="1">10 Segundos</option>
+                    <option value="1">12 Segundos</option>
+                    <option value="1">14 Segundos</option>
+                    <option value="1">16 Segundos</option>
+                    <option value="1">18 Segundos</option>
+                    <option value="1">20 Segundos</option>
+                </select>
+                `;
+        
+                var HTMLtiposelecao = document.getElementById('modelData_Tiposelecao');
+                HTMLtiposelecao.innerHTML = '';
+        
+                var HTMLTempoRestanteTreino = document.getElementById('modelData_timeleft');
+                HTMLTempoRestanteTreino.innerHTML = `
+                <div class="form-row align-items-center">
+                    <div class="col-sm my-1">
+                    <label class="sr-only" for="inlineFormInputName"><b>Quantas bolas pretende lançar? (max 999)</b></label>
+                    <input type="text" class="form-control" id="seletor_bolas" placeholder="">
+                    </div>
+                </div>
+                `;
+        
+                var HTMLbottomIDlance = document.getElementById('id_treino');
+                HTMLbottomIDlance.innerHTML = '<h6>Lance ' + ID_selected + '</h6>';
+        
+                document.getElementById('btn_iniciarTreino').textContent = 'Iniciar lance';
+                document.getElementById('btn_iniciarTreino').setAttribute('data-tipo', 'lance');
+                document.getElementById('btn_iniciarTreino').setAttribute('data-id', row.getAttribute('data-id'));
+                Present_id_treino = row.getAttribute('data-id');
+        
+                myModal.show();
+            } else {
+                console.log('Erro: ' + xhr.status);
+            }
+            };
+        
+            var requestData = JSON.stringify({ idlance: row.getAttribute('data-id') });
+            xhr.send(requestData);
+        });
+        });
+    }   
+
+     
+    
+
+    
+      
     
 
     $('#tableTreinoBody').children("tr").on('click',                           // Se clicar na tabela em cima do seu filho TR, executa:

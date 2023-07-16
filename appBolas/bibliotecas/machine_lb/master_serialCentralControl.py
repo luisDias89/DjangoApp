@@ -1,12 +1,14 @@
 from .node_eixos_lancador import controloEixos
 from .node_Rolos import controloRolos
-from .funcoesGerais import SendToEsp32_waitResponse
+from .funcoesGerais import SendToEsp32_waitResponse, gotTo_graus
 import serial
 import time
 import threading
 
 class serCentralControl():
     lock = threading.Lock()
+
+    FLAG_MODO_LANCAMENTO=False
 
     # O objeto serial porte é somente declarado dentro desta classe, 
     # ligação Serial com o ESP32, estatico, pertence a toda aplicação!
@@ -104,12 +106,25 @@ class serCentralControl():
                 result = controloRolos.velActRoloEsq
             else:
                 result = "ERROR - WRONG message"
-
+        elif request == "set_ModoLance":
+            serCentralControl.FLAG_MODO_LANCAMENTO=True
+            result="Success"
+        elif request == "clear_ModoLance":
+            serCentralControl.FLAG_MODO_LANCAMENTO=False
+            result="Success"
+        elif request == "get_ModoLance":
+            result= serCentralControl.FLAG_MODO_LANCAMENTO
         else:
             result = "Invalid request"
         serCentralControl.strobeCALL -=1
         return result
-
     
-        
-      
+    @staticmethod
+    def ENGINE_gotTo_graus(X="n", Y="n", Z="n", A="n", F=1000):
+        with serCentralControl.lock:
+            while serCentralControl.strobeCALL>0:
+                pass
+            serCentralControl.strobeCALL +=1
+            # Inserir o codigo aqui
+            gotTo_graus(serCentralControl.ser, X, Y, Z, A, F)
+            serCentralControl.strobeCALL -=1
