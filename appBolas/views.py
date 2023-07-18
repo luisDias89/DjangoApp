@@ -264,6 +264,55 @@ def ajaxRequest(request):
                         'message': 'Erro ao inserir o lance. Preencha todos os campos!'
                     }
                     status_code = 400  # Bad Request
+            
+            #==============================================
+            #================ NOVO_TREINO =================
+            #==============================================
+            
+            elif data["identificador"] == "NOVO_TREINO": # Se novo treino
+                print("Entrei em adicionar lance")
+                nomeTreino = data["nomeTreino"]
+                Qt_bolas_lance = data["Qt_bolas_lance"]
+                maxBolasTreino = data["maxBolasTreino"]
+                cadenciaTreino = data["cadenciaTreino"]
+                tempoTreino = data["tempoTreino"]
+                SequenciaLances = data["SequenciaLances"]
+                lancesSelecionados = data["lances"] # Recebe os lances como uma lista
+
+                # Verifique se todos os campos necessários foram recebidos
+                if (
+                    nomeTreino and
+                    Qt_bolas_lance and
+                    maxBolasTreino and
+                    cadenciaTreino and
+                    tempoTreino and
+                    SequenciaLances and
+                    lancesSelecionados
+                ):
+                    # Crie o objeto de treino na base de dados
+                    treino_obj = treino.objects.create(
+                        nomeTreino=nomeTreino,
+                        Qt_bolas_lance=Qt_bolas_lance,
+                        maxBolasTreino=maxBolasTreino,
+                        cadenciaTreino=cadenciaTreino,
+                        tempoTreino=tempoTreino,
+                        SequenciaLances=SequenciaLances
+                    )
+
+                    # Adicione os lances associados ao treino
+                    for lance_id in lancesSelecionados:
+                        lance_obj = LanceDB.objects.get(pk=lance_id)
+                        treino_obj.lances.add(lance_obj)
+
+                    response_data = {
+                        'message': 'Treino Inserido com sucesso'
+                    }
+                    status_code = 200 # OK
+                else:
+                    response_data = {
+                        'message': 'Erro ao inserir o Treino. Confirme os campos!'
+                    }
+                    status_code = 400  # Bad Request
 
             #==============================================
             #================ LANCAR_BOLA =================

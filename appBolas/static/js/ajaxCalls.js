@@ -26,6 +26,7 @@ function getCookie(name) {
   // Função geral para chamadas AJAX com ao backEND
   // Chamada assincrona AJAX somente com Javascript, (Implementaão para subtituir a biblioteca Jquery)
   // Funções programadas : 
+  //  "NOVO_TREINO"
   //  "NOVO_LANCE", 
   //  "LANCAR_BOLA", 
   //  "DOWNLOAD_JSON", 

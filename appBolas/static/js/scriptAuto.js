@@ -140,8 +140,58 @@ window.addEventListener('load',function(){                   // Se o documento e
       };
 
     document.getElementById('salvarTreino_AT').onclick = ()=>{
-        // A comunicar
-        console.log("Siga!!")
+        
+
+        var nomeTreino = document.getElementById("nomeTreino").value;
+        var Qt_bolas_lance = document.getElementById("Qt_bolas_lance").value;
+        var maxBolasTreino = document.getElementById("maxBolasTreino").value;
+        var cadenciaTreino = document.getElementById("cadenciaTreino").value;
+        var tempoTreino = document.getElementById("tempoTreino").value; 
+        var SequenciaLances = document.getElementById("SequenciaLances").value;
+        // Verifica se algum dos campos está vazio
+        if (
+        nomeTreino.trim() === "" ||
+        Qt_bolas_lance.trim() === "" ||
+        maxBolasTreino.trim() === "" ||
+        cadenciaTreino.trim() === "" ||
+        tempoTreino.trim() === "" ||
+        SequenciaLances.trim() === ""
+        ) {
+            // Se algum campo estiver vazio, exibe um alerta de erro
+            alert("Preencha todos os campos antes de continuar.");
+            return; // Interrompe a execução do código para não enviar o formulário
+        }
+        
+        // Captura os valores dos checkboxes selecionados (lances)
+        var lancesSelecionados = [];
+        var checkboxes = document.querySelectorAll("input[type='checkbox']:checked");
+        for (var i = 0; i < checkboxes.length; i++) {
+          lancesSelecionados.push(checkboxes[i].value);
+        }
+
+        // Verifica se a quantidade de lances selecionados é zero
+        if (lancesSelecionados.length === 0) {
+            // Se não houver lances selecionados, exibe um alerta
+            alert("Selecione pelo menos um lance antes de continuar.");
+            return; // Interrompe a execução do código para não enviar o formulário
+        }
+
+        // Constroi a informação para enviar ao BACKEND
+        var data = {
+          identificador: "NOVO_TREINO",                        // Este  o campo que define o que o BACK END vai fazer com esta informação!!!
+          nomeTreino: nomeTreino,
+          Qt_bolas_lance: Qt_bolas_lance,
+          maxBolasTreino: maxBolasTreino,
+          cadenciaTreino: cadenciaTreino,
+          tempoTreino: tempoTreino,
+          SequenciaLances: SequenciaLances,
+          lances: lancesSelecionados,
+        };
+        
+        // fechar o modal
+        ajaxRequest(data);                                      // Envia uma chamada assincrona AJAX para inserir o lance na DB
+        modalTreino.hide();                                     // Esconde o MODAL
+        location.reload();
     }  
     
     document.getElementById('salvarLance_AT').onclick = ()=>{
@@ -173,7 +223,8 @@ window.addEventListener('load',function(){                   // Se o documento e
         
         // fechar o modal
         ajaxRequest(data);                                      // Envia uma chamada assincrona AJAX para inserir o lance na DB
-        modalLance.hide();                                         // Esconde o MODAL
+        modalLance.hide();                                      // Esconde o MODAL
+        location.reload();
 
     } 
 

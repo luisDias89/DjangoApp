@@ -408,7 +408,7 @@ def funcComandoGRBL():
     print("Coordenadas maquina A iniciais: ", A)
 
     # Define qual é a constantes de controlo do PID
-    pidObj= PID(Ki=0.025, Kd=0.0009, Kp=100, setpoint=0.00)
+    pidObj= PID(Ki=0.025, Kd=0.0009, Kp=90, setpoint=0.00)
     pidObj.output_limits = (-VelocidadeMaximaEmZ, VelocidadeMaximaEmZ)
 
     # Inicia o CICLO INFINITO

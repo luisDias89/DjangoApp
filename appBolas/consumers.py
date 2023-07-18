@@ -127,7 +127,6 @@ class ConsumerJoystick(WebsocketConsumer):
     def sendToInterface(self,comando):
         
         metodos.memoryLOCK.acquire()
-        #X,Y,Z,A = metodos.serCentralControl.get_Coordenadas()
         X,Y,Z,A = serCentralControl.requestFunction_GRBL("get_Coordenadas")
         metodos.memoryLOCK.release()
 
