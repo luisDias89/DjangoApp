@@ -31,4 +31,4 @@ Para utilizar o lançador de bolas com Django, é necessário seguir os seguinte
 
 ## Conclusão
 
-O lançador de bolas com Django é um projeto inovador que utiliza a tecnologia para melhorar a experiência de treinamento de tênis de mesa. Com o uso de tecnologias como o Django, HTML, CSS, JavaScript, ESP32 e Raspberry Pi 4, é possível criar treinos personalizados e monitorar o tempo de treino, a percentagem para acabar o treino e o lance em execução. O projeto tem grande potencial para ser utilizado em academias e escolas de tênis de mesa, melhorando a qualidade do treinamento dos atletas.
+O lançador de bolas com Django é um projeto inovador que utiliza a tecnologia para melhorar a experiência de treino de guarda redes. Com o uso de tecnologias como o Django, HTML, CSS, JavaScript, ESP32 e Raspberry Pi 4, é possível criar treinos personalizados e monitorar o tempo de treino, a percentagem para acabar o treino e os lances em execução. O projeto tem grande potencial para ser utilizado em clubes de futebol e escolas, melhorando a qualidade do treinamento dos atletas.
